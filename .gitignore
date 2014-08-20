@@ -2,3 +2,8 @@
 .kdev4
 *.dep
 *.o
+ESPoCWt/resources
+ESPoCImport/cpp-elasticsearch/
+ESPoCWt/cpp-elasticsearch
+ESPoCImport/ESPoCImport
+ESPoCWt/ESPoCWt
