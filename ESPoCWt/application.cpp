@@ -96,9 +96,19 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 			const Json::Object source_object = source_value.getObject();
 			
 			const Json::Value id_value = source_object.getValue("id");
-			const Json::Value name_value = source_object.getValue("name");
-			
-			Wt::WStandardItem* item = new Wt::WStandardItem(name_value.getString());
+            const Json::Value name_value = source_object.getValue("name");
+            const Json::Value english_name_value = source_object.getValue("english_name");
+			Wt::WString suggestion_text;
+            if (english_name_value.empty() || 0==name_value.getString().compare(english_name_value.getString()))
+            {
+                suggestion_text = Wt::WString::fromUTF8(name_value.getString());
+            }
+            else
+            {
+                suggestion_text = Wt::WString::tr("SuggestionFormat").arg(Wt::WString::fromUTF8(name_value.getString())).arg(Wt::WString::fromUTF8(english_name_value.getString()));
+            }
+               
+			Wt::WStandardItem* item = new Wt::WStandardItem(suggestion_text);
 			item->setData(boost::any(id_value.getString()), Wt::UserRole);
 			m_search_suggestion_model->setItem(row, 0, item);
 

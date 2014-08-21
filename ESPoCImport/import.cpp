@@ -120,17 +120,25 @@ bool AddName(Json::Object& json, xmlNodePtr descriptor_name_ptr)
 			{
 				xmlChar* nor_value = xmlStrndup(text_ptr->content, left_bracket - text_ptr->content);
 				xmlChar* eng_value = xmlStrndup(left_bracket+1, right_bracket-(left_bracket+1));
-				if (0!=xmlStrcasecmp(BAD_CAST("Not Translated"), nor_value))
+				if (0==xmlStrcasecmp(BAD_CAST("Not Translated"), nor_value))
 				{
-					json.addMemberByKey("name", CONST_CHAR(nor_value));
-					Soundex(nor_value, soundex);
-					json.addMemberByKey("soundex", CONST_CHAR(soundex));
+                    xmlFree(nor_value);
+                    nor_value = eng_value;
+                    eng_value = NULL;
 				}
-				json.addMemberByKey("name", CONST_CHAR(eng_value));
-				Soundex(eng_value, soundex);
-				json.addMemberByKey("soundex", CONST_CHAR(soundex));
-				xmlFree(nor_value);
-				xmlFree(eng_value);
+
+                json.addMemberByKey("name", CONST_CHAR(nor_value));
+                Soundex(nor_value, soundex);
+                json.addMemberByKey("soundex", CONST_CHAR(soundex));
+                xmlFree(nor_value);
+
+                if (eng_value)
+                {
+                    json.addMemberByKey("english_name", CONST_CHAR(eng_value));
+                    Soundex(eng_value, soundex);
+                    json.addMemberByKey("english_soundex", CONST_CHAR(soundex));
+                    xmlFree(eng_value);
+                }
 			}
 			else
 			{
@@ -260,10 +268,11 @@ bool ReadDescriptorRecordSet()
 
 void PrepareImport()
 {
-	if (g_es->exist("mesh"))
+	if (!g_es->exist("mesh"))
 	{
-		g_es->deleteAll("mesh", "descriptor");
-	}
+    }
+    
+	g_es->deleteAll("mesh", "descriptor");
 }
 
 int main(int argc, char **argv)

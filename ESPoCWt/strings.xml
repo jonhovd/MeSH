@@ -2,5 +2,6 @@
 <messages>
 	<message id="Hierarchy">Hierarki</message>
 	<message id="Search">Søk</message>
-	<message id="SuggestionFilterQuery">{ "from": {1}, "size": {2}, "query": {"simple_query_string": {"query": "{3}*", "fields": ["name"], "default_operator": "AND"} } }</message>
+	<message id="SuggestionFilterQuery">{ "from": {1}, "size": {2}, "query": {"simple_query_string": {"query": "{3}*", "fields": ["name","english_name"], "default_operator": "AND"} } }</message>
+    <message id="SuggestionFormat">{1} (Engelsk: {2})</message>
 </messages>
