@@ -2,12 +2,13 @@
 
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
-#include <Wt/WPushButton>
 #include <Wt/WStandardItem>
 #include <Wt/WTabWidget>
 #include <Wt/WText>
 
 #define SUGGESTION_COUNT	(20)
+
+#define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
 
 ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
@@ -15,6 +16,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
   m_search_edit(NULL),
   m_search_suggestion(NULL),
   m_search_suggestion_model(NULL),
+  m_search_signal(this, "search"),
   m_result_edit(NULL),
   m_es(NULL)
 {
@@ -28,28 +30,16 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 	Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
 
 	m_search_edit = new Wt::WLineEdit(search_tab);
-
-	Wt::WSuggestionPopup::Options suggestion_options;
-	suggestion_options.highlightBeginTag = "<b>";
-	suggestion_options.highlightEndTag = "</b>";
-	suggestion_options.listSeparator = 0;
-	suggestion_options.whitespace = " \\n";
-#if (WT_VERSION >= 0x03030000)
-	suggestion_options.wordStartRegexp = ".*";
-#endif
-	m_search_suggestion = new Wt::WSuggestionPopup(suggestion_options, search_tab);
+	m_search_suggestion = CreateSuggestionPopup(search_tab);// new Wt::WSuggestionPopup(suggestion_options, search_tab);
 	m_search_suggestion->forEdit(m_search_edit);
 	m_search_suggestion_model = new Wt::WStandardItemModel(search_tab);
 	m_search_suggestion->setModel(m_search_suggestion_model);
 	m_search_suggestion->setFilterLength(2);
-	m_search_suggestion->filterModel().connect(this, &ESPoCApplication::FilterSuggestion);
+    m_search_suggestion->filterModel().connect(this, &ESPoCApplication::FilterSuggestion);
 	m_search_suggestion_model->itemChanged().connect(this, &ESPoCApplication::SuggestionChanged);
+    m_search_signal.connect(this, &ESPoCApplication::Search);
 	
 	m_search_edit->setFocus();
-	m_search_edit->enterPressed().connect(this, &ESPoCApplication::Search);
-
-	Wt::WPushButton* search_button = new Wt::WPushButton(Wt::WText::tr("Search"), search_tab);
-	search_button->clicked().connect(this, &ESPoCApplication::Search);
 
 	search_tab->addWidget(new Wt::WBreak());
 
@@ -69,10 +59,10 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 {
 	m_search_suggestion_model->clear();
 
-	Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT).arg(filter);
+	Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 to see if we got more than SUGGESTION_COUNT hits */).arg(filter);
 
 	Json::Object search_result;
-	long result_size = ESSearch("mesh", "descriptor", query.toUTF8(), search_result);
+	long result_size = ESSearch("mesh", "nor", query.toUTF8(), search_result);
 
 	const Json::Value value = search_result.getValue("hits");
 	const Json::Object value_object = value.getObject();
@@ -82,8 +72,9 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 	int row = 0;
 	if (0 == result_size)
 	{
-//		m_search_suggestion_model->addString("<no matches>");
-//		row = 1;
+            Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("NoHits"));
+            item->setData(boost::any(""), Wt::UserRole);
+            m_search_suggestion_model->setItem(row++, 0, item);
 	}
 	else
 	{
@@ -97,7 +88,11 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 			
 			const Json::Value id_value = source_object.getValue("id");
             const Json::Value name_value = source_object.getValue("name");
-            const Json::Value english_name_value = source_object.getValue("english_name");
+            Json::Value english_name_value;
+            if (source_object.member("english_name")) {
+                english_name_value = source_object.getValue("english_name");
+            }
+
 			Wt::WString suggestion_text;
             if (english_name_value.empty() || 0==name_value.getString().compare(english_name_value.getString()))
             {
@@ -114,6 +109,15 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 
 			++iterator;
 		}
+
+        m_search_suggestion_model->sort(0);
+
+        if (hits_array.size() > SUGGESTION_COUNT)
+        {
+            Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("MoreHits"));
+            item->setData(boost::any(""), Wt::UserRole);
+            m_search_suggestion_model->setItem(row++, 0, item);
+        }
 	}
 
 	m_search_suggestion_model->setData(--row, 0, std::string("Wt-more-data"), Wt::StyleClassRole);
@@ -127,14 +131,12 @@ void ESPoCApplication::SuggestionChanged(Wt::WStandardItem* item)
 	}
 }
 
-void ESPoCApplication::Search()
+void ESPoCApplication::Search(const Wt::WString& mesh_id)
 {
-	m_search_edit->text().toUTF8();
-
 	Json::Object search_result;
-	int64_t result_size = ESSearch("mesh", "descriptor", "{\"query\":{\"match_all\":{}}}", search_result);
+	int64_t result_size = ESSearch("mesh", "nor", "{\"query\":{\"match_all\":{}}}", search_result);
 
-	m_result_edit->setText(Wt::WString("We found {1} result(s):\n{2}").arg(result_size).arg(search_result.str()));
+	m_result_edit->setText(Wt::WString("We found {1} result(s):\n{2}\n{3}").arg(result_size).arg(search_result.str()).arg(mesh_id));
 }
 
 long ESPoCApplication::ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
@@ -147,4 +149,44 @@ long ESPoCApplication::ESSearch(const std::string& index, const std::string& typ
 	{
 		return 0L;
     }
+}
+
+Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidget* parent)
+{
+    std::string matcherJS = INLINE_JAVASCRIPT(
+        function (edit) {
+            var value = edit.value;
+            return function(suggestion) {
+                if (!suggestion)
+                    return value;
+
+                var match = suggestion.toLowerCase().indexOf(value.toLowerCase());
+                if (-1 == match) {
+                    return {match: true, suggestion: suggestion};
+                } else {
+                    var s = suggestion.substr(0, match)+"<b>"+suggestion.substr(match, value.length)+"</b>"+suggestion.substr(match+value.length);
+                    return { match : true, suggestion: s};
+                }
+            }
+        }
+    );
+
+    std::string replacerJS = INLINE_JAVASCRIPT(
+        function(edit, suggestionText, suggestionValue) {
+            var text = suggestionText;
+            var match = text.indexOf("<b>");
+            if (-1 != match) {
+                text = text.substr(0, match)+text.substr(match+3);
+            }
+            match = text.indexOf("</b>");
+            if (-1 != match) {
+                text = text.substr(0, match)+text.substr(match+4);
+            }
+            edit.value = text;
+
+            Wt.emit(Wt, 'search', suggestionValue);
+        }
+     );
+
+    return new Wt::WSuggestionPopup(matcherJS, replacerJS, parent);
 }
