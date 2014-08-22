@@ -12,6 +12,8 @@ xmlTextReaderPtr g_reader;
 long g_filesize;
 ElasticSearch* g_es;
 
+xmlChar* g_language_code = NULL;
+
 
 void printStatus(long descriptors)
 {
@@ -91,6 +93,18 @@ void Soundex(xmlChar* str, char* soundex /* char[5]*/)
 	}
 
 	*(soundex+index) = 0;
+}
+
+void PrepareImport()
+{
+    std::stringstream index;
+    index << "mesh" << "/" << g_language_code;
+    if (!g_es->exist(index.str()))
+    {
+        //g_es->createIndex();
+    }
+    
+    g_es->deleteAll("mesh", CONST_CHAR(g_language_code));
 }
 
 xmlChar* AddId(Json::Object& json, xmlNodePtr descriptor_ui_ptr)
@@ -232,7 +246,7 @@ bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 
 	if (id)
 	{
-		g_es->index("mesh", "descriptor", CONST_CHAR(id), json);
+		g_es->index("mesh", CONST_CHAR(g_language_code), CONST_CHAR(id), json);
 	}
 
 	return true;
@@ -244,6 +258,12 @@ bool ReadDescriptorRecordSet()
 {
 	if (XML_READER_TYPE_ELEMENT!=xmlTextReaderNodeType(g_reader) || 0!=xmlStrcmp(BAD_CAST("DescriptorRecordSet"), xmlTextReaderConstName(g_reader)))
 		return false;
+
+    g_language_code = xmlStrdup(xmlTextReaderGetAttribute(g_reader, BAD_CAST("LanguageCode")));
+    if (!g_language_code)
+        return false;
+
+    PrepareImport();
 
 	if (1 != xmlTextReaderRead(g_reader)) //Skip to first DescriptorRecord
 		return false;
@@ -266,25 +286,19 @@ bool ReadDescriptorRecordSet()
 	return true;
 }
 
-void PrepareImport()
-{
-	if (!g_es->exist("mesh"))
-	{
-    }
-    
-	g_es->deleteAll("mesh", "descriptor");
-}
-
 int main(int argc, char **argv)
 {
-	if (argc != 2)
+	if (argc != 3)
+    {
+        fprintf(stderr, "Usage: %s <ElasticSearch-location> <MeSH-file>\n\nExample: %s localhost:9200 ~/Downloads/nordesc2014.xml\n\n", argv[0], argv[0]);
 		return -1;
+    }
 
 	LIBXML_TEST_VERSION
 
-	g_es = new ElasticSearch("localhost:9200");
+	g_es = new ElasticSearch(argv[1]);
 
-	const char* filename = argv[1];
+	const char* filename = argv[2];
 	struct stat filestat;
 	stat(filename, &filestat);
 	g_filesize = filestat.st_size;
@@ -299,11 +313,11 @@ int main(int argc, char **argv)
 		if (1==xmlTextReaderNext(g_reader) && XML_READER_TYPE_DOCUMENT_TYPE==xmlTextReaderNodeType(g_reader) && //Skip DOCTYPE
 		    1==xmlTextReaderNext(g_reader)) //Read DescriptorRecordSet
 		{
-			PrepareImport();
 			ReadDescriptorRecordSet();
 		}
 
 		xmlFreeTextReader(g_reader);
+        xmlFree(g_language_code);
 	}
 
     xmlCleanupParser();
