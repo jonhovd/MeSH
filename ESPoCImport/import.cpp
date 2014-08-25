@@ -22,79 +22,6 @@ void printStatus(long descriptors)
 	fflush(stdout);
 }
 
-void Soundex(xmlChar* str, char* soundex /* char[5]*/)
-{
-	int length = xmlStrlen(str);
-	int index = 0;
-	xmlChar* ptr = str;
-	unsigned char b;
-	unsigned char prev = '0';
-	while (ptr && (ptr-str)<length && 4>index)
-	{
-		b = *ptr;
-		if (0b00000000==(b&0b10000000)) //1-byte UTF-8
-		{
-			if ('a'<=b && 'z'>=b) //toLower
-			{
-				b += 'A'-'a';
-			}
-			
-			if ('A'<=b && 'Z'>=b)
-			{
-#define SOUNDEX(x) if((x)!=prev){prev=(x);*(soundex+index)=(0==index?b:prev);index++;}break
-				switch (b)
-				{
-					case 'B':
-					case 'F':
-					case 'P':
-					case 'V': SOUNDEX('1');
-
-					case 'C':
-					case 'G':
-					case 'J':
-					case 'K':
-					case 'Q':
-					case 'S':
-					case 'X':
-					case 'Z': SOUNDEX('2');
-
-					case 'D':
-					case 'T': SOUNDEX('3');
-
-					case 'L': SOUNDEX('4');
-
-					case 'M':
-					case 'N': SOUNDEX('5');
-
-					case 'R': SOUNDEX('6');
-
-					default: prev='0'; if (0==index) *(soundex+index++) = b; break;
-				}
-			}
-			ptr++;
-		}
-		else if (0b11000000==(b&0b11100000)) //2-byte UTF-8
-		{
-			ptr+=2;
-		}
-		else if (0b11100000==(b&0b11110000)) //3-byte UTF-8
-		{
-			ptr+=3;
-		}
-		else if (0b11110000==(b&0b11111000)) //4-byte UTF-8
-		{
-			ptr+=4;
-		}
-	}
-	
-	while (index<4)
-	{
-		*(soundex+(index++)) = '0';
-	}
-
-	*(soundex+index) = 0;
-}
-
 void PrepareImport()
 {
     std::stringstream index;
@@ -107,16 +34,111 @@ void PrepareImport()
     g_es->deleteAll("mesh", CONST_CHAR(g_language_code));
 }
 
-xmlChar* AddId(Json::Object& json, xmlNodePtr descriptor_ui_ptr)
+bool GetThesaurusLanguage(const xmlChar* thesaurus_id, std::string& language)
 {
-	xmlChar* id = NULL;
-	xmlNodePtr text_ptr = descriptor_ui_ptr->children;
-	if (XML_TEXT_NODE==text_ptr->type && NULL!=text_ptr->content)
-	{
-		id = text_ptr->content;
-		json.addMemberByKey("id", CONST_CHAR(id));
-	}
-	return id;
+    const xmlChar* end_ptr = xmlStrchr(thesaurus_id, '(');
+    if (!end_ptr) end_ptr = xmlStrchr(thesaurus_id, ' ');
+    while (end_ptr>thesaurus_id && ' '==*(end_ptr-1))
+        end_ptr--;
+
+    int end_index = (end_ptr ? end_ptr-thesaurus_id : xmlStrlen(thesaurus_id));
+    
+    if (0 == xmlStrncmp(BAD_CAST("AHCPR"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("AU"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("BAN"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("BIOETHICS"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("CA"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("FDA SRS"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("GHR"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("IE"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("INN"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("IOM"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("JAN"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("LCSH"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("NLM"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("OMIM"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("ORD"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("POPLINE"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("UK"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("UMLS"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("UNK"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("USAN"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("USP"), thesaurus_id, end_index) ||
+        0 == xmlStrncmp(BAD_CAST("US"), thesaurus_id, end_index))
+    {
+        language = "eng";
+        return true;
+    }
+    else if (0 == xmlStrncmp(BAD_CAST("nor"), thesaurus_id, end_index))
+    {
+        language = "nor";
+        return true;
+    }
+    else if (0 == xmlStrncmp(BAD_CAST("DE"), thesaurus_id, end_index))
+    {
+        language = "ger";
+        return true;
+    }
+    else if (0 == xmlStrncmp(BAD_CAST("ES"), thesaurus_id, end_index) ||
+             0 == xmlStrncmp(BAD_CAST("MX"), thesaurus_id, end_index))
+    {
+        language = "spa";
+        return true;
+    }
+    else if (0 == xmlStrncmp(BAD_CAST("FR"), thesaurus_id, end_index))
+    {
+        language = "fre";
+        return true;
+    }
+    else if (0 == xmlStrncmp(BAD_CAST("NL"), thesaurus_id, end_index))
+    {
+        language = "dut";
+        return true;
+    }
+    else
+    {
+        language = "unknown";
+    }
+    return false;
+}
+
+const xmlChar* GetAttribute(const char* name, xmlNodePtr node_ptr)
+{
+    xmlAttrPtr attribute_ptr = node_ptr ? node_ptr->properties : NULL;
+    while (attribute_ptr)
+    {
+        if (0 == xmlStrcmp(BAD_CAST(name), attribute_ptr->name))
+        {
+            xmlNodePtr text_node_ptr = attribute_ptr->children;
+            if (XML_TEXT_NODE==text_node_ptr->type)
+            {
+                return text_node_ptr->content;
+            }
+        }
+        
+        attribute_ptr = attribute_ptr->next;
+    }
+    return NULL;
+}
+
+const xmlChar* GetText(xmlNodePtr text_ptr)
+{
+    xmlNodePtr text_node_ptr = text_ptr->children;
+    if (XML_TEXT_NODE==text_node_ptr->type)
+    {
+        return text_node_ptr->content;
+    }
+    return NULL;
+}
+
+const xmlChar* AddText(Json::Object& json, const std::string& key, xmlNodePtr text_ptr)
+{
+    const xmlChar* text_str = GetText(text_ptr);
+    if (text_str)
+    {
+        json.addMemberByKey(key, CONST_CHAR(text_str));
+    }
+    return text_str;
 }
 
 bool AddName(Json::Object& json, xmlNodePtr descriptor_name_ptr)
@@ -127,7 +149,6 @@ bool AddName(Json::Object& json, xmlNodePtr descriptor_name_ptr)
 		xmlNodePtr text_ptr = string_ptr->children;
 		if (XML_TEXT_NODE==text_ptr->type && NULL!=text_ptr->content)
 		{
-			char soundex[5];
 			const xmlChar* left_bracket = xmlStrchr(text_ptr->content, '[');
 			const xmlChar* right_bracket = left_bracket ? xmlStrchr(left_bracket, ']') : NULL;
 			if (left_bracket && right_bracket)
@@ -142,28 +163,39 @@ bool AddName(Json::Object& json, xmlNodePtr descriptor_name_ptr)
 				}
 
                 json.addMemberByKey("name", CONST_CHAR(nor_value));
-                Soundex(nor_value, soundex);
-                json.addMemberByKey("soundex", CONST_CHAR(soundex));
                 xmlFree(nor_value);
 
                 if (eng_value)
                 {
                     json.addMemberByKey("english_name", CONST_CHAR(eng_value));
-                    Soundex(eng_value, soundex);
-                    json.addMemberByKey("english_soundex", CONST_CHAR(soundex));
                     xmlFree(eng_value);
                 }
 			}
 			else
 			{
 				json.addMemberByKey("name", CONST_CHAR(text_ptr->content));
-				Soundex(text_ptr->content, soundex);
-				json.addMemberByKey("soundex", CONST_CHAR(soundex));
 			}
 			return true;
 		}
 	}
 	return false;
+}
+
+xmlChar* AddLanguage(Json::Object& json, xmlNodePtr thesaurus_id_list_ptr)
+{
+    xmlChar* text_str = NULL;
+    xmlNodePtr thesaurus_id_node_ptr = thesaurus_id_list_ptr->children;
+    if (XML_ELEMENT_NODE==thesaurus_id_node_ptr->type)
+    {
+        const xmlChar* thesaurus_id = GetText(thesaurus_id_node_ptr);
+        std::string language;
+        if (GetThesaurusLanguage(thesaurus_id, language))
+        {
+            json.addMemberByKey("language", language);
+        }
+    }
+
+    return text_str;
 }
 
 void ReadTreeNumberList(Json::Object& json, xmlNodePtr tree_number_list_ptr)
@@ -193,6 +225,98 @@ void ReadTreeNumberList(Json::Object& json, xmlNodePtr tree_number_list_ptr)
 	}
 }
 
+void ReadTermList(Json::Object& json, xmlNodePtr term_list_ptr)
+//<!ELEMENT TermList (Term+)>
+{
+    Json::Array term_array;
+    xmlNodePtr term_ptr = term_list_ptr->children;
+    while (NULL!=term_ptr)
+    {
+        if (XML_ELEMENT_NODE==term_ptr->type && 0==xmlStrcmp(BAD_CAST("Term"), term_ptr->name) && NULL!=term_ptr->children)
+        {
+            Json::Object term;
+            xmlNodePtr child = term_ptr->children;
+            while (NULL!=child)
+            {
+                if (XML_ELEMENT_NODE == child->type)
+                {
+                    if (0==xmlStrcmp(BAD_CAST("TermUI"), child->name))
+                    {
+                        AddText(term, "id", child);
+                    }
+                    else if (0==xmlStrcmp(BAD_CAST("String"), child->name))
+                    {
+                        AddText(term, "text", child);
+                    }
+                    else if (0==xmlStrcmp(BAD_CAST("ThesaurusIDlist"), child->name))
+                    {
+                        AddLanguage(term, child);
+                    }
+                }
+                child = child->next;
+            }
+            bool preferred = (0 == xmlStrcmp(BAD_CAST("Y"), GetAttribute("ConceptPreferredTermYN", term_ptr)));
+            term.addMemberByKey("preferred", preferred ? "yes" : "no");
+
+            term_array.addElement(term);
+        }
+        term_ptr=term_ptr->next;
+    }
+    
+    if (!term_array.empty())
+    {
+        json.addMemberByKey("terms", term_array);
+    }
+}
+
+void ReadConceptList(Json::Object& json, xmlNodePtr concept_list_ptr)
+//<!ELEMENT ConceptList (Concept+)  >
+{
+    Json::Array concept_array;
+    xmlNodePtr concept_ptr = concept_list_ptr->children;
+    while (NULL!=concept_ptr)
+    {
+        if (XML_ELEMENT_NODE==concept_ptr->type && 0==xmlStrcmp(BAD_CAST("Concept"), concept_ptr->name) && NULL!=concept_ptr->children)
+        {
+            Json::Object concept;
+            xmlNodePtr child = concept_ptr->children;
+            while (NULL!=child)
+            {
+                if (XML_ELEMENT_NODE == child->type)
+                {
+                    if (0==xmlStrcmp(BAD_CAST("ConceptUI"), child->name))
+                    {
+                        AddText(concept, "id", child);
+                    }
+                    else if (0==xmlStrcmp(BAD_CAST("ConceptName"), child->name))
+                    {
+                        AddName(concept, child);
+                    }
+                    else if (0==xmlStrcmp(BAD_CAST("ScopeNote"), child->name))
+                    {
+                        AddText(concept, "description", child);
+                    }
+                    else if (0==xmlStrcmp(BAD_CAST("TermList"), child->name))
+                    {
+                        ReadTermList(concept, child);
+                    }
+                }
+                child = child->next;
+            }
+            bool preferred = (0 == xmlStrcmp(BAD_CAST("Y"), GetAttribute("PreferredConceptYN", concept_ptr)));
+            concept.addMemberByKey("preferred", preferred ? "yes" : "no");
+
+            concept_array.addElement(concept);
+        }
+        concept_ptr=concept_ptr->next;
+    }
+    
+    if (!concept_array.empty())
+    {
+        json.addMemberByKey("concepts", concept_array);
+    }
+}
+
 bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 //<!ELEMENT DescriptorRecord (%DescriptorReference;,
 //                            DateCreated,
@@ -217,7 +341,7 @@ bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 //<!ENTITY  % DescriptorReference "(DescriptorUI, DescriptorName)">
 {
     Json::Object json;
-	xmlChar* id = NULL;
+	const xmlChar* id = NULL;
 	xmlNodePtr child = descriptor_record_ptr->children;
 	while (NULL!=child)
 	{
@@ -225,7 +349,7 @@ bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 		{
 			if (0==xmlStrcmp(BAD_CAST("DescriptorUI"), child->name))
 			{
-				id = AddId(json, child);
+				id = AddText(json, "id", child);
 			}
 			else if (0==xmlStrcmp(BAD_CAST("DescriptorName"), child->name))
 			{
@@ -237,7 +361,7 @@ bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 			}
 			else if (0==xmlStrcmp(BAD_CAST("ConceptList"), child->name))
 			{
-				//ToDo
+                ReadConceptList(json, child);
 			}
 		}
 		
