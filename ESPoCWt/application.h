@@ -2,11 +2,16 @@
 #define _APPLICATION_H_
 
 #include <Wt/WApplication>
+#include <Wt/WContainerWidget>
+#include <Wt/WEnvironment>
 #include <Wt/WJavaScript>
+#include <Wt/WLayout>
 #include <Wt/WLineEdit>
+#include <Wt/WPanel>
 #include <Wt/WStandardItem>
 #include <Wt/WStandardItemModel>
 #include <Wt/WSuggestionPopup>
+#include <Wt/WText>
 #include <Wt/WTextArea>
 
 #include "elasticsearch/elasticsearch.h"
@@ -28,15 +33,26 @@ private:
 
 private:
     Wt::WSuggestionPopup* CreateSuggestionPopup(Wt::WContainerWidget* parent);
+    void ClearLayout();
 
 private:
+    bool m_layout_is_cleared;
+    
 	Wt::WLineEdit* m_search_edit;
 	Wt::WSuggestionPopup* m_search_suggestion;
 	Wt::WStandardItemModel* m_search_suggestion_model;
     Wt::JSignal<Wt::WString> m_search_signal;
   
-	Wt::WTextArea* m_result_edit;
-	ElasticSearch* m_es;
+    Wt::WPanel* m_nor_term_panel;
+    Wt::WLayout* m_nor_term_panel_layout;
+    Wt::WPanel* m_eng_term_panel;
+    Wt::WLayout* m_eng_term_panel_layout;
+
+    Wt::WText* m_description_text;
+    
+    Wt::WLayout* m_links_layout;
+    
+    ElasticSearch* m_es;
 };
 
 #endif // _APPLICATION_H_

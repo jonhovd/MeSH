@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
+    <message id="Description">Beskrivelse:</message>
 	<message id="Hierarchy">Hierarki</message>
+    <message id="LinkTextFormat">LinkText{1}</message>
+    <message id="LinkUrlFormat">LinkUrl{1}</message>
+    <message id="LinkText1">MeSH</message>
+    <message id="LinkUrl1">http://www.nlm.nih.gov/cgi/mesh/2014/MB_cgi?term={1}&amp;exact=Find+Exact+Term&amp;field=uid</message>
+    <message id="LinkText2">SweMed</message>
+    <message id="LinkUrl2">http://mesh.kib.ki.se/swemesh/swebrowse.cfm?mode=allfields&amp;tool=karolinska&amp;Term={2}</message>
+    <message id="LinkText3">BMJ Best practice</message>
+    <message id="LinkUrl3">http://bestpractice.bmj.com/best-practice/search.html?searchableText={2}&amp;languageCode=en</message>
+    <message id="LinkText4">PubMed</message>
+    <message id="LinkUrl4">http://www.ncbi.nlm.nih.gov/pubmed/?term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
+    <message id="Links">Lenker:</message>
     <message id="MoreHits">(...flere treff)</message>
     <message id="NoHits">(...ingen treff)</message>
+    <message id="NonPreferredNorwegianTerms">Ikke-prefererte norske termer:</message>
+    <message id="NonPreferredEnglishTerms">Ikke-prefererte engelske termer:</message>
+    <message id="PreferredNorwegianTerm">Preferert norsk term:</message>
+    <message id="PreferredEnglishTerm">Preferert engelsk term:</message>
 	<message id="Search">Søk</message>
-	<message id="SuggestionFilterQuery">{ "from": {1}, "size": {2}, "query": {"simple_query_string": {"query": "{3}*", "fields": ["name","english_name"], "default_operator": "AND"} } }</message>
-    <message id="SuggestionFormat">{1} (Engelsk: {2})</message>
+	<message id="SuggestionFilterQuery">{ "from": {1}, "size": {2}, "query": {"simple_query_string": {"query": "{3}*", "fields": ["name","concepts.name","concepts.terms.text"], "default_operator": "AND"} } }</message>
+    <message id="SearchFilterQuery">{ "from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
 </messages>

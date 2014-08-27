@@ -1,24 +1,24 @@
 #include "application.h"
 
+#include <Wt/Utils>
+#include <Wt/WAnchor>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
+#include <Wt/WHBoxLayout>
 #include <Wt/WStandardItem>
+#include <Wt/WStringListModel>
 #include <Wt/WTabWidget>
-#include <Wt/WText>
+#include <Wt/WVBoxLayout>
 
 #define SUGGESTION_COUNT	(20)
+#define LANGUAGE            "nor"
 
 #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
 
 ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
-  m_search_edit(NULL),
-  m_search_suggestion(NULL),
-  m_search_suggestion_model(NULL),
-  m_search_signal(this, "search"),
-  m_result_edit(NULL),
-  m_es(NULL)
+  m_search_signal(this, "search")
 {
 	m_es = new ElasticSearch("localhost:9200");
 
@@ -27,27 +27,56 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 	Wt::WTabWidget* tab_widget = new Wt::WTabWidget(root());
 
 	Wt::WContainerWidget* search_tab = new Wt::WContainerWidget();
-	Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
+    Wt::WVBoxLayout* vbox = new Wt::WVBoxLayout();
+    search_tab->setLayout(vbox);
 
-	m_search_edit = new Wt::WLineEdit(search_tab);
-	m_search_suggestion = CreateSuggestionPopup(search_tab);// new Wt::WSuggestionPopup(suggestion_options, search_tab);
+    m_search_edit = new Wt::WLineEdit();
+
+	m_search_suggestion = CreateSuggestionPopup(root());
 	m_search_suggestion->forEdit(m_search_edit);
-	m_search_suggestion_model = new Wt::WStandardItemModel(search_tab);
+	m_search_suggestion_model = new Wt::WStandardItemModel(vbox);
 	m_search_suggestion->setModel(m_search_suggestion_model);
 	m_search_suggestion->setFilterLength(2);
     m_search_suggestion->filterModel().connect(this, &ESPoCApplication::FilterSuggestion);
 	m_search_suggestion_model->itemChanged().connect(this, &ESPoCApplication::SuggestionChanged);
     m_search_signal.connect(this, &ESPoCApplication::Search);
 	
-	m_search_edit->setFocus();
+    m_nor_term_panel = new Wt::WPanel();
+    m_nor_term_panel->setCollapsible(true);
+    Wt::WContainerWidget* nor_term_container = new Wt::WContainerWidget();
+    m_nor_term_panel_layout = new Wt::WVBoxLayout();
+    nor_term_container->setLayout(m_nor_term_panel_layout);
+    m_nor_term_panel->setCentralWidget(nor_term_container);
 
-	search_tab->addWidget(new Wt::WBreak());
+    m_eng_term_panel = new Wt::WPanel();
+    m_eng_term_panel->setCollapsible(true);
+    Wt::WContainerWidget* eng_term_container = new Wt::WContainerWidget();
+    m_eng_term_panel_layout = new Wt::WVBoxLayout();
+    eng_term_container->setLayout(m_eng_term_panel_layout);
+    m_eng_term_panel->setCentralWidget(eng_term_container);
 
-	m_result_edit = new Wt::WTextArea(search_tab);
-	m_result_edit->setReadOnly(true);
+    m_description_text = new Wt::WText();
+ 
+    m_links_layout = new Wt::WHBoxLayout();
 
+    vbox->addWidget(m_search_edit);
+    vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
+    vbox->addWidget(m_nor_term_panel);
+    vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredEnglishTerm")));
+    vbox->addWidget(m_eng_term_panel);
+    vbox->addWidget(new Wt::WText(Wt::WString::tr("Description")));
+    vbox->addWidget(m_description_text);
+    vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
+    vbox->addLayout(m_links_layout);
+ 
 	tab_widget->addTab(search_tab, Wt::WString::tr("Search"));
+
+    //ToDo
+    Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
 	tab_widget->addTab(hierarchy_tab, Wt::WString::tr("Hierarchy"));
+
+    ClearLayout();
+    m_search_edit->setFocus();
 }
 
 ESPoCApplication::~ESPoCApplication()
@@ -57,18 +86,18 @@ ESPoCApplication::~ESPoCApplication()
 
 void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 {
+    if (!m_layout_is_cleared)
+    {
+        ClearLayout();
+    }
+
 	m_search_suggestion_model->clear();
 
 	Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 to see if we got more than SUGGESTION_COUNT hits */).arg(filter);
 
 	Json::Object search_result;
-	long result_size = ESSearch("mesh", "nor", query.toUTF8(), search_result);
+	long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
 
-	const Json::Value value = search_result.getValue("hits");
-	const Json::Object value_object = value.getObject();
-	const Json::Value hits_value = value_object.getValue("hits");
-	const Json::Array hits_array = hits_value.getArray();
-	
 	int row = 0;
 	if (0 == result_size)
 	{
@@ -78,32 +107,23 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 	}
 	else
 	{
-		Json::Array::const_iterator iterator = hits_array.begin();
+        const Json::Value value = search_result.getValue("hits");
+        const Json::Object value_object = value.getObject();
+        const Json::Value hits_value = value_object.getValue("hits");
+        const Json::Array hits_array = hits_value.getArray();
+
+        Json::Array::const_iterator iterator = hits_array.begin();
 		for (row=0; row<SUGGESTION_COUNT && iterator!=hits_array.end(); row++)
 		{
-			const Json::Value value = *iterator;
-			const Json::Object value_object = value.getObject();
-			const Json::Value source_value = value_object.getValue("_source");
+			const Json::Value hit_value = *iterator;
+			const Json::Object hit_value_object = hit_value.getObject();
+			const Json::Value source_value = hit_value_object.getValue("_source");
 			const Json::Object source_object = source_value.getObject();
 			
 			const Json::Value id_value = source_object.getValue("id");
             const Json::Value name_value = source_object.getValue("name");
-            Json::Value english_name_value;
-            if (source_object.member("english_name")) {
-                english_name_value = source_object.getValue("english_name");
-            }
 
-			Wt::WString suggestion_text;
-            if (english_name_value.empty() || 0==name_value.getString().compare(english_name_value.getString()))
-            {
-                suggestion_text = Wt::WString::fromUTF8(name_value.getString());
-            }
-            else
-            {
-                suggestion_text = Wt::WString::tr("SuggestionFormat").arg(Wt::WString::fromUTF8(name_value.getString())).arg(Wt::WString::fromUTF8(english_name_value.getString()));
-            }
-               
-			Wt::WStandardItem* item = new Wt::WStandardItem(suggestion_text);
+            Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(name_value.getString()));
 			item->setData(boost::any(id_value.getString()), Wt::UserRole);
 			m_search_suggestion_model->setItem(row, 0, item);
 
@@ -133,10 +153,150 @@ void ESPoCApplication::SuggestionChanged(Wt::WStandardItem* item)
 
 void ESPoCApplication::Search(const Wt::WString& mesh_id)
 {
-	Json::Object search_result;
-	int64_t result_size = ESSearch("mesh", "nor", "{\"query\":{\"match_all\":{}}}", search_result);
+    Wt::WString preferred_eng_term;
 
-	m_result_edit->setText(Wt::WString("We found {1} result(s):\n{2}\n{3}").arg(result_size).arg(search_result.str()).arg(mesh_id));
+    Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(boost::algorithm::to_lower_copy(mesh_id.toUTF8()));
+
+    Json::Object search_result;
+    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    if (0 == result_size)
+    {
+        return;
+    }
+    
+    Wt::WStringListModel* non_preferred_nor_terms = new Wt::WStringListModel();
+    Wt::WStringListModel* non_preferred_eng_terms = new Wt::WStringListModel();
+
+    const Json::Value value = search_result.getValue("hits");
+    const Json::Object value_object = value.getObject();
+    const Json::Value hits_value = value_object.getValue("hits");
+    const Json::Array hits_array = hits_value.getArray();
+    const Json::Value hit_value = hits_array.first();
+    const Json::Object hit_value_object = hit_value.getObject();
+    const Json::Value source_value = hit_value_object.getValue("_source");
+    const Json::Object source_object = source_value.getObject();
+    const Json::Value concepts_value = source_object.getValue("concepts");
+    const Json::Array concepts_array = concepts_value.getArray();
+
+    Json::Array::const_iterator concept_iterator = concepts_array.begin();
+    for (; concept_iterator!=concepts_array.end(); ++concept_iterator)
+    {
+        const Json::Value concept_value = *concept_iterator;
+        const Json::Object concept_object = concept_value.getObject();
+        const Json::Value preferred_concept_value = concept_object.getValue("preferred");
+        bool preferred_concept = (0 == preferred_concept_value.getString().compare("yes"));
+        if (preferred_concept && concept_object.member("description"))
+        {
+            const Json::Value description_value = concept_object.getValue("description");
+            std::string description_str = description_value.getString();
+            boost::replace_all(description_str, "\\n", "\n");
+            
+            m_description_text->setTextFormat(Wt::PlainText);
+            m_description_text->setText(Wt::WString::fromUTF8(description_str));
+            m_description_text->show();
+        }
+
+        const Json::Value terms_value = concept_object.getValue("terms");
+        const Json::Array terms_array = terms_value.getArray();
+        Json::Array::const_iterator term_iterator = terms_array.begin();
+        for (; term_iterator!=terms_array.end(); ++term_iterator)
+        {
+            const Json::Value term_value = *term_iterator;
+            const Json::Object term_object = term_value.getObject();
+            
+            bool is_norwegian = false;
+            if (term_object.member("language"))
+            {
+                const Json::Value language_value = term_object.getValue("language");
+                is_norwegian = (0 == language_value.getString().compare("nor"));
+            }
+
+            const Json::Value term_text_value = term_object.getValue("text");
+            const Wt::WString term_text_str = Wt::WString::fromUTF8(term_text_value.getString());
+            
+            const Json::Value preferred_term_value = term_object.getValue("preferred");
+            bool preferred_term = (0 == preferred_term_value.getString().compare("yes"));
+            if (preferred_concept && preferred_term)
+            {
+                Wt::WPanel* term_panel = (is_norwegian ? m_nor_term_panel : m_eng_term_panel);
+                term_panel->setTitle(term_text_str);
+                
+                if (!is_norwegian && preferred_eng_term.empty())
+                {
+                    preferred_eng_term = term_text_str;
+                }
+            }
+            else
+            {
+                Wt::WStringListModel* term_list = (is_norwegian ? non_preferred_nor_terms :  non_preferred_eng_terms);
+                term_list->addString(term_text_str);
+            }
+        }
+    }
+
+    m_nor_term_panel_layout->addWidget(new Wt::WText(Wt::WString::tr("NonPreferredNorwegianTerms")));
+    m_eng_term_panel_layout->addWidget(new Wt::WText(Wt::WString::tr("NonPreferredEnglishTerms")));
+
+    int i;
+    for (i=0; i<2; i++)
+    {
+        const std::vector<Wt::WString>* non_preferred_term_list;
+        Wt::WLayout* non_preferred_term_layout = NULL;
+
+        switch(i)
+        {
+            case 0:
+                non_preferred_term_list = &non_preferred_nor_terms->stringList();
+                non_preferred_term_layout = m_nor_term_panel_layout;
+                break;
+                
+            case 1:
+                non_preferred_term_list = &non_preferred_eng_terms->stringList();
+                non_preferred_term_layout = m_eng_term_panel_layout;
+                break;
+                
+            default: break;
+        }
+        
+        if (!non_preferred_term_layout)
+            continue;
+        
+        std::vector<Wt::WString>::const_iterator non_preferred_term_iterator = non_preferred_term_list->begin();
+        for ( ; non_preferred_term_iterator!=non_preferred_term_list->end(); ++non_preferred_term_iterator)
+        {
+            Wt::WString non_preferred_term_string = *non_preferred_term_iterator;
+            Wt::WText* non_preferred_term_text = new Wt::WText(non_preferred_term_string, Wt::PlainText);
+            non_preferred_term_layout->addWidget(non_preferred_term_text);
+        }
+    }
+    m_nor_term_panel->show();
+    m_nor_term_panel->expand();
+    m_eng_term_panel->show();
+    m_eng_term_panel->collapse();
+        
+    std::string url_encoded_term = Wt::Utils::urlEncode(preferred_eng_term.toUTF8());
+    int link_index = 0;
+    while (true)
+    {
+        link_index++;
+        Wt::WString link_text_key = Wt::WString::tr("LinkTextFormat").arg(link_index);
+        Wt::WString link_url_key = Wt::WString::tr("LinkUrlFormat").arg(link_index);
+        Wt::WString link_text = Wt::WString::tr(link_text_key.toUTF8());
+        if ('?' == link_text.toUTF8().at(0))
+            break;
+        
+        Wt::WString link_url = Wt::WString::tr(link_url_key.toUTF8()).arg(mesh_id).arg(Wt::Utils::urlEncode(preferred_eng_term.toUTF8()));
+        std::string link_str = link_url.toUTF8();
+        boost::replace_all(link_str, "&amp;", "&");
+        Wt::WAnchor* anchor = new Wt::WAnchor(Wt::WLink(link_str), link_text);
+        anchor->setTarget(Wt::TargetNewWindow);
+        m_links_layout->addWidget(anchor);
+    }
+    
+    delete non_preferred_nor_terms;
+    delete non_preferred_eng_terms;
+    
+    m_layout_is_cleared = false;
 }
 
 long ESPoCApplication::ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
@@ -189,4 +349,24 @@ Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidg
      );
 
     return new Wt::WSuggestionPopup(matcherJS, replacerJS, parent);
+}
+
+void ESPoCApplication::ClearLayout()
+{
+    m_nor_term_panel->setTitle("");
+    m_nor_term_panel->expand();
+    m_nor_term_panel->hide();
+    m_nor_term_panel_layout->clear();
+    
+    m_eng_term_panel->setTitle("");
+    m_eng_term_panel->collapse();
+    m_eng_term_panel->hide();
+    m_eng_term_panel_layout->clear();
+
+    m_description_text->setText("");
+    m_description_text->hide();
+    
+    m_links_layout->clear();
+
+    m_layout_is_cleared = true;
 }
