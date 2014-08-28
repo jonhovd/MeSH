@@ -28,7 +28,18 @@ void PrepareImport()
     index << "mesh" << "/" << g_language_code;
     if (!g_es->exist(index.str()))
     {
-        //g_es->createIndex();
+        std::stringstream mapping;
+        mapping << "{\"mappings\": {\"" << g_language_code << "\": {\"properties\": {"
+                << "\"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+                << "\"tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+                << "\"concepts.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+                << "\"concepts.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+                << "\"concepts.terms.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+                << "\"concepts.terms.language\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+                << "\"concepts.terms.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"} "
+                << "} } } }";
+                
+        g_es->createIndex("mesh", mapping.str().c_str());
     }
     
     g_es->deleteAll("mesh", CONST_CHAR(g_language_code));
