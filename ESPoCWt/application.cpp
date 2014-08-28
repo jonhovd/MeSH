@@ -20,21 +20,24 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
   m_search_signal(this, "search")
 {
+    messageResourceBundle().use(appRoot() + "strings");
+
 	m_es = new ElasticSearch("localhost:9200");
 
 	setTitle("ElasticSearch Proof-of-Concept Wt application");
 
 	Wt::WTabWidget* tab_widget = new Wt::WTabWidget(root());
 
+    //Search
 	Wt::WContainerWidget* search_tab = new Wt::WContainerWidget();
-    Wt::WVBoxLayout* vbox = new Wt::WVBoxLayout();
-    search_tab->setLayout(vbox);
+    Wt::WVBoxLayout* search_vbox = new Wt::WVBoxLayout();
+    search_tab->setLayout(search_vbox);
 
     m_search_edit = new Wt::WLineEdit();
 
 	m_search_suggestion = CreateSuggestionPopup(root());
 	m_search_suggestion->forEdit(m_search_edit);
-	m_search_suggestion_model = new Wt::WStandardItemModel(vbox);
+	m_search_suggestion_model = new Wt::WStandardItemModel(search_vbox);
 	m_search_suggestion->setModel(m_search_suggestion_model);
 	m_search_suggestion->setFilterLength(2);
     m_search_suggestion->filterModel().connect(this, &ESPoCApplication::FilterSuggestion);
@@ -59,21 +62,33 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
  
     m_links_layout = new Wt::WHBoxLayout();
 
-    vbox->addWidget(m_search_edit);
-    vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
-    vbox->addWidget(m_nor_term_panel);
-    vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredEnglishTerm")));
-    vbox->addWidget(m_eng_term_panel);
-    vbox->addWidget(new Wt::WText(Wt::WString::tr("Description")));
-    vbox->addWidget(m_description_text);
-    vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
-    vbox->addLayout(m_links_layout);
+    search_vbox->addWidget(m_search_edit);
+    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
+    search_vbox->addWidget(m_nor_term_panel);
+    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredEnglishTerm")));
+    search_vbox->addWidget(m_eng_term_panel);
+    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("Description")));
+    search_vbox->addWidget(m_description_text);
+    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
+    search_vbox->addLayout(m_links_layout);
  
 	tab_widget->addTab(search_tab, Wt::WString::tr("Search"));
 
-    //ToDo
+    //Hierarchy
     Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
-	tab_widget->addTab(hierarchy_tab, Wt::WString::tr("Hierarchy"));
+    Wt::WVBoxLayout* hierarchy_vbox = new Wt::WVBoxLayout();
+    hierarchy_tab->setLayout(hierarchy_vbox);
+
+    m_hierarchy_model = new Wt::WStandardItemModel(hierarchy_vbox);
+    m_hierarchy_tree_view = new Wt::WTreeView();
+    m_hierarchy_tree_view->setModel(m_hierarchy_model);
+    m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
+
+    hierarchy_vbox->addWidget(m_hierarchy_tree_view);
+
+    tab_widget->addTab(hierarchy_tab, Wt::WString::tr("Hierarchy"));
+    tab_widget->currentChanged().connect(this, &ESPoCApplication::TabChanged);
+
 
     ClearLayout();
     m_search_edit->setFocus();
@@ -155,7 +170,7 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
 {
     Wt::WString preferred_eng_term;
 
-    Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(boost::algorithm::to_lower_copy(mesh_id.toUTF8()));
+    Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id.toUTF8());
 
     Json::Object search_result;
     long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
@@ -299,6 +314,14 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
     m_layout_is_cleared = false;
 }
 
+void ESPoCApplication::TabChanged(int active_tab_index)
+{
+    if (1 == active_tab_index)
+    {
+        PopulateHierarchy();
+    }
+}
+
 long ESPoCApplication::ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
 {
 	try
@@ -309,6 +332,44 @@ long ESPoCApplication::ESSearch(const std::string& index, const std::string& typ
 	{
 		return 0L;
     }
+}
+
+void ESPoCApplication::PopulateHierarchy()
+{
+    Wt::WString query = Wt::WString::tr("HierarchyTopNodesQuery");
+
+    Json::Object search_result;
+    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    if (0 == result_size)
+    {
+        return;
+    }
+    
+    const Json::Value value = search_result.getValue("hits");
+    const Json::Object value_object = value.getObject();
+    const Json::Value hits_value = value_object.getValue("hits");
+    const Json::Array hits_array = hits_value.getArray();
+
+    int row = 0;
+    Json::Array::const_iterator iterator = hits_array.begin();
+    for (; iterator!=hits_array.end(); ++iterator)
+    {
+        const Json::Value hit_value = *iterator;
+        const Json::Object hit_value_object = hit_value.getObject();
+        const Json::Value source_value = hit_value_object.getValue("_source");
+        const Json::Object source_object = source_value.getObject();
+
+        const Json::Value id_value = source_object.getValue("id");
+        if (id_value.getString().empty())
+            continue;
+        
+        const Json::Value name_value = source_object.getValue("name");
+
+        Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(name_value.getString()));
+        item->setData(boost::any(id_value.getString()), Wt::UserRole);
+        m_hierarchy_model->setItem(row++, 0, item);
+    }
+    m_hierarchy_model->sort(0);
 }
 
 Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidget* parent)

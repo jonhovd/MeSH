@@ -13,6 +13,7 @@
 #include <Wt/WSuggestionPopup>
 #include <Wt/WText>
 #include <Wt/WTextArea>
+#include <Wt/WTreeView>
 
 #include "elasticsearch/elasticsearch.h"
 
@@ -27,11 +28,13 @@ protected:
 	void FilterSuggestion(const Wt::WString& filter);
 	void SuggestionChanged(Wt::WStandardItem* item);
     void Search(const Wt::WString& mesh_id);
+    void TabChanged(int active_tab_index);
 
 private:
 	long ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result);
 
 private:
+    void PopulateHierarchy();
     Wt::WSuggestionPopup* CreateSuggestionPopup(Wt::WContainerWidget* parent);
     void ClearLayout();
 
@@ -51,6 +54,9 @@ private:
     Wt::WText* m_description_text;
     
     Wt::WLayout* m_links_layout;
+    
+    Wt::WTreeView* m_hierarchy_tree_view;
+    Wt::WStandardItemModel* m_hierarchy_model;
     
     ElasticSearch* m_es;
 };

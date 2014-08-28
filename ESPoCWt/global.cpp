@@ -12,9 +12,7 @@ Wt::WLogEntry Log(const std::string& type)
 
 Wt::WApplication* createApplication(const Wt::WEnvironment& env)
 {
-	ESPoCApplication* app = new ESPoCApplication(env);
-	app->messageResourceBundle().use(app->appRoot() + "strings");
-	return app;
+	return new ESPoCApplication(env);
 }
 
 int main(int argc, char** argv)
