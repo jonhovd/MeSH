@@ -1,5 +1,6 @@
 #include "application.h"
 
+#include <boost/algorithm/string/replace.hpp>
 #include <Wt/Utils>
 #include <Wt/WAnchor>
 #include <Wt/WBreak>
@@ -117,7 +118,7 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 	if (0 == result_size)
 	{
             Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("NoHits"));
-            item->setData(boost::any(""), Wt::UserRole);
+            item->setData(boost::any(), Wt::UserRole);
             m_search_suggestion_model->setItem(row++, 0, item);
 	}
 	else
@@ -150,7 +151,7 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
         if (hits_array.size() > SUGGESTION_COUNT)
         {
             Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("MoreHits"));
-            item->setData(boost::any(""), Wt::UserRole);
+            item->setData(boost::any(), Wt::UserRole);
             m_search_suggestion_model->setItem(row++, 0, item);
         }
 	}
