@@ -15,11 +15,30 @@ ElasticSearch* g_es;
 xmlChar* g_language_code = NULL;
 
 
-void printStatus(long descriptors)
+void printDescriptorStatus(long descriptors)
 {
 	float progress = (float)xmlTextReaderByteConsumed(g_reader)/g_filesize*100.0;
 	fprintf(stdout, "Processed descriptors: %ld  (%0.1f%%)\r", descriptors, progress);
 	fflush(stdout);
+}
+
+void printUpdateHierarchyStatus(int current, int total)
+{
+    float progress = (float)current/total*100.0;
+    fprintf(stdout, "Updating hierarchy: %d  (%0.1f%%)\r", current, progress);
+    fflush(stdout);
+}
+
+long ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
+{
+    try
+    {
+        return g_es->search(index, type, query, search_result);
+    }
+    catch(...)
+    {
+        return 0L;
+    }
 }
 
 void PrepareImport()
@@ -32,6 +51,8 @@ void PrepareImport()
         mapping << "{\"mappings\": {\"" << g_language_code << "\": {\"properties\": {"
                 << "\"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
                 << "\"tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+                << "\"parent_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+                << "\"child_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
                 << "\"concepts.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
                 << "\"concepts.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
                 << "\"concepts.terms.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
@@ -212,28 +233,48 @@ xmlChar* AddLanguage(Json::Object& json, xmlNodePtr thesaurus_id_list_ptr)
 void ReadTreeNumberList(Json::Object& json, xmlNodePtr tree_number_list_ptr)
 //<!ELEMENT TreeNumberList (TreeNumber)+>
 {
-	Json::Array tree_number_array;
-	xmlNodePtr tree_number_ptr = tree_number_list_ptr->children;
-	while (NULL!=tree_number_ptr)
-	{
-		if (XML_ELEMENT_NODE==tree_number_ptr->type && 0==xmlStrcmp(BAD_CAST("TreeNumber"), tree_number_ptr->name) && NULL!=tree_number_ptr->children)
-		{
-			xmlNodePtr text_ptr = tree_number_ptr->children;
-			if (XML_TEXT_NODE==text_ptr->type && NULL!=text_ptr->content)
-			{
-				Json::Value tree_number;
-				tree_number.setString(CONST_CHAR(text_ptr->content));
-				tree_number_array.addElement(tree_number);
-			}
-		}
-		
-		tree_number_ptr=tree_number_ptr->next;
-	}
-	
-	if (!tree_number_array.empty())
-	{
-		json.addMemberByKey("tree_numbers", tree_number_array);
-	}
+    Json::Array parent_tree_number_array;
+    Json::Array tree_number_array;
+    xmlNodePtr tree_number_ptr = tree_number_list_ptr->children;
+    while (NULL!=tree_number_ptr)
+    {
+        if (XML_ELEMENT_NODE==tree_number_ptr->type && 0==xmlStrcmp(BAD_CAST("TreeNumber"), tree_number_ptr->name) && NULL!=tree_number_ptr->children)
+        {
+            xmlNodePtr text_ptr = tree_number_ptr->children;
+            if (XML_TEXT_NODE==text_ptr->type && NULL!=text_ptr->content)
+            {
+                Json::Value tree_number;
+                tree_number.setString(CONST_CHAR(text_ptr->content));
+                tree_number_array.addElement(tree_number);
+                
+                const xmlChar* tmp = xmlStrchr(text_ptr->content, '.');
+                if (tmp)
+                {
+                    const xmlChar* end_parent;
+                    do {
+                        end_parent = tmp;
+                        tmp = xmlStrchr(tmp+1, '.');
+                    } while (tmp);
+                    
+                    Json::Value parent_tree_number;
+                    parent_tree_number.setString(std::string(CONST_CHAR(text_ptr->content), end_parent - text_ptr->content));
+                    parent_tree_number_array.addElement(parent_tree_number);
+                }
+            }
+        }
+        
+        tree_number_ptr=tree_number_ptr->next;
+    }
+
+    if (!tree_number_array.empty())
+    {
+        json.addMemberByKey("tree_numbers", tree_number_array);
+    }
+
+    if (!parent_tree_number_array.empty())
+    {
+        json.addMemberByKey("parent_tree_numbers", parent_tree_number_array);
+    }
 }
 
 void ReadTermList(Json::Object& json, xmlNodePtr term_list_ptr)
@@ -387,6 +428,117 @@ bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 	return true;
 }
 
+void PopulateChildrenTreeNumberList(Json::Array& children_tree_number_array, const std::string& tree_number)
+{
+    std::stringstream query;
+    query << "{\"from\": 0, \"size\": 100, \"query\": {\"bool\": {\"must\": {\"term\": {\"nor.parent_tree_numbers\": \"" << tree_number << "\"} } } } }";
+
+    Json::Object search_result;
+    if (0 == ESSearch("mesh", CONST_CHAR(g_language_code), query.str(), search_result))
+        return;
+    
+    const Json::Value value = search_result.getValue("hits");
+    const Json::Object value_object = value.getObject();
+
+    const Json::Value hits_value = value_object.getValue("hits");
+    const Json::Array hits_array = hits_value.getArray();
+
+    Json::Array::const_iterator hits_iterator = hits_array.begin();
+    for (; hits_iterator!=hits_array.end(); ++hits_iterator)
+    {
+        const Json::Value hit_value = *hits_iterator;
+        const Json::Object hit_value_object = hit_value.getObject();
+        const Json::Value source_value = hit_value_object.getValue("_source");
+        const Json::Object source_object = source_value.getObject();
+
+        const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
+        const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+
+        Json::Array::const_iterator tree_number_iterator = tree_numbers_array.begin();
+        for (; tree_number_iterator!=tree_numbers_array.end(); ++tree_number_iterator)
+        {
+            const Json::Value tree_number_value = *tree_number_iterator;
+            const std::string tree_number_str = tree_number_value.getString();
+            size_t substring_length = tree_number_str.find_last_of('.');
+            if (std::string::npos!=substring_length && 0==tree_number_str.compare(0, substring_length, tree_number))
+            {
+                Json::Value child_tree_number;
+                child_tree_number.setString(tree_number_str);
+                children_tree_number_array.addElement(child_tree_number);
+            }
+        }
+    }
+}
+
+void UpdateChildTreeNumbers()
+{
+    int total;
+    int from = 0;
+    int size = 100;
+    bool more = true;
+    
+    while (more)
+    {
+        std::stringstream query;
+        query << "{\"from\": " << from << ", \"size\": " << size << ", \"query\": {\"match_all\": {} } }";
+
+        Json::Object search_result;
+        if (0 == ESSearch("mesh", CONST_CHAR(g_language_code), query.str(), search_result))
+            break;
+        
+        const Json::Value value = search_result.getValue("hits");
+        const Json::Object value_object = value.getObject();
+
+        const Json::Value total_value = value_object.getValue("total");
+        total = total_value.getInt();
+        
+        printUpdateHierarchyStatus(from, total);
+        
+        const Json::Value hits_value = value_object.getValue("hits");
+        const Json::Array hits_array = hits_value.getArray();
+
+        Json::Array::const_iterator hits_iterator = hits_array.begin();
+        for (; hits_iterator!=hits_array.end(); ++hits_iterator)
+        {
+            const Json::Value hit_value = *hits_iterator;
+            const Json::Object hit_value_object = hit_value.getObject();
+            const Json::Value source_value = hit_value_object.getValue("_source");
+            const Json::Object source_object = source_value.getObject();
+
+            const Json::Value id_value = source_object.getValue("id");
+            const std::string id_value_str = id_value.getString();
+            if (id_value_str.empty())
+                continue;
+
+            if (!source_object.member("tree_numbers"))
+                continue;
+            
+            const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
+            const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+
+            Json::Array children_tree_number_array;
+            Json::Array::const_iterator tree_number_iterator = tree_numbers_array.begin();
+            for (; tree_number_iterator!=tree_numbers_array.end(); ++tree_number_iterator)
+            {
+                const Json::Value tree_number_value = *tree_number_iterator;
+                PopulateChildrenTreeNumberList(children_tree_number_array, tree_number_value.getString());
+            }
+
+            if (!children_tree_number_array.empty())
+            {
+                Json::Object updated_value_object;
+                updated_value_object.addMemberByKey("child_tree_numbers", children_tree_number_array);
+                g_es->update("mesh", CONST_CHAR(g_language_code), id_value_str, updated_value_object);
+            }
+        }
+        
+        from += size;
+        more = (from < total);
+    }
+    printUpdateHierarchyStatus(from, total);
+    fprintf(stdout, "\r\n");
+}
+
 bool ReadDescriptorRecordSet()
 //<!ELEMENT DescriptorRecordSet (DescriptorRecord*)>
 //<!ATTLIST DescriptorRecordSet LanguageCode (cze|dut|eng|fin|fre|ger|ita|jpn|lav|por|scr|slv|spa) #REQUIRED>
@@ -413,11 +565,16 @@ bool ReadDescriptorRecordSet()
 		ProcessDescriptorRecord(descriptor_record_ptr);
 		more = (1 == xmlTextReaderNext(g_reader)); //Skip to next DescriptorRecord
 
-		if (!more || 0==(++processed)%500)
+		if (!more || 0==(++processed)%100)
 		{
-			printStatus(processed);
+			printDescriptorStatus(processed);
 		}
 	}
+
+    printDescriptorStatus(processed);
+    fprintf(stdout, "\r\n");
+    
+	UpdateChildTreeNumbers();
 	return true;
 }
 
