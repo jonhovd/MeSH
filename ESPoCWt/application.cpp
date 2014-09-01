@@ -6,6 +6,7 @@
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
 #include <Wt/WHBoxLayout>
+#include <Wt/WImage>
 #include <Wt/WStandardItem>
 #include <Wt/WStringListModel>
 #include <Wt/WTabWidget>
@@ -52,12 +53,22 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     nor_term_container->setLayout(m_nor_term_panel_layout);
     m_nor_term_panel->setCentralWidget(nor_term_container);
 
+    Wt::WImage* nor_flag = new Wt::WImage("images/nor.png");
+    m_nor_term_panel->titleBarWidget()->insertWidget(0, nor_flag);
+    nor_flag->setHeight(Wt::WLength(1.0, Wt::WLength::FontEm));
+    nor_flag->setMargin(Wt::WLength(3.0, Wt::WLength::Pixel));
+
     m_eng_term_panel = new Wt::WPanel();
     m_eng_term_panel->setCollapsible(true);
     Wt::WContainerWidget* eng_term_container = new Wt::WContainerWidget();
     m_eng_term_panel_layout = new Wt::WVBoxLayout();
     eng_term_container->setLayout(m_eng_term_panel_layout);
     m_eng_term_panel->setCentralWidget(eng_term_container);
+
+    Wt::WImage* eng_flag = new Wt::WImage("images/eng.png");
+    m_eng_term_panel->titleBarWidget()->insertWidget(0, eng_flag);
+    eng_flag->setHeight(Wt::WLength(1.0, Wt::WLength::FontEm));
+    eng_flag->setMargin(Wt::WLength(3.0, Wt::WLength::Pixel));
 
     m_description_text = new Wt::WText();
  
@@ -236,7 +247,6 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
             {
                 Wt::WPanel* term_panel = (is_norwegian ? m_nor_term_panel : m_eng_term_panel);
                 term_panel->setTitle(term_text_str);
-                
                 if (!is_norwegian && preferred_eng_term.empty())
                 {
                     preferred_eng_term = term_text_str;
