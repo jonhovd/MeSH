@@ -20,7 +20,7 @@
     <message id="PreferredNorwegianTerm">Preferert norsk term:</message>
     <message id="PreferredEnglishTerm">Preferert engelsk term:</message>
     <message id="Search">Søk</message>
-    <message id="SuggestionFilterQuery">{ "from": {1}, "size": {2}, "query": {"simple_query_string": {"query": "{3}*", "fields": ["name","concepts.name","concepts.terms.text"], "default_operator": "AND"} } }</message>
-    <message id="SearchFilterQuery">{ "from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
-    <message id="HierarchyTopNodesQuery">{ "from": 0, "size": 250, "query": {"filtered": {"filter": {"exists": {"field": "tree_numbers"} }, "query": {"bool": {"must_not": {"wildcard": {"tree_numbers": "*.*"} } } } } } }</message>
+    <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "query": {"simple_query_string": {"query": "{3}*", "fields": ["name","concepts.name","concepts.terms.text"], "default_operator": "AND"} } }</message>
+    <message id="SearchFilterQuery">{"from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
+    <message id="HierarchyTopNodesQuery">{"from": 0, "size": 250, "query": {"bool": {"must": {"constant_score": {"filter": {"missing": {"field": "nor.parent_tree_numbers"} } } } } } }</message>
 </messages>
