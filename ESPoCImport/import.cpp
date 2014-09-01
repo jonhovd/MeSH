@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <libxml/xmlreader.h>
 #include <boost/concept_check.hpp>
@@ -12,6 +13,7 @@ xmlTextReaderPtr g_reader;
 long g_filesize;
 ElasticSearch* g_es;
 
+bool g_should_clean_database = false;
 xmlChar* g_language_code = NULL;
 
 
@@ -41,29 +43,24 @@ long ESSearch(const std::string& index, const std::string& type, const std::stri
     }
 }
 
-void PrepareImport()
+void CleanDatabase()
 {
-    std::stringstream index;
-    index << "mesh" << "/" << g_language_code;
-    if (!g_es->exist(index.str()))
-    {
-        std::stringstream mapping;
-        mapping << "{\"mappings\": {\"" << g_language_code << "\": {\"properties\": {"
-                << "\"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-                << "\"tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-                << "\"parent_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-                << "\"child_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-                << "\"concepts.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-                << "\"concepts.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-                << "\"concepts.terms.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-                << "\"concepts.terms.language\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-                << "\"concepts.terms.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"} "
-                << "} } } }";
-                
-        g_es->createIndex("mesh", mapping.str().c_str());
-    }
+    g_es->deleteIndex("mesh");
     
-    g_es->deleteAll("mesh", CONST_CHAR(g_language_code));
+    std::stringstream mapping;
+    mapping << "{\"mappings\": {\"" << g_language_code << "\": {\"properties\": {"
+            << "\"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"parent_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"child_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"concepts.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"concepts.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"concepts.terms.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"concepts.terms.language\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"concepts.terms.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"} "
+            << "} } } }";
+            
+    g_es->createIndex("mesh", mapping.str().c_str());
 }
 
 bool GetThesaurusLanguage(const xmlChar* thesaurus_id, std::string& language)
@@ -483,7 +480,8 @@ void UpdateChildTreeNumbers()
         query << "{\"from\": " << from << ", \"size\": " << size << ", \"query\": {\"match_all\": {} } }";
 
         Json::Object search_result;
-        if (0 == ESSearch("mesh", CONST_CHAR(g_language_code), query.str(), search_result))
+        long result_size = ESSearch("mesh", CONST_CHAR(g_language_code), query.str(), search_result);
+        if (0 == result_size)
             break;
         
         const Json::Value value = search_result.getValue("hits");
@@ -532,7 +530,7 @@ void UpdateChildTreeNumbers()
             }
         }
         
-        from += size;
+        from += result_size;
         more = (from < total);
     }
     printUpdateHierarchyStatus(from, total);
@@ -550,7 +548,10 @@ bool ReadDescriptorRecordSet()
     if (!g_language_code)
         return false;
 
-    PrepareImport();
+    if (g_should_clean_database)
+    {
+        CleanDatabase();
+    }
 
 	if (1 != xmlTextReaderRead(g_reader)) //Skip to first DescriptorRecord
 		return false;
@@ -580,17 +581,18 @@ bool ReadDescriptorRecordSet()
 
 int main(int argc, char **argv)
 {
-	if (argc != 3)
+	if (argc < 3)
     {
-        fprintf(stderr, "Usage: %s <ElasticSearch-location> <MeSH-file>\n\nExample: %s localhost:9200 ~/Downloads/nordesc2014.xml\n\n", argv[0], argv[0]);
+        fprintf(stderr, "Usage: %s <ElasticSearch-location> [--clean] <MeSH-file>\n\nExample: %s localhost:9200 ~/Downloads/nordesc2014.xml\n\n", argv[0], argv[0]);
 		return -1;
     }
 
 	LIBXML_TEST_VERSION
 
 	g_es = new ElasticSearch(argv[1]);
+    g_should_clean_database = (0==strcmp("--clean", argv[2]));
 
-	const char* filename = argv[2];
+	const char* filename = argv[argc-1]; //0-indexed
 	struct stat filestat;
 	stat(filename, &filestat);
 	g_filesize = filestat.st_size;
