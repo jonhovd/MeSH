@@ -477,7 +477,7 @@ void UpdateChildTreeNumbers()
     while (more)
     {
         std::stringstream query;
-        query << "{\"from\": " << from << ", \"size\": " << size << ", \"query\": {\"match_all\": {} } }";
+        query << "{\"from\": " << from << ", \"size\": " << size << ", \"sort\": {\"id\": {\"order\": \"asc\"}}, \"query\": {\"match_all\": {} } }";
 
         Json::Object search_result;
         long result_size = ESSearch("mesh", CONST_CHAR(g_language_code), query.str(), search_result);
@@ -498,6 +498,8 @@ void UpdateChildTreeNumbers()
         Json::Array::const_iterator hits_iterator = hits_array.begin();
         for (; hits_iterator!=hits_array.end(); ++hits_iterator)
         {
+            from++;
+
             const Json::Value hit_value = *hits_iterator;
             const Json::Object hit_value_object = hit_value.getObject();
             const Json::Value source_value = hit_value_object.getValue("_source");
@@ -530,7 +532,6 @@ void UpdateChildTreeNumbers()
             }
         }
         
-        from += result_size;
         more = (from < total);
     }
     printUpdateHierarchyStatus(from, total);
