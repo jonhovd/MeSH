@@ -374,9 +374,18 @@ void ESPoCApplication::PopulateHierarchy()
         if (id_value.getString().empty())
             continue;
         
+        std::string tree_value;
+        if (source_object.member("tree_numbers"))
+        {
+            tree_value = source_object.getValue("tree_numbers").getArray().first().getString();
+        }
+        
         const Json::Value name_value = source_object.getValue("name");
+        
+        std::stringstream node_text;
+        node_text << "[" << tree_value << "] " << name_value.getString();
 
-        Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(name_value.getString()));
+        Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
         
         if (source_object.member("child_tree_numbers"))
         {
@@ -387,7 +396,6 @@ void ESPoCApplication::PopulateHierarchy()
         item->setData(boost::any(id_value.getString()), Wt::UserRole);
         m_hierarchy_model->setItem(row++, 0, item);
     }
-    m_hierarchy_model->sort(0);
 }
 
 Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidget* parent)
