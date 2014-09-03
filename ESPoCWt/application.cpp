@@ -377,6 +377,13 @@ void ESPoCApplication::PopulateHierarchy()
         const Json::Value name_value = source_object.getValue("name");
 
         Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(name_value.getString()));
+        
+        if (source_object.member("child_tree_numbers"))
+        {
+            Wt::WStandardItem* child_item = new Wt::WStandardItem(Wt::WString("ToDo"));
+            item->setChild(0, 0, child_item);
+        }
+        
         item->setData(boost::any(id_value.getString()), Wt::UserRole);
         m_hierarchy_model->setItem(row++, 0, item);
     }
