@@ -13,6 +13,7 @@
     <message id="LinkText4">PubMed</message>
     <message id="LinkUrl4">http://www.ncbi.nlm.nih.gov/pubmed/?term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
     <message id="Links">Lenker:</message>
+    <message id="MeSH_ID">MeSH ID:</message>
     <message id="MoreHits">(...flere treff)</message>
     <message id="NoHits">(...ingen treff)</message>
     <message id="NonPreferredNorwegianTerms">MeSH ikke-foretrukne termer:</message>

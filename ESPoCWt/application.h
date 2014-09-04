@@ -53,6 +53,8 @@ private:
 
     Wt::WText* m_description_text;
     
+    Wt::WText* m_mesh_id_text;
+
     Wt::WLayout* m_links_layout;
     
     Wt::WTreeView* m_hierarchy_tree_view;

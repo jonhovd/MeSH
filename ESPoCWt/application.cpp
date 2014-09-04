@@ -72,6 +72,8 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 
     m_description_text = new Wt::WText();
  
+    m_mesh_id_text = new Wt::WText();
+
     m_links_layout = new Wt::WHBoxLayout();
 
     search_vbox->addWidget(m_search_edit);
@@ -81,6 +83,8 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     search_vbox->addWidget(m_eng_term_panel);
     search_vbox->addWidget(new Wt::WText(Wt::WString::tr("Description")));
     search_vbox->addWidget(m_description_text);
+    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("MeSH_ID")));
+    search_vbox->addWidget(m_mesh_id_text);
     search_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
     search_vbox->addLayout(m_links_layout);
  
@@ -181,6 +185,9 @@ void ESPoCApplication::SuggestionChanged(Wt::WStandardItem* item)
 void ESPoCApplication::Search(const Wt::WString& mesh_id)
 {
     Wt::WString preferred_eng_term;
+
+    m_mesh_id_text->setText(mesh_id);
+    m_mesh_id_text->show();
 
     Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id.toUTF8());
 
@@ -383,7 +390,11 @@ void ESPoCApplication::PopulateHierarchy()
         const Json::Value name_value = source_object.getValue("name");
         
         std::stringstream node_text;
-        node_text << "[" << tree_value << "] " << name_value.getString();
+        node_text << name_value.getString();
+        if (!tree_value.empty())
+        {
+            node_text << " [" << tree_value << "]";
+        }
 
         Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
         
@@ -452,7 +463,10 @@ void ESPoCApplication::ClearLayout()
 
     m_description_text->setText("");
     m_description_text->hide();
-    
+
+    m_mesh_id_text->setText("");
+    m_mesh_id_text->hide();
+
     m_links_layout->clear();
 
     m_layout_is_cleared = true;
