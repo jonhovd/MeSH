@@ -292,6 +292,11 @@ void ReadTermList(Json::Object& json, xmlNodePtr term_list_ptr)
                     if (0==xmlStrcmp(BAD_CAST("TermUI"), child->name))
                     {
                         AddText(term, "id", child);
+                        xmlNodePtr term_id_ptr = child->children;
+                        if (term_id_ptr && XML_TEXT_NODE==term_id_ptr->type && 0==xmlStrncmp(term_id_ptr->content, g_language_code, xmlStrlen(g_language_code)))
+                        {
+                            term.addMemberByKey("language", CONST_CHAR(g_language_code));
+                        }
                     }
                     else if (0==xmlStrcmp(BAD_CAST("String"), child->name))
                     {
