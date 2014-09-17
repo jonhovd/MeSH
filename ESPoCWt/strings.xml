@@ -4,7 +4,7 @@
     <message id="Hierarchy">Hierarki</message>
     <message id="LinkTextFormat">LinkText{1}</message>
     <message id="LinkUrlFormat">LinkUrl{1}</message>
-    <message id="LinkText1">MeSH</message>
+    <message id="LinkText1">MeSH Browser (NLM)</message>
     <message id="LinkUrl1">http://www.nlm.nih.gov/cgi/mesh/2014/MB_cgi?term={1}&amp;exact=Find+Exact+Term&amp;field=uid</message>
     <message id="LinkText2">SweMed</message>
     <message id="LinkUrl2">http://mesh.kib.ki.se/swemesh/swebrowse.cfm?mode=allfields&amp;tool=karolinska&amp;Term={2}</message>
@@ -12,6 +12,14 @@
     <message id="LinkUrl3">http://bestpractice.bmj.com/best-practice/search.html?searchableText={2}&amp;languageCode=en</message>
     <message id="LinkText4">PubMed</message>
     <message id="LinkUrl4">http://www.ncbi.nlm.nih.gov/pubmed/?term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
+    <message id="LinkText5">SweMed+</message>
+    <message id="LinkUrl5">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
+    <message id="LinkText6">Cochrane library</message>
+    <message id="LinkUrl6">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
+    <message id="LinkText7">PubMed Health</message>
+    <message id="LinkUrl7">http://www.ncbi.nlm.nih.gov/pubmedhealth/?term={2}</message>
+    <message id="LinkText8">MedlinePlus</message>
+    <message id="LinkUrl8">http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&amp;query={2}</message>
     <message id="Links">Lenker:</message>
     <message id="MeSH_ID">MeSH ID:</message>
     <message id="MoreHits">(...flere treff)</message>
