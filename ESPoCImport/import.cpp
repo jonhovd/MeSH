@@ -474,7 +474,7 @@ void PopulateChildrenTreeNumberList(Json::Array& children_tree_number_array, con
 
 void UpdateChildTreeNumbers()
 {
-    int total;
+    int total = 0;
     int from = 0;
     int size = 100;
     bool more = true;
