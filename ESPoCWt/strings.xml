@@ -2,24 +2,34 @@
 <messages>
     <message id="Description">MeSH definisjon:</message>
     <message id="Hierarchy">Hierarki</message>
-    <message id="LinkTextFormat">LinkText{1}</message>
-    <message id="LinkUrlFormat">LinkUrl{1}</message>
-    <message id="LinkText1">MeSH Browser (NLM)</message>
-    <message id="LinkUrl1">http://www.nlm.nih.gov/cgi/mesh/2014/MB_cgi?term={1}&amp;exact=Find+Exact+Term&amp;field=uid</message>
-    <message id="LinkText2">SweMed</message>
-    <message id="LinkUrl2">http://mesh.kib.ki.se/swemesh/swebrowse.cfm?mode=allfields&amp;tool=karolinska&amp;Term={2}</message>
-    <message id="LinkText3">BMJ Best practice</message>
-    <message id="LinkUrl3">http://bestpractice.bmj.com/best-practice/search.html?searchableText={2}&amp;languageCode=en</message>
-    <message id="LinkText4">PubMed</message>
-    <message id="LinkUrl4">http://www.ncbi.nlm.nih.gov/pubmed/?term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
-    <message id="LinkText5">SweMed+</message>
-    <message id="LinkUrl5">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
-    <message id="LinkText6">Cochrane library</message>
-    <message id="LinkUrl6">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
-    <message id="LinkText7">PubMed Health</message>
-    <message id="LinkUrl7">http://www.ncbi.nlm.nih.gov/pubmedhealth/?term={2}</message>
-    <message id="LinkText8">MedlinePlus</message>
-    <message id="LinkUrl8">http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&amp;query={2}</message>
+    <!--    <message id="IndirectHit">{1} ({2})</message> -->
+    <message id="IndirectHit">{1}</message>
+    <message id="LinkCategoryFormat">LinkCategory{1}</message>
+    <message id="LinkTextFormat">LinkText{1}.{2}</message>
+    <message id="LinkUrlFormat">LinkUrl{1}.{2}</message>
+    
+    <message id="LinkCategory1">Referansedatabaser:</message>
+    <message id="LinkText1.1">PubMed</message>
+    <message id="LinkUrl1.1">http://www.ncbi.nlm.nih.gov/pubmed/?term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
+    <message id="LinkText1.2">SveMed+</message>
+    <message id="LinkUrl1.2">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
+    <message id="LinkText1.3">Cochrane&nbsp;library</message>
+    <message id="LinkUrl1.3">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
+
+    <message id="LinkCategory2">Oppslagsverk:</message>
+    <message id="LinkText2.1">BMJ&nbsp;Best&nbsp;practice</message>
+    <message id="LinkUrl2.1">http://bestpractice.bmj.com/best-practice/search.html?searchableText={2}&amp;languageCode=en</message>
+    <message id="LinkText2.2">MedlinePlus</message>
+    <message id="LinkUrl2.2">http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&amp;query={2}</message>
+    <message id="LinkText2.3">Oria</message>
+    <message id="LinkUrl2.3">http://bibsys-primo.hosted.exlibrisgroup.com/primo_library/libweb/action/dlSearch.do?institution=BIBSYS&amp;vid=BIBSYS&amp;search_scope=blended_scope&amp;query=lsr11,exact,{3}</message>
+
+    <message id="LinkCategory3">Termbaser:</message>
+    <message id="LinkText3.1">MeSH&nbsp;Browser&nbsp;(NLM)</message>
+    <message id="LinkUrl3.1">http://www.nlm.nih.gov/cgi/mesh/2014/MB_cgi?term={1}&amp;exact=Find+Exact+Term&amp;field=uid</message>
+    <message id="LinkText3.2">Svensk&nbsp;MeSH</message>
+    <message id="LinkUrl3.2">http://mesh.kib.ki.se/swemesh/swebrowse.cfm?mode=allfields&amp;tool=karolinska&amp;Term={2}</message>
+
     <message id="Links">Lenker:</message>
     <message id="MeSH_ID">MeSH ID:</message>
     <message id="MoreHits">(...flere treff)</message>
@@ -29,7 +39,8 @@
     <message id="PreferredNorwegianTerm">MeSH foretrukken term:</message>
     <message id="PreferredEnglishTerm">MeSH foretrukken term:</message>
     <message id="Search">Søk</message>
-    <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}, {"name": {"order": "asc"}}], "query": {"bool": {"should": [{"term": {"name": {"value": "{3}", "boost": 2} } }, {"simple_query_string": {"query": "{3}*", "fields": ["name","concepts.name","concepts.terms.text"], "default_operator": "AND"} }] } } }</message>
+
+    <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}, {"name": {"order": "asc"}}], "query": {"bool": {"should": [{"term": {"name": {"value": "{3}", "boost": 3} } }, {"term": {"id": {"value": "{3}", "boost": 2} } }, {"simple_query_string": {"query": "{3}*", "fields": ["name","id","concepts.name","concepts.terms.text"], "default_operator": "AND"} }] } } }</message>
     <message id="SearchFilterQuery">{"from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
     <message id="HierarchyTopNodesQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"bool": {"must": {"constant_score": {"filter": {"missing": {"field": "nor.parent_tree_numbers"} } } } } } }</message>
 </messages>

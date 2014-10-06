@@ -4,6 +4,7 @@
 #include <Wt/WApplication>
 #include <Wt/WContainerWidget>
 #include <Wt/WEnvironment>
+#include <Wt/WGridLayout>
 #include <Wt/WJavaScript>
 #include <Wt/WLayout>
 #include <Wt/WLineEdit>
@@ -25,6 +26,7 @@ public:
     ~ESPoCApplication();
 
 protected:
+    void FindIndirectHit(const Json::Object& source_object, std::string& indirect_hit_str);
 	void FilterSuggestion(const Wt::WString& filter);
 	void SuggestionChanged(Wt::WStandardItem* item);
     void Search(const Wt::WString& mesh_id);
@@ -55,7 +57,7 @@ private:
     
     Wt::WText* m_mesh_id_text;
 
-    Wt::WLayout* m_links_layout;
+    Wt::WGridLayout* m_links_layout;
     
     Wt::WTreeView* m_hierarchy_tree_view;
     Wt::WStandardItemModel* m_hierarchy_model;

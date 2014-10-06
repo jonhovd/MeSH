@@ -5,7 +5,6 @@
 #include <Wt/WAnchor>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
-#include <Wt/WHBoxLayout>
 #include <Wt/WImage>
 #include <Wt/WStandardItem>
 #include <Wt/WStringListModel>
@@ -74,7 +73,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
  
     m_mesh_id_text = new Wt::WText();
 
-    m_links_layout = new Wt::WHBoxLayout();
+    m_links_layout = new Wt::WGridLayout();
 
     search_vbox->addWidget(m_search_edit);
     search_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
@@ -113,6 +112,11 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 ESPoCApplication::~ESPoCApplication()
 {
 	delete m_es;
+}
+
+void ESPoCApplication::FindIndirectHit(const Json::Object& /*source_object*/, std::string& indirect_hit_str)
+{
+    indirect_hit_str = "ToDo";
 }
 
 void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
@@ -154,7 +158,22 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 			const Json::Value id_value = source_object.getValue("id");
             const Json::Value name_value = source_object.getValue("name");
 
-            Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(name_value.getString()));
+            const std::string name_value_str = name_value.getString();
+            std::string indirect_hit_str;
+            Wt::WStandardItem* item;
+            if (std::string::npos == name_value_str.find(filter.toUTF8()))
+            {
+                FindIndirectHit(source_object, indirect_hit_str);
+            }
+            
+            if (!indirect_hit_str.empty())
+            {
+                item = new Wt::WStandardItem(Wt::WString::tr("IndirectHit").arg(name_value.getString()).arg(indirect_hit_str));
+            }
+            else
+            {
+                item = new Wt::WStandardItem(Wt::WString::fromUTF8(name_value.getString()));
+            }
 			item->setData(boost::any(id_value.getString()), Wt::UserRole);
 			m_search_suggestion_model->setItem(row, 0, item);
 
@@ -306,24 +325,42 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
     m_nor_term_panel->expand();
     m_eng_term_panel->show();
     m_eng_term_panel->collapse();
-        
+
     std::string url_encoded_term = Wt::Utils::urlEncode(preferred_eng_term.toUTF8());
-    int link_index = 0;
+    std::string url_encoded_filtertext = Wt::Utils::urlEncode(m_search_edit->text().toUTF8());
+    int link_category_index = 0;
+    int link_index;
     while (true)
     {
-        link_index++;
-        Wt::WString link_text_key = Wt::WString::tr("LinkTextFormat").arg(link_index);
-        Wt::WString link_url_key = Wt::WString::tr("LinkUrlFormat").arg(link_index);
-        Wt::WString link_text = Wt::WString::tr(link_text_key.toUTF8());
-        if ('?' == link_text.toUTF8().at(0))
+        link_category_index++;
+        Wt::WString link_category_key = Wt::WString::tr("LinkCategoryFormat").arg(link_category_index);
+        Wt::WString link_category_text = Wt::WString::tr(link_category_key.toUTF8());
+        if ('?' == link_category_text.toUTF8().at(0))
             break;
-        
-        Wt::WString link_url = Wt::WString::tr(link_url_key.toUTF8()).arg(mesh_id).arg(Wt::Utils::urlEncode(preferred_eng_term.toUTF8()));
-        std::string link_str = link_url.toUTF8();
-        boost::replace_all(link_str, "&amp;", "&");
-        Wt::WAnchor* anchor = new Wt::WAnchor(Wt::WLink(link_str), link_text);
-        anchor->setTarget(Wt::TargetNewWindow);
-        m_links_layout->addWidget(anchor);
+
+        m_links_layout->addWidget(new Wt::WText(link_category_text), 0, link_category_index-1);
+
+        Wt::WContainerWidget* container = new Wt::WContainerWidget();
+        container->setContentAlignment(Wt::AlignJustify);
+        link_index = 0;
+        while (true)
+        {
+            link_index++;
+            Wt::WString link_text_key = Wt::WString::tr("LinkTextFormat").arg(link_category_index).arg(link_index);
+            Wt::WString link_url_key = Wt::WString::tr("LinkUrlFormat").arg(link_category_index).arg(link_index);
+            Wt::WString link_text = Wt::WString::tr(link_text_key.toUTF8());
+            if ('?' == link_text.toUTF8().at(0))
+                break;
+            
+            Wt::WString link_url = Wt::WString::tr(link_url_key.toUTF8()).arg(mesh_id).arg(url_encoded_term).arg(url_encoded_filtertext);
+            std::string link_str = link_url.toUTF8();
+            boost::replace_all(link_str, "&amp;", "&");
+            Wt::WAnchor* anchor = new Wt::WAnchor(Wt::WLink(link_str), link_text);
+            anchor->setTarget(Wt::TargetNewWindow);
+            anchor->setPadding(Wt::WLength(2.5, Wt::WLength::FontEm), Wt::Right);
+            container->addWidget(anchor);
+        }
+        m_links_layout->addWidget(container, 1, link_category_index-1);
     }
     
     delete non_preferred_nor_terms;
