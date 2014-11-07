@@ -128,7 +128,11 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 
 	m_search_suggestion_model->clear();
 
-	Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 to see if we got more than SUGGESTION_COUNT hits */).arg(filter);
+    std::string filter_str = filter.toUTF8();
+    std::string cleaned_filter_str;
+    CleanFilterString(filter_str, cleaned_filter_str);
+    
+	Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 to see if we got more than SUGGESTION_COUNT hits */).arg(filter).arg(cleaned_filter_str);
 
 	Json::Object search_result;
 	long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
@@ -161,7 +165,7 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
             const std::string name_value_str = name_value.getString();
             std::string indirect_hit_str;
             Wt::WStandardItem* item;
-            if (std::string::npos == name_value_str.find(filter.toUTF8()))
+            if (std::string::npos == name_value_str.find(filter_str))
             {
                 FindIndirectHit(source_object, indirect_hit_str);
             }
@@ -507,4 +511,23 @@ void ESPoCApplication::ClearLayout()
     m_links_layout->clear();
 
     m_layout_is_cleared = true;
+}
+
+void ESPoCApplication::CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str, bool add_wildcard) const
+{
+    cleaned_filter_str = filter_str;
+    size_t filter_length = cleaned_filter_str.length();
+    size_t i;
+    for (i=0; i<filter_length; i++)
+    {
+        if (ispunct(cleaned_filter_str[i]))
+        {
+            cleaned_filter_str[i] = ' ';
+        }
+    }
+    
+    if (add_wildcard && 0<filter_length && ' '!=cleaned_filter_str[filter_length-1])
+    {
+        cleaned_filter_str.append("*");
+    }
 }

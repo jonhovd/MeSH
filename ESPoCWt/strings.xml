@@ -40,7 +40,7 @@
     <message id="PreferredEnglishTerm">MeSH foretrukken term:</message>
     <message id="Search">Søk</message>
 
-    <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}, {"name": {"order": "asc"}}], "query": {"bool": {"should": [{"term": {"name": {"value": "{3}", "boost": 3} } }, {"term": {"id": {"value": "{3}", "boost": 2} } }, {"simple_query_string": {"query": "{3}*", "fields": ["name","id","concepts.name","concepts.terms.text"], "default_operator": "AND"} }] } } }</message>
+    <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}, {"name": {"order": "asc"}}], "query": {"bool": {"should": [{"term": {"name": {"value": "{3}", "boost": 3} } }, {"term": {"id": {"value": "{3}", "boost": 2} } }, {"simple_query_string": {"query": "{4}", "fields": ["name","id","concepts.name","concepts.terms.text"], "default_operator": "AND"} }] } } }</message>
     <message id="SearchFilterQuery">{"from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
     <message id="HierarchyTopNodesQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"bool": {"must": {"constant_score": {"filter": {"missing": {"field": "nor.parent_tree_numbers"} } } } } } }</message>
 </messages>

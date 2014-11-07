@@ -40,6 +40,8 @@ private:
     Wt::WSuggestionPopup* CreateSuggestionPopup(Wt::WContainerWidget* parent);
     void ClearLayout();
 
+    void CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str, bool add_wildcard=true) const;
+
 private:
     bool m_layout_is_cleared;
     
