@@ -8,7 +8,6 @@
 #include <Wt/WImage>
 #include <Wt/WStandardItem>
 #include <Wt/WStringListModel>
-#include <Wt/WTabWidget>
 #include <Wt/WVBoxLayout>
 
 #define SUGGESTION_COUNT	(20)
@@ -19,7 +18,8 @@
 
 ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
-  m_search_signal(this, "search")
+  m_search_signal(this, "search"),
+  m_hierarchy_popup_menu(NULL)
 {
     messageResourceBundle().use(appRoot() + "strings");
 
@@ -27,24 +27,60 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 
 	setTitle("ElasticSearch Proof-of-Concept Wt application");
 
-	Wt::WTabWidget* tab_widget = new Wt::WTabWidget(root());
+    m_tab_widget = new Wt::WTabWidget(root());
 
-    //Search
-	Wt::WContainerWidget* search_tab = new Wt::WContainerWidget();
+    m_tab_widget->addTab(CreateSearchTab(), Wt::WString::tr("Search"));
+
+    //Hierarchy
+    Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
+    Wt::WVBoxLayout* hierarchy_vbox = new Wt::WVBoxLayout();
+    hierarchy_tab->setLayout(hierarchy_vbox);
+
+    m_hierarchy_model = new Wt::WStandardItemModel(hierarchy_vbox);
+    m_hierarchy_tree_view = new Wt::WTreeView();
+    m_hierarchy_tree_view->setModel(m_hierarchy_model);
+    m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
+
+    hierarchy_vbox->addWidget(m_hierarchy_tree_view);
+    m_hierarchy_tree_view->expanded().connect(this, &ESPoCApplication::TreeItemExpanded);
+    m_hierarchy_tree_view->clicked().connect(this, &ESPoCApplication::TreeItemClicked);
+
+    m_tab_widget->addTab(hierarchy_tab, Wt::WString::tr("Hierarchy"));
+    m_tab_widget->currentChanged().connect(this, &ESPoCApplication::TabChanged);
+
+
+    ClearLayout();
+
+    TabChanged(0);
+}
+
+ESPoCApplication::~ESPoCApplication()
+{
+    delete m_hierarchy_popup_menu;
+    delete m_es;
+}
+
+Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
+{
+    Wt::WContainerWidget* search_tab = new Wt::WContainerWidget();
     Wt::WVBoxLayout* search_vbox = new Wt::WVBoxLayout();
     search_tab->setLayout(search_vbox);
 
     m_search_edit = new Wt::WLineEdit();
-
-	m_search_suggestion = CreateSuggestionPopup(root());
-	m_search_suggestion->forEdit(m_search_edit);
-	m_search_suggestion_model = new Wt::WStandardItemModel(search_vbox);
-	m_search_suggestion->setModel(m_search_suggestion_model);
-	m_search_suggestion->setFilterLength(2);
+    m_search_suggestion = CreateSuggestionPopup(root());
+    m_search_suggestion->forEdit(m_search_edit);
+    m_search_suggestion_model = new Wt::WStandardItemModel(search_vbox);
+    m_search_suggestion->setModel(m_search_suggestion_model);
+    m_search_suggestion->setFilterLength(2);
     m_search_suggestion->filterModel().connect(this, &ESPoCApplication::FilterSuggestion);
-	m_search_suggestion_model->itemChanged().connect(this, &ESPoCApplication::SuggestionChanged);
+    m_search_suggestion_model->itemChanged().connect(this, &ESPoCApplication::SuggestionChanged);
     m_search_signal.connect(this, &ESPoCApplication::Search);
-	
+    search_vbox->addWidget(m_search_edit);
+
+    m_result_container = new Wt::WContainerWidget();
+    Wt::WVBoxLayout* result_vbox = new Wt::WVBoxLayout();
+    m_result_container->setLayout(result_vbox);
+
     m_nor_term_panel = new Wt::WPanel();
     m_nor_term_panel->setCollapsible(true);
     Wt::WContainerWidget* nor_term_container = new Wt::WContainerWidget();
@@ -56,6 +92,9 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     m_nor_term_panel->titleBarWidget()->insertWidget(0, nor_flag);
     nor_flag->setHeight(Wt::WLength(1.0, Wt::WLength::FontEm));
     nor_flag->setMargin(Wt::WLength(3.0, Wt::WLength::Pixel));
+
+    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
+    result_vbox->addWidget(m_nor_term_panel);
 
     m_eng_term_panel = new Wt::WPanel();
     m_eng_term_panel->setCollapsible(true);
@@ -69,49 +108,24 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     eng_flag->setHeight(Wt::WLength(1.0, Wt::WLength::FontEm));
     eng_flag->setMargin(Wt::WLength(3.0, Wt::WLength::Pixel));
 
+    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredEnglishTerm")));
+    result_vbox->addWidget(m_eng_term_panel);
+
     m_description_text = new Wt::WText();
+    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("Description")));
+    result_vbox->addWidget(m_description_text);
  
     m_mesh_id_text = new Wt::WText();
+    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("MeSH_ID")));
+    result_vbox->addWidget(m_mesh_id_text);
 
     m_links_layout = new Wt::WGridLayout();
+    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
+    result_vbox->addLayout(m_links_layout);
+    
+    search_vbox->addWidget(m_result_container);
 
-    search_vbox->addWidget(m_search_edit);
-    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
-    search_vbox->addWidget(m_nor_term_panel);
-    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredEnglishTerm")));
-    search_vbox->addWidget(m_eng_term_panel);
-    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("Description")));
-    search_vbox->addWidget(m_description_text);
-    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("MeSH_ID")));
-    search_vbox->addWidget(m_mesh_id_text);
-    search_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
-    search_vbox->addLayout(m_links_layout);
- 
-	tab_widget->addTab(search_tab, Wt::WString::tr("Search"));
-
-    //Hierarchy
-    Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
-    Wt::WVBoxLayout* hierarchy_vbox = new Wt::WVBoxLayout();
-    hierarchy_tab->setLayout(hierarchy_vbox);
-
-    m_hierarchy_model = new Wt::WStandardItemModel(hierarchy_vbox);
-    m_hierarchy_tree_view = new Wt::WTreeView();
-    m_hierarchy_tree_view->setModel(m_hierarchy_model);
-    m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
-
-    hierarchy_vbox->addWidget(m_hierarchy_tree_view);
-
-    tab_widget->addTab(hierarchy_tab, Wt::WString::tr("Hierarchy"));
-    tab_widget->currentChanged().connect(this, &ESPoCApplication::TabChanged);
-
-
-    ClearLayout();
-    m_search_edit->setFocus();
-}
-
-ESPoCApplication::~ESPoCApplication()
-{
-	delete m_es;
+    return search_tab;
 }
 
 void ESPoCApplication::FindIndirectHit(const Json::Object& /*source_object*/, std::string& indirect_hit_str)
@@ -210,7 +224,6 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
     Wt::WString preferred_eng_term;
 
     m_mesh_id_text->setText(mesh_id);
-    m_mesh_id_text->show();
 
     Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id.toUTF8());
 
@@ -325,9 +338,8 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
             non_preferred_term_layout->addWidget(non_preferred_term_text);
         }
     }
-    m_nor_term_panel->show();
+    m_result_container->show();
     m_nor_term_panel->expand();
-    m_eng_term_panel->show();
     m_eng_term_panel->collapse();
 
     std::string url_encoded_term = Wt::Utils::urlEncode(preferred_eng_term.toUTF8());
@@ -375,9 +387,126 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
 
 void ESPoCApplication::TabChanged(int active_tab_index)
 {
-    if (1 == active_tab_index)
+    if (0 >= active_tab_index)
+    {
+        m_search_edit->setFocus();
+    }
+    else
     {
         PopulateHierarchy();
+    }
+}
+
+void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
+{
+    Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(index);
+    if (!standard_item || !standard_item->hasChildren())
+    {
+        return;
+    }
+
+    Wt::WStandardItem* possible_placeholder = standard_item->child(0, 0);
+    if (!possible_placeholder || //We don't have a children placeholder. This item should not be populated by children 
+        !possible_placeholder->data(Wt::UserRole).empty()) //This is a real child, not a placeholder. No need to populate children one more time.
+    {
+        return;
+    }
+
+    //Remove placeholder
+    possible_placeholder = standard_item->takeChild(0, 0);
+    delete possible_placeholder;
+
+    std::string parent_tree_number_string = boost::any_cast<std::string>(standard_item->data(Wt::UserRole));
+    //Fetch all children from ElasticSearch
+    Wt::WString query = Wt::WString::tr("HierarchyChildrenQuery").arg(parent_tree_number_string);
+
+    Json::Object search_result;
+    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    if (0 == result_size)
+    {
+        return;
+    }
+
+    const Json::Value value = search_result.getValue("hits");
+    const Json::Object value_object = value.getObject();
+    const Json::Value hits_value = value_object.getValue("hits");
+    const Json::Array hits_array = hits_value.getArray();
+
+    int row = 0;
+    Json::Array::const_iterator iterator = hits_array.begin();
+    for (; iterator!=hits_array.end(); ++iterator)
+    {
+        const Json::Value hit_value = *iterator;
+        const Json::Object hit_value_object = hit_value.getObject();
+        const Json::Value source_value = hit_value_object.getValue("_source");
+        const Json::Object source_object = source_value.getObject();
+
+        const Json::Value id_value = source_object.getValue("id");
+        std::string id_value_string = id_value.getString();
+        if (id_value_string.empty())
+            continue;
+        
+        std::string tree_number_value_string;
+        std::string possible_parent_tree_number_string;
+        const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
+        const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+        Json::Array::const_iterator tree_numbers_iterator = tree_numbers_array.begin();
+        for (; tree_numbers_iterator!=tree_numbers_array.end(); ++tree_numbers_iterator)
+        {
+            const Json::Value tree_number_value = *tree_numbers_iterator;
+            tree_number_value_string = tree_number_value.getString();
+            GetParentTreeNumber(tree_number_value_string, possible_parent_tree_number_string);
+            if (0 == parent_tree_number_string.compare(possible_parent_tree_number_string)) //This three_number matches the parent, add it as a child
+            {
+                const Json::Value name_value = source_object.getValue("name");
+                
+                std::stringstream node_text;
+                node_text << name_value.getString();
+                if (!tree_number_value_string.empty())
+                {
+                    node_text << " [" << tree_number_value_string << "]";
+                }
+
+                Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
+                AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
+                item->setData(boost::any(tree_number_value_string), Wt::UserRole);
+                item->setData(boost::any(id_value_string), Wt::UserRole+1);
+                standard_item->setChild(row++, 0, item);
+                break;
+            }
+        }
+    }
+}
+
+void ESPoCApplication::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse)
+{
+    Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(index);
+    if (!standard_item)
+        return;
+    
+    if (m_hierarchy_popup_menu)
+    {
+        delete m_hierarchy_popup_menu;
+    }
+
+    m_hierarchy_popup_menu = new Wt::WPopupMenu;
+    m_hierarchy_popup_menu->setAutoHide(true, 1000);
+
+    m_popup_menu_id_string = boost::any_cast<std::string>(standard_item->data(Wt::UserRole+1));
+
+    Wt::WString soek = Wt::WString::tr("SearchFromHierarchy").arg(standard_item->text().toUTF8());
+    m_hierarchy_popup_menu->addItem(soek)->triggered().connect(this, &ESPoCApplication::PopupMenuTriggered);
+
+    m_hierarchy_popup_menu->popup(mouse);
+}
+
+void ESPoCApplication::PopupMenuTriggered(Wt::WMenuItem* item)
+{
+    if (item && !m_popup_menu_id_string.empty())
+    {
+        m_tab_widget->setCurrentIndex(0);
+        m_search_edit->setText(m_popup_menu_id_string);
+        Search(m_popup_menu_id_string);
     }
 }
 
@@ -419,33 +548,29 @@ void ESPoCApplication::PopulateHierarchy()
         const Json::Object source_object = source_value.getObject();
 
         const Json::Value id_value = source_object.getValue("id");
-        if (id_value.getString().empty())
+        std::string id_value_string = id_value.getString();
+        if (id_value_string.empty())
             continue;
         
-        std::string tree_value;
+        std::string tree_number_value_string;
         if (source_object.member("tree_numbers"))
         {
-            tree_value = source_object.getValue("tree_numbers").getArray().first().getString();
+            tree_number_value_string = source_object.getValue("tree_numbers").getArray().first().getString(); //Top-level nodes only occur once, right?
         }
         
         const Json::Value name_value = source_object.getValue("name");
         
         std::stringstream node_text;
         node_text << name_value.getString();
-        if (!tree_value.empty())
+        if (!tree_number_value_string.empty())
         {
-            node_text << " [" << tree_value << "]";
+            node_text << " [" << tree_number_value_string << "]";
         }
 
         Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
-        
-        if (source_object.member("child_tree_numbers"))
-        {
-            Wt::WStandardItem* child_item = new Wt::WStandardItem(Wt::WString("ToDo"));
-            item->setChild(0, 0, child_item);
-        }
-        
-        item->setData(boost::any(id_value.getString()), Wt::UserRole);
+        AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
+        item->setData(boost::any(tree_number_value_string), Wt::UserRole);
+        item->setData(boost::any(id_value_string), Wt::UserRole+1);
         m_hierarchy_model->setItem(row++, 0, item);
     }
 }
@@ -494,22 +619,21 @@ void ESPoCApplication::ClearLayout()
 {
     m_nor_term_panel->setTitle("");
     m_nor_term_panel->expand();
-    m_nor_term_panel->hide();
     m_nor_term_panel_layout->clear();
     
     m_eng_term_panel->setTitle("");
     m_eng_term_panel->collapse();
-    m_eng_term_panel->hide();
     m_eng_term_panel_layout->clear();
 
     m_description_text->setText("");
     m_description_text->hide();
 
     m_mesh_id_text->setText("");
-    m_mesh_id_text->hide();
 
     m_links_layout->clear();
 
+    m_result_container->hide();
+    
     m_layout_is_cleared = true;
 }
 
@@ -530,4 +654,35 @@ void ESPoCApplication::CleanFilterString(const std::string filter_str, std::stri
     {
         cleaned_filter_str.append("*");
     }
+}
+
+void ESPoCApplication::GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number)
+{
+    size_t substring_length = child_tree_number.find_last_of('.');
+    parent_tree_number = (std::string::npos==substring_length) ? "" : child_tree_number.substr(0, substring_length);
+}
+
+bool ESPoCApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item)
+{
+    //Check if we have a matching child in the child_tree_numbers array
+    if (source_object.member("child_tree_numbers"))
+    {
+        std::string possible_parent_tree_number_string;
+
+        const Json::Value child_tree_numbers_value = source_object.getValue("child_tree_numbers");
+        const Json::Array child_tree_numbers_array = child_tree_numbers_value.getArray();
+        Json::Array::const_iterator child_iterator = child_tree_numbers_array.begin();
+        for (; child_iterator!=child_tree_numbers_array.end(); ++child_iterator)
+        {
+            const Json::Value child_tree_number_value = *child_iterator;
+            GetParentTreeNumber(child_tree_number_value.getString(), possible_parent_tree_number_string);
+            if (0 == current_tree_number_string.compare(possible_parent_tree_number_string))
+            {
+                Wt::WStandardItem* child_item = new Wt::WStandardItem(Wt::WString("")); //Placeholder, adds the [+]-icon
+                current_item->setChild(0, 0, child_item);
+                return true;
+            }
+        }
+    }
+    return false;
 }
