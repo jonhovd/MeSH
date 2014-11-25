@@ -77,6 +77,7 @@ private:
     
     Wt::WTreeView* m_hierarchy_tree_view;
     Wt::WStandardItemModel* m_hierarchy_model;
+    bool m_has_populated_hierarchy_model;
     Wt::WPopupMenu* m_hierarchy_popup_menu;
     std::string m_popup_menu_id_string;
 

@@ -19,6 +19,7 @@
 ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
   m_search_signal(this, "search"),
+  m_has_populated_hierarchy_model(false),
   m_hierarchy_popup_menu(NULL)
 {
     messageResourceBundle().use(appRoot() + "strings");
@@ -399,6 +400,11 @@ void ESPoCApplication::TabChanged(int active_tab_index)
 
 void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
 {
+    if (!index.isValid())
+    {
+        return;
+    }
+
     Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(index);
     if (!standard_item || !standard_item->hasChildren())
     {
@@ -480,6 +486,11 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
 
 void ESPoCApplication::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse)
 {
+    if (!index.isValid())
+    {
+        return;
+    }
+    
     Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(index);
     if (!standard_item)
         return;
@@ -524,6 +535,11 @@ long ESPoCApplication::ESSearch(const std::string& index, const std::string& typ
 
 void ESPoCApplication::PopulateHierarchy()
 {
+    if (m_has_populated_hierarchy_model)
+    {
+        return;
+    }
+
     Wt::WString query = Wt::WString::tr("HierarchyTopNodesQuery");
 
     Json::Object search_result;
@@ -573,6 +589,7 @@ void ESPoCApplication::PopulateHierarchy()
         item->setData(boost::any(id_value_string), Wt::UserRole+1);
         m_hierarchy_model->setItem(row++, 0, item);
     }
+    m_has_populated_hierarchy_model = true;
 }
 
 Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidget* parent)
