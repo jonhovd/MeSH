@@ -348,6 +348,10 @@ void ReadConceptList(Json::Object& json, xmlNodePtr concept_list_ptr)
                     }
                     else if (0==xmlStrcmp(BAD_CAST("ScopeNote"), child->name))
                     {
+                        AddText(concept, "english_description", child);
+                    }
+                    else if (0==xmlStrcmp(BAD_CAST("TranslatorsScopeNote"), child->name))
+                    {
                         AddText(concept, "description", child);
                     }
                     else if (0==xmlStrcmp(BAD_CAST("TermList"), child->name))
@@ -589,7 +593,7 @@ int main(int argc, char **argv)
 {
 	if (argc < 3)
     {
-        fprintf(stderr, "Usage: %s <ElasticSearch-location> [--clean] <MeSH-file>\n\nExample: %s localhost:9200 ~/Downloads/nordesc2014.xml\n\n", argv[0], argv[0]);
+        fprintf(stderr, "Usage: %s <ElasticSearch-location> [--clean] <MeSH-file>\n\nExample: %s localhost:9200 ~/Downloads/nordesc2015.xml\n\n", argv[0], argv[0]);
 		return -1;
     }
 
