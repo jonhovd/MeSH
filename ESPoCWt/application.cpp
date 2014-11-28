@@ -23,10 +23,11 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
   m_hierarchy_popup_menu(NULL)
 {
     messageResourceBundle().use(appRoot() + "strings");
+    useStyleSheet(Wt::WLink("MeSH.css"));
 
 	m_es = new ElasticSearch("localhost:9200");
 
-	setTitle("ElasticSearch Proof-of-Concept Wt application");
+	setTitle(Wt::WString::tr("AppName"));
 
     m_tab_widget = new Wt::WTabWidget(root());
 
@@ -82,6 +83,14 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     Wt::WVBoxLayout* result_vbox = new Wt::WVBoxLayout();
     m_result_container->setLayout(result_vbox);
 
+    Wt::WCssDecorationStyle panel_style;
+    panel_style.setBackgroundColor(Wt::WColor(232, 232, 232));
+    panel_style.setForegroundColor(Wt::WColor(Wt::GlobalColor::black));
+    Wt::WFont panel_font;
+    panel_font.setSize(Wt::WFont::Size::Large);
+    panel_font.setWeight(Wt::WFont::Weight::Bold);
+    panel_style.setFont(panel_font);
+    
     m_nor_term_panel = new Wt::WPanel();
     m_nor_term_panel->setCollapsible(true);
     Wt::WContainerWidget* nor_term_container = new Wt::WContainerWidget();
@@ -93,9 +102,14 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     m_nor_term_panel->titleBarWidget()->insertWidget(0, nor_flag);
     nor_flag->setHeight(Wt::WLength(1.0, Wt::WLength::FontEm));
     nor_flag->setMargin(Wt::WLength(3.0, Wt::WLength::Pixel));
+    m_nor_term_panel->titleBarWidget()->setDecorationStyle(panel_style);
 
     result_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
     result_vbox->addWidget(m_nor_term_panel);
+
+    m_nor_description_text = new Wt::WText();
+    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("NorwegianDescription")));
+    result_vbox->addWidget(m_nor_description_text);
 
     m_eng_term_panel = new Wt::WPanel();
     m_eng_term_panel->setCollapsible(true);
@@ -108,13 +122,14 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     m_eng_term_panel->titleBarWidget()->insertWidget(0, eng_flag);
     eng_flag->setHeight(Wt::WLength(1.0, Wt::WLength::FontEm));
     eng_flag->setMargin(Wt::WLength(3.0, Wt::WLength::Pixel));
+    m_eng_term_panel->titleBarWidget()->setDecorationStyle(panel_style);
 
     result_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredEnglishTerm")));
     result_vbox->addWidget(m_eng_term_panel);
 
-    m_description_text = new Wt::WText();
-    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("Description")));
-    result_vbox->addWidget(m_description_text);
+    m_eng_description_text = new Wt::WText();
+    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("EnglishDescription")));
+    result_vbox->addWidget(m_eng_description_text);
  
     m_mesh_id_text = new Wt::WText();
     result_vbox->addWidget(new Wt::WText(Wt::WString::tr("MeSH_ID")));
@@ -262,9 +277,19 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
             std::string description_str = description_value.getString();
             boost::replace_all(description_str, "\\n", "\n");
             
-            m_description_text->setTextFormat(Wt::PlainText);
-            m_description_text->setText(Wt::WString::fromUTF8(description_str));
-            m_description_text->show();
+            m_nor_description_text->setTextFormat(Wt::PlainText);
+            m_nor_description_text->setText(Wt::WString::fromUTF8(description_str));
+            m_nor_description_text->show();
+        }
+        if (preferred_concept && concept_object.member("english_description"))
+        {
+            const Json::Value description_value = concept_object.getValue("english_description");
+            std::string description_str = description_value.getString();
+            boost::replace_all(description_str, "\\n", "\n");
+            
+            m_eng_description_text->setTextFormat(Wt::PlainText);
+            m_eng_description_text->setText(Wt::WString::fromUTF8(description_str));
+            m_eng_description_text->show();
         }
 
         const Json::Value terms_value = concept_object.getValue("terms");
@@ -515,6 +540,7 @@ void ESPoCApplication::PopupMenuTriggered(Wt::WMenuItem* item)
 {
     if (item && !m_popup_menu_id_string.empty())
     {
+        ClearLayout();
         m_tab_widget->setCurrentIndex(0);
         m_search_edit->setText(m_popup_menu_id_string);
         Search(m_popup_menu_id_string);
@@ -638,12 +664,15 @@ void ESPoCApplication::ClearLayout()
     m_nor_term_panel->expand();
     m_nor_term_panel_layout->clear();
     
+    m_nor_description_text->setText("");
+    m_nor_description_text->hide();
+
     m_eng_term_panel->setTitle("");
     m_eng_term_panel->collapse();
     m_eng_term_panel_layout->clear();
 
-    m_description_text->setText("");
-    m_description_text->hide();
+    m_eng_description_text->setText("");
+    m_eng_description_text->hide();
 
     m_mesh_id_text->setText("");
 

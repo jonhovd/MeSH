@@ -66,10 +66,11 @@ private:
 
     Wt::WPanel* m_nor_term_panel;
     Wt::WLayout* m_nor_term_panel_layout;
+    Wt::WText* m_nor_description_text;
+
     Wt::WPanel* m_eng_term_panel;
     Wt::WLayout* m_eng_term_panel_layout;
-
-    Wt::WText* m_description_text;
+    Wt::WText* m_eng_description_text;
     
     Wt::WText* m_mesh_id_text;
 

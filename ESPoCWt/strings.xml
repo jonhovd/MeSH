@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
-    <message id="Description">MeSH definisjon:</message>
+    <message id="AppName">MeSH på norsk</message>
+    <message id="NorwegianDescription">Definisjon:</message>
+    <message id="EnglishDescription">Scope note:</message>
     <message id="Hierarchy">Hierarki</message>
     <!--    <message id="IndirectHit">{1} ({2})</message> -->
     <message id="IndirectHit">{1}</message>
@@ -34,10 +36,10 @@
     <message id="MeSH_ID">MeSH ID:</message>
     <message id="MoreHits">(...flere treff)</message>
     <message id="NoHits">(...ingen treff)</message>
-    <message id="NonPreferredNorwegianTerms">MeSH ikke-foretrukne termer:</message>
-    <message id="NonPreferredEnglishTerms">MeSH ikke-foretrukne termer:</message>
-    <message id="PreferredNorwegianTerm">MeSH foretrukken term:</message>
-    <message id="PreferredEnglishTerm">MeSH foretrukken term:</message>
+    <message id="NonPreferredNorwegianTerms">Alternative termer:</message>
+    <message id="NonPreferredEnglishTerms">Alternative engelske termer:</message>
+    <message id="PreferredNorwegianTerm"></message>
+    <message id="PreferredEnglishTerm"></message>
     <message id="Search">Søk</message>
     <message id="SearchFromHierarchy">Søk etter "{1}"</message>
 
