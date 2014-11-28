@@ -29,6 +29,14 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 
 	setTitle(Wt::WString::tr("AppName"));
 
+    Wt::WImage* logo = new Wt::WImage("images/logo.png");
+    root()->addWidget(logo);
+
+    Wt::WText* header = new Wt::WText(Wt::WString::tr("AppName"));
+    header->setStyleClass("mesh-header");
+    header->setPadding(Wt::WLength(3.0, Wt::WLength::FontEm), Wt::Left);
+    root()->addWidget(header);
+
     m_tab_widget = new Wt::WTabWidget(root());
 
     m_tab_widget->addTab(CreateSearchTab(), Wt::WString::tr("Search"));

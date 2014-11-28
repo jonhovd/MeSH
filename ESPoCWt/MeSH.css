@@ -1,3 +1,7 @@
+.mesh-header {
+    font-size: 20pt !important;
+}
+
 @media print {
   * {
     font-size: 14pt !important;  

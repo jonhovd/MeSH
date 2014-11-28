@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
-    <message id="AppName">MeSH på norsk</message>
+    <message id="AppName">MeSH på norsk og engelsk</message>
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope note:</message>
     <message id="Hierarchy">Hierarki</message>
