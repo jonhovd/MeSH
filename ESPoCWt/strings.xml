@@ -30,7 +30,7 @@
     <message id="LinkText3.1">MeSH&nbsp;Browser&nbsp;(NLM)</message>
     <message id="LinkUrl3.1">http://www.nlm.nih.gov/cgi/mesh/2014/MB_cgi?term={1}&amp;exact=Find+Exact+Term&amp;field=uid</message>
     <message id="LinkText3.2">Svensk&nbsp;MeSH</message>
-    <message id="LinkUrl3.2">http://mesh.kib.ki.se/swemesh/swebrowse.cfm?mode=allfields&amp;tool=karolinska&amp;Term={2}</message>
+    <message id="LinkUrl3.2">http://mesh.kib.ki.se/swemesh/swebrowse.cfm?mode=allfields&amp;Term={2}</message>
 
     <message id="Links">Lenker:</message>
     <message id="MeSH_ID">MeSH ID:</message>
