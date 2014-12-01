@@ -50,6 +50,7 @@ void CleanDatabase()
     std::stringstream mapping;
     mapping << "{\"mappings\": {\"" << g_language_code << "\": {\"properties\": {"
             << "\"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"top_node\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"parent_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"child_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
@@ -233,6 +234,7 @@ void ReadTreeNumberList(Json::Object& json, xmlNodePtr tree_number_list_ptr)
     Json::Array parent_tree_number_array;
     Json::Array tree_number_array;
     xmlNodePtr tree_number_ptr = tree_number_list_ptr->children;
+    bool top_node = false;
     while (NULL!=tree_number_ptr)
     {
         if (XML_ELEMENT_NODE==tree_number_ptr->type && 0==xmlStrcmp(BAD_CAST("TreeNumber"), tree_number_ptr->name) && NULL!=tree_number_ptr->children)
@@ -257,6 +259,10 @@ void ReadTreeNumberList(Json::Object& json, xmlNodePtr tree_number_list_ptr)
                     parent_tree_number.setString(std::string(CONST_CHAR(text_ptr->content), end_parent - text_ptr->content));
                     parent_tree_number_array.addElement(parent_tree_number);
                 }
+                else
+                {
+                    top_node = true;
+                }
             }
         }
         
@@ -271,6 +277,11 @@ void ReadTreeNumberList(Json::Object& json, xmlNodePtr tree_number_list_ptr)
     if (!parent_tree_number_array.empty())
     {
         json.addMemberByKey("parent_tree_numbers", parent_tree_number_array);
+    }
+    
+    if (top_node)
+    {
+        json.addMemberByKey("top_node", CONST_CHAR("yes"));
     }
 }
 

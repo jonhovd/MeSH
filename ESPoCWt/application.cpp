@@ -16,6 +16,11 @@
 #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
 
+#define SUGGESTIONLIST_ITEM_ID_ROLE     (Wt::UserRole)
+#define HIERARCHY_ITEM_TREE_NUMBER_ROLE (Wt::UserRole+1)
+#define HIERARCHY_ITEM_ID_ROLE          (Wt::UserRole+2)
+
+
 ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
   m_search_signal(this, "search"),
@@ -47,6 +52,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     hierarchy_tab->setLayout(hierarchy_vbox);
 
     m_hierarchy_model = new Wt::WStandardItemModel(hierarchy_vbox);
+    m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
     m_hierarchy_tree_view = new Wt::WTreeView();
     m_hierarchy_tree_view->setModel(m_hierarchy_model);
     m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
@@ -179,7 +185,7 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 	if (0 == result_size)
 	{
             Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("NoHits"));
-            item->setData(boost::any(), Wt::UserRole);
+            item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row++, 0, item);
 	}
 	else
@@ -216,7 +222,7 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
             {
                 item = new Wt::WStandardItem(Wt::WString::fromUTF8(name_value.getString()));
             }
-			item->setData(boost::any(id_value.getString()), Wt::UserRole);
+			item->setData(boost::any(id_value.getString()), SUGGESTIONLIST_ITEM_ID_ROLE);
 			m_search_suggestion_model->setItem(row, 0, item);
 
 			++iterator;
@@ -227,7 +233,7 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
         if (hits_array.size() > SUGGESTION_COUNT)
         {
             Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("MoreHits"));
-            item->setData(boost::any(), Wt::UserRole);
+            item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row++, 0, item);
         }
 	}
@@ -416,7 +422,87 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
     delete non_preferred_nor_terms;
     delete non_preferred_eng_terms;
     
+    //Collapse/expand hierarchy
+    CollapseHierarchy();
+    if (source_object.member("tree_numbers"))
+    {
+        const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
+        const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+        Json::Array::const_iterator tree_numbers_iterator = tree_numbers_array.begin();
+        for (; tree_numbers_iterator!=tree_numbers_array.end(); ++tree_numbers_iterator)
+        {
+            const Json::Value tree_number_value = *tree_numbers_iterator;
+            ExpandToTreeNumber(tree_number_value.getString());
+        }
+    }
+            
     m_layout_is_cleared = false;
+}
+
+void ESPoCApplication::CollapseHierarchy()
+{
+    PopulateHierarchy(); //Just in case it isn't populated yet
+
+    int row = 0;
+    Wt::WModelIndex index;
+    while (true)
+    {
+        index = m_hierarchy_model->index(row, 0);
+        if (!index.isValid())
+            break;
+
+        m_hierarchy_tree_view->collapse(index);
+        row++;
+    }
+}
+
+void ESPoCApplication::ExpandToTreeNumber(const std::string& tree_number_string)
+{
+    Wt::WModelIndex model_index;
+    ExpandTreeNumberRecursive(tree_number_string, model_index);
+}
+
+void ESPoCApplication::ExpandTreeNumberRecursive(const std::string& current_tree_number_string, Wt::WModelIndex& model_index)
+{
+    std::string parent_tree_number_string;
+    GetParentTreeNumber(current_tree_number_string, parent_tree_number_string);
+    bool top_level = parent_tree_number_string.empty();
+    if (!top_level) //We're not at top-level yet
+    {
+        ExpandTreeNumberRecursive(parent_tree_number_string, model_index); //Recurse, depth-first
+    }
+
+    if (FindChildModelIndex(current_tree_number_string, top_level, model_index))
+    {
+        TreeItemExpanded(model_index);
+    }
+}
+
+bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string, bool top_level, Wt::WModelIndex& index)
+{
+    int row = 0;
+    Wt::WModelIndex child_index;
+    Wt::WStandardItem* standard_item;
+    std::string item_tree_number_string;
+    while (true)
+    {
+        child_index = top_level ? m_hierarchy_model->index(row, 0) : index.child(row, 0);
+        if (!child_index.isValid())
+            return false;
+
+        standard_item = m_hierarchy_model->itemFromIndex(child_index);
+        if (!standard_item)
+            return false;
+
+        item_tree_number_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE));
+        if (0 == tree_number_string.compare(item_tree_number_string))
+        {
+            index = child_index;
+            return true;
+        }
+
+        row++;
+    }
 }
 
 void ESPoCApplication::TabChanged(int active_tab_index)
@@ -446,7 +532,7 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
 
     Wt::WStandardItem* possible_placeholder = standard_item->child(0, 0);
     if (!possible_placeholder || //We don't have a children placeholder. This item should not be populated by children 
-        !possible_placeholder->data(Wt::UserRole).empty()) //This is a real child, not a placeholder. No need to populate children one more time.
+        !possible_placeholder->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE).empty()) //This is a real child, not a placeholder. No need to populate children one more time.
     {
         return;
     }
@@ -455,7 +541,7 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
     possible_placeholder = standard_item->takeChild(0, 0);
     delete possible_placeholder;
 
-    std::string parent_tree_number_string = boost::any_cast<std::string>(standard_item->data(Wt::UserRole));
+    std::string parent_tree_number_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE));
     //Fetch all children from ElasticSearch
     Wt::WString query = Wt::WString::tr("HierarchyChildrenQuery").arg(parent_tree_number_string);
 
@@ -471,6 +557,7 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
     const Json::Value hits_value = value_object.getValue("hits");
     const Json::Array hits_array = hits_value.getArray();
 
+    bool added_items = false;
     int row = 0;
     Json::Array::const_iterator iterator = hits_array.begin();
     for (; iterator!=hits_array.end(); ++iterator)
@@ -508,12 +595,17 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
 
                 Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
                 AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
-                item->setData(boost::any(tree_number_value_string), Wt::UserRole);
-                item->setData(boost::any(id_value_string), Wt::UserRole+1);
+                item->setData(boost::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
+                item->setData(boost::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
                 standard_item->setChild(row++, 0, item);
-                break;
+                added_items = true;
             }
         }
+    }
+    
+    if (added_items)
+    {
+        m_hierarchy_model->sort(0);
     }
 }
 
@@ -536,7 +628,7 @@ void ESPoCApplication::TreeItemClicked(const Wt::WModelIndex& index, const Wt::W
     m_hierarchy_popup_menu = new Wt::WPopupMenu;
     m_hierarchy_popup_menu->setAutoHide(true, 1000);
 
-    m_popup_menu_id_string = boost::any_cast<std::string>(standard_item->data(Wt::UserRole+1));
+    m_popup_menu_id_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_ID_ROLE));
 
     Wt::WString soek = Wt::WString::tr("SearchFromHierarchy").arg(standard_item->text().toUTF8());
     m_hierarchy_popup_menu->addItem(soek)->triggered().connect(this, &ESPoCApplication::PopupMenuTriggered);
@@ -605,24 +697,35 @@ void ESPoCApplication::PopulateHierarchy()
         std::string tree_number_value_string;
         if (source_object.member("tree_numbers"))
         {
-            tree_number_value_string = source_object.getValue("tree_numbers").getArray().first().getString(); //Top-level nodes only occur once, right?
-        }
-        
-        const Json::Value name_value = source_object.getValue("name");
-        
-        std::stringstream node_text;
-        node_text << name_value.getString();
-        if (!tree_number_value_string.empty())
-        {
-            node_text << " [" << tree_number_value_string << "]";
-        }
+            const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
+            const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+            Json::Array::const_iterator tree_numbers_iterator = tree_numbers_array.begin();
+            for (; tree_numbers_iterator!=tree_numbers_array.end(); ++tree_numbers_iterator)
+            {
+                const Json::Value tree_number_value = *tree_numbers_iterator;
+                tree_number_value_string = tree_number_value.getString();
+                if (std::string::npos != tree_number_value_string.find('.'))
+                    continue; //skip child tree_numbers for meshes that also have top-level tree_numbers
+                    
+                //We have a top-level tree_number!
+                const Json::Value name_value = source_object.getValue("name");
+                
+                std::stringstream node_text;
+                node_text << name_value.getString();
+                if (!tree_number_value_string.empty())
+                {
+                    node_text << " [" << tree_number_value_string << "]";
+                }
 
-        Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
-        AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
-        item->setData(boost::any(tree_number_value_string), Wt::UserRole);
-        item->setData(boost::any(id_value_string), Wt::UserRole+1);
-        m_hierarchy_model->setItem(row++, 0, item);
+                Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
+                AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
+                item->setData(boost::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
+                item->setData(boost::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
+                m_hierarchy_model->setItem(row++, 0, item);
+            }
+        }
     }
+    m_hierarchy_model->sort(0);
     m_has_populated_hierarchy_model = true;
 }
 

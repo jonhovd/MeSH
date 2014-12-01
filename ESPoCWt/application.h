@@ -32,9 +32,14 @@ private:
     
 protected:
     void FindIndirectHit(const Json::Object& source_object, std::string& indirect_hit_str);
-	void FilterSuggestion(const Wt::WString& filter);
-	void SuggestionChanged(Wt::WStandardItem* item);
+    void FilterSuggestion(const Wt::WString& filter);
+    void SuggestionChanged(Wt::WStandardItem* item);
     void Search(const Wt::WString& mesh_id);
+    void CollapseHierarchy();
+    void ExpandToTreeNumber(const std::string& tree_number_string);
+    void ExpandTreeNumberRecursive(const std::string& current_tree_number_string, Wt::WModelIndex& model_index);
+    bool FindChildModelIndex(const std::string& tree_number_string, bool top_level, Wt::WModelIndex& index);
+
     void TabChanged(int active_tab_index);
     void TreeItemExpanded(const Wt::WModelIndex& index);
     void TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse);
