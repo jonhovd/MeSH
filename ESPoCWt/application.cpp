@@ -87,6 +87,7 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     search_tab->setLayout(search_vbox);
 
     m_search_edit = new Wt::WLineEdit();
+    m_search_edit->focussed().connect(this, &ESPoCApplication::SearchEditFocussed);
     m_search_suggestion = CreateSuggestionPopup(root());
     m_search_suggestion->forEdit(m_search_edit);
     m_search_suggestion_model = new Wt::WStandardItemModel(search_vbox);
@@ -510,6 +511,11 @@ bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string
     }
 }
 
+void ESPoCApplication::SearchEditFocussed()
+{
+    m_search_edit->setText("");
+}
+
 void ESPoCApplication::TabChanged(int active_tab_index)
 {
     if (TAB_INDEX_SEARCH >= active_tab_index)
@@ -647,7 +653,6 @@ void ESPoCApplication::PopupMenuTriggered(Wt::WMenuItem* item)
     {
         ClearLayout();
         m_tab_widget->setCurrentIndex(TAB_INDEX_SEARCH);
-        m_search_edit->setText(m_popup_menu_id_string);
         Search(m_popup_menu_id_string);
     }
 }

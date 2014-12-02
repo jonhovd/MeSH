@@ -40,6 +40,7 @@ protected:
     void ExpandTreeNumberRecursive(const std::string& current_tree_number_string, Wt::WModelIndex& model_index);
     bool FindChildModelIndex(const std::string& tree_number_string, bool top_level, Wt::WModelIndex& index);
 
+    void SearchEditFocussed();
     void TabChanged(int active_tab_index);
     void TreeItemExpanded(const Wt::WModelIndex& index);
     void TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse);
