@@ -15,6 +15,10 @@
 
 #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
+#define EQUAL                           (0)
+
+#define TAB_INDEX_SEARCH                (0)
+#define TAB_INDEX_HIERARCHY             (1)
 
 #define SUGGESTIONLIST_ITEM_ID_ROLE     (Wt::UserRole)
 #define HIERARCHY_ITEM_TREE_NUMBER_ROLE (Wt::UserRole+1)
@@ -67,7 +71,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 
     ClearLayout();
 
-    TabChanged(0);
+    TabChanged(TAB_INDEX_SEARCH);
 }
 
 ESPoCApplication::~ESPoCApplication()
@@ -284,7 +288,7 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
         const Json::Value concept_value = *concept_iterator;
         const Json::Object concept_object = concept_value.getObject();
         const Json::Value preferred_concept_value = concept_object.getValue("preferred");
-        bool preferred_concept = (0 == preferred_concept_value.getString().compare("yes"));
+        bool preferred_concept = (EQUAL == preferred_concept_value.getString().compare("yes"));
         if (preferred_concept && concept_object.member("description"))
         {
             const Json::Value description_value = concept_object.getValue("description");
@@ -318,14 +322,14 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
             if (term_object.member("language"))
             {
                 const Json::Value language_value = term_object.getValue("language");
-                is_norwegian = (0 == language_value.getString().compare("nor"));
+                is_norwegian = (EQUAL == language_value.getString().compare("nor"));
             }
 
             const Json::Value term_text_value = term_object.getValue("text");
             const Wt::WString term_text_str = Wt::WString::fromUTF8(term_text_value.getString());
             
             const Json::Value preferred_term_value = term_object.getValue("preferred");
-            bool preferred_term = (0 == preferred_term_value.getString().compare("yes"));
+            bool preferred_term = (EQUAL == preferred_term_value.getString().compare("yes"));
             if (preferred_concept && preferred_term)
             {
                 Wt::WPanel* term_panel = (is_norwegian ? m_nor_term_panel : m_eng_term_panel);
@@ -475,6 +479,7 @@ void ESPoCApplication::ExpandTreeNumberRecursive(const std::string& current_tree
     if (FindChildModelIndex(current_tree_number_string, top_level, model_index))
     {
         TreeItemExpanded(model_index);
+        m_hierarchy_tree_view->expand(model_index);
     }
 }
 
@@ -495,7 +500,7 @@ bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string
             return false;
 
         item_tree_number_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE));
-        if (0 == tree_number_string.compare(item_tree_number_string))
+        if (EQUAL == tree_number_string.compare(item_tree_number_string))
         {
             index = child_index;
             return true;
@@ -507,7 +512,7 @@ bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string
 
 void ESPoCApplication::TabChanged(int active_tab_index)
 {
-    if (0 >= active_tab_index)
+    if (TAB_INDEX_SEARCH >= active_tab_index)
     {
         m_search_edit->setFocus();
     }
@@ -582,7 +587,7 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
             const Json::Value tree_number_value = *tree_numbers_iterator;
             tree_number_value_string = tree_number_value.getString();
             GetParentTreeNumber(tree_number_value_string, possible_parent_tree_number_string);
-            if (0 == parent_tree_number_string.compare(possible_parent_tree_number_string)) //This three_number matches the parent, add it as a child
+            if (EQUAL == parent_tree_number_string.compare(possible_parent_tree_number_string)) //This three_number matches the parent, add it as a child
             {
                 const Json::Value name_value = source_object.getValue("name");
                 
@@ -641,7 +646,7 @@ void ESPoCApplication::PopupMenuTriggered(Wt::WMenuItem* item)
     if (item && !m_popup_menu_id_string.empty())
     {
         ClearLayout();
-        m_tab_widget->setCurrentIndex(0);
+        m_tab_widget->setCurrentIndex(TAB_INDEX_SEARCH);
         m_search_edit->setText(m_popup_menu_id_string);
         Search(m_popup_menu_id_string);
     }
@@ -821,6 +826,7 @@ void ESPoCApplication::GetParentTreeNumber(const std::string& child_tree_number,
 
 bool ESPoCApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item)
 {
+    bool added_placeholder = false;
     //Check if we have a matching child in the child_tree_numbers array
     if (source_object.member("child_tree_numbers"))
     {
@@ -833,13 +839,13 @@ bool ESPoCApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_ob
         {
             const Json::Value child_tree_number_value = *child_iterator;
             GetParentTreeNumber(child_tree_number_value.getString(), possible_parent_tree_number_string);
-            if (0 == current_tree_number_string.compare(possible_parent_tree_number_string))
+            if (EQUAL == current_tree_number_string.compare(possible_parent_tree_number_string))
             {
                 Wt::WStandardItem* child_item = new Wt::WStandardItem(Wt::WString("")); //Placeholder, adds the [+]-icon
                 current_item->setChild(0, 0, child_item);
-                return true;
+                added_placeholder = true;
             }
         }
     }
-    return false;
+    return added_placeholder;
 }
