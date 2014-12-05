@@ -5,6 +5,7 @@
 #include <Wt/WAnchor>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
+#include <Wt/WHBoxLayout>
 #include <Wt/WImage>
 #include <Wt/WStandardItem>
 #include <Wt/WStringListModel>
@@ -38,19 +39,45 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 
 	setTitle(Wt::WString::tr("AppName"));
 
+    //Header
+    Wt::WContainerWidget* header_widget = new Wt::WContainerWidget();
+    Wt::WHBoxLayout* header_hbox = new Wt::WHBoxLayout();
+    header_widget->setLayout(header_hbox);
+
     Wt::WImage* logo = new Wt::WImage("images/logo.png");
-    root()->addWidget(logo);
+    header_hbox->addWidget(logo, 0, Wt::AlignLeft|Wt::AlignTop);
 
-    Wt::WText* header = new Wt::WText(Wt::WString::tr("AppName"));
-    header->setStyleClass("mesh-header");
-    header->setPadding(Wt::WLength(3.0, Wt::WLength::FontEm), Wt::Left);
-    root()->addWidget(header);
+    Wt::WContainerWidget* appname_widget = new Wt::WContainerWidget();
+    Wt::WVBoxLayout* appname_vbox = new Wt::WVBoxLayout();
+    appname_widget->setLayout(appname_vbox);
+    Wt::WText* appname_text = new Wt::WText(Wt::WString::tr("AppName"));
+    appname_text->setStyleClass("mesh-appname");
+    appname_vbox->addWidget(appname_text, 0, Wt::AlignCenter|Wt::AlignMiddle);
+    Wt::WText* appversion_text = new Wt::WText(Wt::WString::tr("AppVersion"));
+    appversion_text->setStyleClass("mesh-appversion");
+    appname_vbox->addWidget(appversion_text, 0, Wt::AlignCenter);
+    header_hbox->addWidget(appname_widget, 1, Wt::AlignCenter|Wt::AlignTop);
 
+    Wt::WContainerWidget* applinks_widget = new Wt::WContainerWidget();
+    Wt::WVBoxLayout* applinks_vbox = new Wt::WVBoxLayout();
+    applinks_widget->setLayout(applinks_vbox);
+    Wt::WAnchor* projectabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("ProjectAboutUrl").toUTF8()), Wt::WString::tr("ProjectAbout"));
+    projectabout_anchor->setTarget(Wt::TargetNewWindow);
+    applinks_vbox->addWidget(projectabout_anchor);
+    Wt::WAnchor* searchabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("SearchAboutUrl").toUTF8()), Wt::WString::tr("SearchAbout"));
+    searchabout_anchor->setTarget(Wt::TargetNewWindow);
+    applinks_vbox->addWidget(searchabout_anchor);
+    header_hbox->addWidget(applinks_widget, 0, Wt::AlignRight|Wt::AlignTop);
+
+    root()->addWidget(header_widget);
+
+    //Tabs
     m_tab_widget = new Wt::WTabWidget(root());
 
+    //Search-tab
     m_tab_widget->addTab(CreateSearchTab(), Wt::WString::tr("Search"));
 
-    //Hierarchy
+    //Hierarchy-tab
     Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
     Wt::WVBoxLayout* hierarchy_vbox = new Wt::WVBoxLayout();
     hierarchy_tab->setLayout(hierarchy_vbox);

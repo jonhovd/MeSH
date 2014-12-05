@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
     <message id="AppName">MeSH på norsk og engelsk</message>
+    <message id="AppVersion">Versjon 10.des 2014, Uferdig</message>
+    <message id="ProjectAbout">Om prosjektet</message>
+    <message id="ProjectAboutUrl">http://www.kunnskapssenteret.no/prosjekter/medical-subject-headings-mesh-oversatt-til-norsk</message>
+    <message id="SearchAbout">Om søk og innhold</message>
+    <message id="SearchAboutUrl">http://www.helsebiblioteket.no/for-bibliotekarer</message>
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope note:</message>
     <message id="Hierarchy">Hierarki</message>
