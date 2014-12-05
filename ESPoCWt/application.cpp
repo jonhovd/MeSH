@@ -61,12 +61,9 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     Wt::WContainerWidget* applinks_widget = new Wt::WContainerWidget();
     Wt::WVBoxLayout* applinks_vbox = new Wt::WVBoxLayout();
     applinks_widget->setLayout(applinks_vbox);
-    Wt::WAnchor* projectabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("ProjectAboutUrl").toUTF8()), Wt::WString::tr("ProjectAbout"));
-    projectabout_anchor->setTarget(Wt::TargetNewWindow);
-    applinks_vbox->addWidget(projectabout_anchor);
-    Wt::WAnchor* searchabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("SearchAboutUrl").toUTF8()), Wt::WString::tr("SearchAbout"));
-    searchabout_anchor->setTarget(Wt::TargetNewWindow);
-    applinks_vbox->addWidget(searchabout_anchor);
+    Wt::WAnchor* appabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppAboutUrl").toUTF8()), Wt::WString::tr("AppAbout"));
+    appabout_anchor->setTarget(Wt::TargetNewWindow);
+    applinks_vbox->addWidget(appabout_anchor);
     header_hbox->addWidget(applinks_widget, 0, Wt::AlignRight|Wt::AlignTop);
 
     root()->addWidget(header_widget);
