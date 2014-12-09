@@ -1,6 +1,8 @@
 #include "application.h"
 
+#include <boost/locale/conversion.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <Wt/Utils>
 #include <Wt/WAnchor>
 #include <Wt/WBreak>
@@ -187,9 +189,102 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     return search_tab;
 }
 
-void ESPoCApplication::FindIndirectHit(const Json::Object& /*source_object*/, std::string& indirect_hit_str)
+void ESPoCApplication::FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str)
 {
-    indirect_hit_str = "ToDo";
+    const std::string lowercase_haystack = boost::locale::to_lower(haystack);
+    size_t haystack_length = haystack.length();
+    if (0 == haystack_length)
+        return;
+
+    uint8_t* match_mask = new uint8_t[haystack_length];
+    size_t i;
+    for (i=0; i<haystack_length; i++)
+        match_mask[i] = 0;
+
+    std::vector<std::string> needle_vector;
+    const std::string lowercase_needles = boost::locale::to_lower(needles);
+    boost::split(needle_vector, lowercase_needles, ::isspace);
+
+    std::string needle;
+    size_t needle_length;
+    size_t search_pos;
+    size_t found_pos;
+    std::vector<std::string>::iterator it = needle_vector.begin();
+    for ( ; it != needle_vector.end(); ++it)
+    {
+        needle = *it;
+        search_pos = 0;
+        while (std::string::npos != (found_pos = lowercase_haystack.find(needle, search_pos)))
+        {
+            needle_length = needle.length();
+            for (i=0; i<needle_length && (found_pos+i < haystack_length); i++)
+            {
+                match_mask[found_pos+i] = 1;
+            }
+
+            search_pos = found_pos + needle_length;
+        }
+    }
+    
+    size_t found_matches = 0;
+    for (i=0; i<haystack_length; i++)
+    {
+        if (0 != match_mask[i])
+        {
+            found_matches++;
+        }
+    }
+    delete[] match_mask;
+
+    double hit_factor = (double)found_matches/(double)haystack_length;
+    if (hit_factor > best_hit_factor)
+    {
+        indirect_hit_str = haystack;
+        best_hit_factor = hit_factor;
+    }
+}
+
+void ESPoCApplication::FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str)
+{
+    indirect_hit_str.clear();
+    double best_hit_factor = 0.0;
+
+    const Json::Value concepts_value = source_object.getValue("concepts");
+    const Json::Array concepts_array = concepts_value.getArray();
+
+    Json::Array::const_iterator concept_iterator = concepts_array.begin();
+    for (; concept_iterator!=concepts_array.end(); ++concept_iterator)
+    {
+        const Json::Value concept_value = *concept_iterator;
+        const Json::Object concept_object = concept_value.getObject();
+#if 0
+        if (concept_object.member("description"))
+        {
+            const Json::Value description_value = concept_object.getValue("description");
+            std::string description_str = description_value.getString();
+            boost::replace_all(description_str, "\\n", "\n");
+            FindIndirectHit(description_str, cleaned_filter_str, best_hit_factor, indirect_hit_str);
+        }
+        if (concept_object.member("english_description"))
+        {
+            const Json::Value description_value = concept_object.getValue("english_description");
+            std::string description_str = description_value.getString();
+            boost::replace_all(description_str, "\\n", "\n");
+            FindIndirectHit(description_str, cleaned_filter_str, best_hit_factor, indirect_hit_str);
+        }
+#endif
+        const Json::Value terms_value = concept_object.getValue("terms");
+        const Json::Array terms_array = terms_value.getArray();
+        Json::Array::const_iterator term_iterator = terms_array.begin();
+        for (; term_iterator!=terms_array.end(); ++term_iterator)
+        {
+            const Json::Value term_value = *term_iterator;
+            const Json::Object term_object = term_value.getObject();
+            
+            const Json::Value term_text_value = term_object.getValue("text");
+            FindIndirectHit(term_text_value.getString(), cleaned_filter_str, best_hit_factor, indirect_hit_str);
+        }
+    }
 }
 
 void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
@@ -204,35 +299,37 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
     std::string filter_str = filter.toUTF8();
     std::string cleaned_filter_str;
     CleanFilterString(filter_str, cleaned_filter_str);
+    std::string wildcard_filter_str;
+    AddWildcard(cleaned_filter_str, wildcard_filter_str);
     
-	Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 to see if we got more than SUGGESTION_COUNT hits */).arg(filter).arg(cleaned_filter_str);
+    Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 to see if we got more than SUGGESTION_COUNT hits */).arg(filter).arg(wildcard_filter_str);
 
-	Json::Object search_result;
-	long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    Json::Object search_result;
+    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
 
-	int row = 0;
-	if (0 == result_size)
-	{
+    int row = 0;
+    if (0 == result_size)
+    {
             Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("NoHits"));
             item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row++, 0, item);
-	}
-	else
-	{
+    }
+    else
+    {
         const Json::Value value = search_result.getValue("hits");
         const Json::Object value_object = value.getObject();
         const Json::Value hits_value = value_object.getValue("hits");
         const Json::Array hits_array = hits_value.getArray();
 
         Json::Array::const_iterator iterator = hits_array.begin();
-		for (row=0; row<SUGGESTION_COUNT && iterator!=hits_array.end(); row++)
-		{
-			const Json::Value hit_value = *iterator;
-			const Json::Object hit_value_object = hit_value.getObject();
-			const Json::Value source_value = hit_value_object.getValue("_source");
-			const Json::Object source_object = source_value.getObject();
-			
-			const Json::Value id_value = source_object.getValue("id");
+        for (row=0; row<SUGGESTION_COUNT && iterator!=hits_array.end(); row++)
+        {
+            const Json::Value hit_value = *iterator;
+            const Json::Object hit_value_object = hit_value.getObject();
+            const Json::Value source_value = hit_value_object.getValue("_source");
+            const Json::Object source_object = source_value.getObject();
+            
+            const Json::Value id_value = source_object.getValue("id");
             const Json::Value name_value = source_object.getValue("name");
 
             const std::string name_value_str = name_value.getString();
@@ -240,7 +337,7 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
             Wt::WStandardItem* item;
             if (std::string::npos == name_value_str.find(filter_str))
             {
-                FindIndirectHit(source_object, indirect_hit_str);
+                FindIndirectHit(source_object, cleaned_filter_str, indirect_hit_str);
             }
             
             if (!indirect_hit_str.empty())
@@ -828,7 +925,7 @@ void ESPoCApplication::ClearLayout()
     m_layout_is_cleared = true;
 }
 
-void ESPoCApplication::CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str, bool add_wildcard) const
+void ESPoCApplication::CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str) const
 {
     cleaned_filter_str = filter_str;
     size_t filter_length = cleaned_filter_str.length();
@@ -840,10 +937,15 @@ void ESPoCApplication::CleanFilterString(const std::string filter_str, std::stri
             cleaned_filter_str[i] = ' ';
         }
     }
-    
-    if (add_wildcard && 0<filter_length && ' '!=cleaned_filter_str[filter_length-1])
+}
+
+void ESPoCApplication::AddWildcard(const std::string filter_str, std::string& wildcard_filter_str) const
+{
+    wildcard_filter_str = filter_str;
+    size_t filter_length = wildcard_filter_str.length();
+    if (0<filter_length && ' '!=wildcard_filter_str[filter_length-1])
     {
-        cleaned_filter_str.append("*");
+        wildcard_filter_str.append("*");
     }
 }
 

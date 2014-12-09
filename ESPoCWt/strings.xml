@@ -7,8 +7,7 @@
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope note:</message>
     <message id="Hierarchy">Hierarki</message>
-    <!--    <message id="IndirectHit">{1} ({2})</message> -->
-    <message id="IndirectHit">{1}</message>
+    <message id="IndirectHit">{1} ({2})</message>
     <message id="LinkCategoryFormat">LinkCategory{1}</message>
     <message id="LinkTextFormat">LinkText{1}.{2}</message>
     <message id="LinkUrlFormat">LinkUrl{1}.{2}</message>

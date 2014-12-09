@@ -30,8 +30,10 @@ public:
 private:
     Wt::WContainerWidget* CreateSearchTab();
     
+private:
+    void FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str);
 protected:
-    void FindIndirectHit(const Json::Object& source_object, std::string& indirect_hit_str);
+    void FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str);
     void FilterSuggestion(const Wt::WString& filter);
     void SuggestionChanged(Wt::WStandardItem* item);
     void Search(const Wt::WString& mesh_id);
@@ -54,7 +56,8 @@ private:
     Wt::WSuggestionPopup* CreateSuggestionPopup(Wt::WContainerWidget* parent);
     void ClearLayout();
 
-    void CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str, bool add_wildcard=true) const;
+    void CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str) const;
+    void AddWildcard(const std::string filter_str, std::string& wildcard_filter_str) const;
     void GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number);
     bool AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item);
 
