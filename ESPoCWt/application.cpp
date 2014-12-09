@@ -13,7 +13,7 @@
 #include <Wt/WStringListModel>
 #include <Wt/WVBoxLayout>
 
-#define SUGGESTION_COUNT	(20)
+#define SUGGESTION_COUNT    (20)
 #define LANGUAGE            "nor"
 
 #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
@@ -37,9 +37,9 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     messageResourceBundle().use(appRoot() + "strings");
     useStyleSheet(Wt::WLink("MeSH.css"));
 
-	m_es = new ElasticSearch("localhost:9200");
+    m_es = new ElasticSearch("localhost:9200");
 
-	setTitle(Wt::WString::tr("AppName"));
+    setTitle(Wt::WString::tr("AppName"));
 
     //Header
     Wt::WContainerWidget* header_widget = new Wt::WContainerWidget();
@@ -213,10 +213,13 @@ void ESPoCApplication::FindIndirectHit(const std::string& haystack, const std::s
     for ( ; it != needle_vector.end(); ++it)
     {
         needle = *it;
+        needle_length = needle.length();
+        if (0 == needle_length)
+            continue;
+
         search_pos = 0;
         while (std::string::npos != (found_pos = lowercase_haystack.find(needle, search_pos)))
         {
-            needle_length = needle.length();
             for (i=0; i<needle_length && (found_pos+i < haystack_length); i++)
             {
                 match_mask[found_pos+i] = 1;
@@ -297,6 +300,7 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 	m_search_suggestion_model->clear();
 
     std::string filter_str = filter.toUTF8();
+    const std::string lowercase_filter_str = boost::locale::to_lower(filter_str);
     std::string cleaned_filter_str;
     CleanFilterString(filter_str, cleaned_filter_str);
     std::string wildcard_filter_str;
@@ -332,10 +336,10 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
             const Json::Value id_value = source_object.getValue("id");
             const Json::Value name_value = source_object.getValue("name");
 
-            const std::string name_value_str = name_value.getString();
+            const std::string lowercase_name_value_str = boost::locale::to_lower(name_value.getString());
             std::string indirect_hit_str;
             Wt::WStandardItem* item;
-            if (std::string::npos == name_value_str.find(filter_str))
+            if (std::string::npos == lowercase_name_value_str.find(lowercase_filter_str))
             {
                 FindIndirectHit(source_object, cleaned_filter_str, indirect_hit_str);
             }
@@ -348,11 +352,11 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
             {
                 item = new Wt::WStandardItem(Wt::WString::fromUTF8(name_value.getString()));
             }
-			item->setData(boost::any(id_value.getString()), SUGGESTIONLIST_ITEM_ID_ROLE);
-			m_search_suggestion_model->setItem(row, 0, item);
+            item->setData(boost::any(id_value.getString()), SUGGESTIONLIST_ITEM_ID_ROLE);
+            m_search_suggestion_model->setItem(row, 0, item);
 
-			++iterator;
-		}
+            ++iterator;
+        }
 
         m_search_suggestion_model->sort(0);
 
@@ -362,9 +366,9 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
             item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row++, 0, item);
         }
-	}
+    }
 
-	m_search_suggestion_model->setData(--row, 0, std::string("Wt-more-data"), Wt::StyleClassRole);
+    m_search_suggestion_model->setData(--row, 0, std::string("Wt-more-data"), Wt::StyleClassRole);
 }
 
 void ESPoCApplication::SuggestionChanged(Wt::WStandardItem* item)
