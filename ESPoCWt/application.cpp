@@ -44,6 +44,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     //Header
     Wt::WContainerWidget* header_widget = new Wt::WContainerWidget();
     Wt::WHBoxLayout* header_hbox = new Wt::WHBoxLayout();
+    header_hbox->setContentsMargins(0, 0, 0, 0);
     header_widget->setLayout(header_hbox);
 
     Wt::WImage* logo = new Wt::WImage("images/logo.png");
@@ -51,6 +52,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 
     Wt::WContainerWidget* appname_widget = new Wt::WContainerWidget();
     Wt::WVBoxLayout* appname_vbox = new Wt::WVBoxLayout();
+    appname_vbox->setContentsMargins(0, 0, 0, 0);
     appname_widget->setLayout(appname_vbox);
     Wt::WText* appname_text = new Wt::WText(Wt::WString::tr("AppName"));
     appname_text->setStyleClass("mesh-appname");
@@ -62,6 +64,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 
     Wt::WContainerWidget* applinks_widget = new Wt::WContainerWidget();
     Wt::WVBoxLayout* applinks_vbox = new Wt::WVBoxLayout();
+    applinks_vbox->setContentsMargins(0, 0, 0, 0);
     applinks_widget->setLayout(applinks_vbox);
     Wt::WAnchor* appabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppAboutUrl").toUTF8()), Wt::WString::tr("AppAbout"));
     appabout_anchor->setTarget(Wt::TargetNewWindow);
@@ -79,6 +82,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     //Hierarchy-tab
     Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
     Wt::WVBoxLayout* hierarchy_vbox = new Wt::WVBoxLayout();
+    hierarchy_vbox->setContentsMargins(0, 0, 0, 0);
     hierarchy_tab->setLayout(hierarchy_vbox);
 
     m_hierarchy_model = new Wt::WStandardItemModel(hierarchy_vbox);
@@ -110,6 +114,7 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
 {
     Wt::WContainerWidget* search_tab = new Wt::WContainerWidget();
     Wt::WVBoxLayout* search_vbox = new Wt::WVBoxLayout();
+    search_vbox->setContentsMargins(0, 0, 0, 0);
     search_tab->setLayout(search_vbox);
 
     m_search_edit = new Wt::WLineEdit();
@@ -126,6 +131,7 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
 
     m_result_container = new Wt::WContainerWidget();
     Wt::WVBoxLayout* result_vbox = new Wt::WVBoxLayout();
+    result_vbox->setContentsMargins(0, 0, 0, 0);
     m_result_container->setLayout(result_vbox);
 
     Wt::WCssDecorationStyle panel_style;
@@ -140,6 +146,7 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     m_nor_term_panel->setCollapsible(true);
     Wt::WContainerWidget* nor_term_container = new Wt::WContainerWidget();
     m_nor_term_panel_layout = new Wt::WVBoxLayout();
+    m_nor_term_panel_layout->setContentsMargins(0, 0, 0, 0);
     nor_term_container->setLayout(m_nor_term_panel_layout);
     m_nor_term_panel->setCentralWidget(nor_term_container);
 
@@ -160,6 +167,7 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     m_eng_term_panel->setCollapsible(true);
     Wt::WContainerWidget* eng_term_container = new Wt::WContainerWidget();
     m_eng_term_panel_layout = new Wt::WVBoxLayout();
+    m_eng_term_panel_layout->setContentsMargins(0, 0, 0, 0);
     eng_term_container->setLayout(m_eng_term_panel_layout);
     m_eng_term_panel->setCentralWidget(eng_term_container);
 
@@ -176,9 +184,14 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     result_vbox->addWidget(new Wt::WText(Wt::WString::tr("EnglishDescription")));
     result_vbox->addWidget(m_eng_description_text);
  
+    Wt::WContainerWidget* mesh_id_container = new Wt::WContainerWidget();
+    Wt::WHBoxLayout* mesh_id_hbox = new Wt::WHBoxLayout();
+    mesh_id_hbox->setContentsMargins(0, 0, 0, 0);
+    mesh_id_container->setLayout(mesh_id_hbox);
     m_mesh_id_text = new Wt::WText();
-    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("MeSH_ID")));
-    result_vbox->addWidget(m_mesh_id_text);
+    mesh_id_hbox->addWidget(new Wt::WText(Wt::WString::tr("MeSH_ID")), 0, Wt::AlignLeft);
+    mesh_id_hbox->addWidget(m_mesh_id_text, 1, Wt::AlignLeft);
+    result_vbox->addWidget(mesh_id_container);
 
     m_links_layout = new Wt::WGridLayout();
     result_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
