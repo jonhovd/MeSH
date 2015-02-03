@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
     <message id="AppName">MeSH på norsk og engelsk</message>
-    <message id="AppVersion">Versjon 2014-2, Uferdig</message>
+    <message id="AppVersion">Versjon 2015-1, under utvikling</message>
     <message id="AppAbout">Om søk, innhold og prosjekt</message>
     <message id="AppAboutUrl">http://www.helsebiblioteket.no/for-bibliotekarer/mesh-medical-subject-headings-pa-norsk-og-engelsk</message>
+    <message id="AppSendQuestion">Spørsmål om MeSH?</message>
+    <message id="AppSendQuestionUrl">mailto:Sigrun.Espelien.Aasen@kunnskapssenteret.no?subject=Spørsmål om MeSH</message>
+    <message id="AppHelp">Hjelp</message>
+    <message id="AppHelpInternalPath">/help</message>
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope note:</message>
     <message id="Hierarchy">Hierarki</message>
     <message id="IndirectHit">{1} ({2})</message>
+    
+    <message id="InfoText"><p>I feltet «Søk» kan du skrive inn en term på norsk eller engelsk. Du får listet opp forslag til norsk MeSH (hovedterm) og velger en av dem. Da vises all informasjon på norsk og engelsk på valgte term.</p>
+                           <p>Alternative termer er synonymer og nærliggende begrep som omfattes av definisjonen.</p>
+                           <p>Vil du se termens hierarkiske plassering, klikk på «Hierarki» og du kan velge f.eks. underordnet/overordnet term for videre søk. Klikk på termen, som blir farget blå og klikk igjen slik at du kommer inn på termens hovedside.</p>
+                           <br/>
+                           <p>Nederst på termens hovedside kan en søke i andre databaser ved å klikke på lenkene</p></message>
+
     <message id="LinkCategoryFormat">LinkCategory{1}</message>
     <message id="LinkTextFormat">LinkText{1}.{2}</message>
     <message id="LinkUrlFormat">LinkUrl{1}.{2}</message>
@@ -36,7 +47,7 @@
 
     <message id="Links">Lenker:</message>
     <message id="MeSH_ID">MeSH ID:</message>
-    <message id="MoreHits">(...flere treff)</message>
+    <message id="MoreHits">(viser maksimalt {1} treff)</message>
     <message id="NoHits">(...ingen treff)</message>
     <message id="NonPreferredNorwegianTerms">Alternative termer:</message>
     <message id="NonPreferredEnglishTerms">Alternative engelske termer:</message>

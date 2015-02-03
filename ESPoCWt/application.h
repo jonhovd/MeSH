@@ -8,6 +8,7 @@
 #include <Wt/WJavaScript>
 #include <Wt/WLayout>
 #include <Wt/WLineEdit>
+#include <Wt/WMessageBox>
 #include <Wt/WPanel>
 #include <Wt/WPopupMenu>
 #include <Wt/WStandardItem>
@@ -47,6 +48,8 @@ protected:
     void TreeItemExpanded(const Wt::WModelIndex& index);
     void TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse);
     void PopupMenuTriggered(Wt::WMenuItem* item);
+    void InfoboxButtonClicked();
+    void onInternalPathChange(const std::string& url);
 
 private:
 	long ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result);
@@ -61,8 +64,13 @@ private:
     void GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number);
     bool AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item);
 
+    void ShowOrHideInfobox();
+
 private:
     bool m_layout_is_cleared;
+    
+    Wt::WMessageBox* m_infobox;
+    bool m_infobox_visible;
     
     Wt::WTabWidget* m_tab_widget;
 

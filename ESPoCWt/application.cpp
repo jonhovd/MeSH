@@ -41,6 +41,17 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 
     setTitle(Wt::WString::tr("AppName"));
 
+    WApplication::instance()->internalPathChanged().connect(this, &ESPoCApplication::onInternalPathChange);
+
+    m_infobox = new Wt::WMessageBox(Wt::WString("Hjelp"), Wt::WString::tr("InfoText"), Wt::Icon::NoIcon, Wt::StandardButton::NoButton, root());
+    m_infobox->setModal(false);
+    m_infobox->setClosable(true);
+    m_infobox->setResizable(false);
+    m_infobox->setDeleteWhenHidden(false);
+    m_infobox->setMaximumSize(Wt::WLength(640, Wt::WLength::Pixel), Wt::WLength::Auto);
+    m_infobox->buttonClicked().connect(this, &ESPoCApplication::InfoboxButtonClicked);
+    m_infobox_visible = false;
+    
     //Header
     Wt::WContainerWidget* header_widget = new Wt::WContainerWidget();
     Wt::WHBoxLayout* header_hbox = new Wt::WHBoxLayout();
@@ -69,6 +80,10 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     Wt::WAnchor* appabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppAboutUrl").toUTF8()), Wt::WString::tr("AppAbout"));
     appabout_anchor->setTarget(Wt::TargetNewWindow);
     applinks_vbox->addWidget(appabout_anchor);
+    Wt::WAnchor* appquestion_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppSendQuestionUrl").toUTF8()), Wt::WString::tr("AppSendQuestion"));
+    applinks_vbox->addWidget(appquestion_anchor);
+    Wt::WAnchor* apphelp_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppHelpInternalPath").toUTF8()), Wt::WString::tr("AppHelp"));
+    applinks_vbox->addWidget(apphelp_anchor);
     header_hbox->addWidget(applinks_widget, 0, Wt::AlignRight|Wt::AlignTop);
 
     root()->addWidget(header_widget);
@@ -102,10 +117,13 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     ClearLayout();
 
     TabChanged(TAB_INDEX_SEARCH);
+
+    ShowOrHideInfobox();
 }
 
 ESPoCApplication::~ESPoCApplication()
 {
+    delete m_infobox;
     delete m_hierarchy_popup_menu;
     delete m_es;
 }
@@ -309,6 +327,11 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
     {
         ClearLayout();
     }
+    
+    if (m_infobox_visible)
+    {
+        ShowOrHideInfobox();
+    }
 
 	m_search_suggestion_model->clear();
 
@@ -375,7 +398,7 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 
         if (hits_array.size() > SUGGESTION_COUNT)
         {
-            Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("MoreHits"));
+            Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("MoreHits").arg(SUGGESTION_COUNT));
             item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row++, 0, item);
         }
@@ -795,6 +818,11 @@ void ESPoCApplication::PopupMenuTriggered(Wt::WMenuItem* item)
     }
 }
 
+void ESPoCApplication::InfoboxButtonClicked()
+{
+    ShowOrHideInfobox();
+}
+
 long ESPoCApplication::ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
 {
 	try
@@ -996,4 +1024,22 @@ bool ESPoCApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_ob
         }
     }
     return added_placeholder;
+}
+
+void ESPoCApplication::ShowOrHideInfobox()
+{
+    m_infobox_visible = !m_infobox_visible;
+    m_infobox->setHidden(!m_infobox_visible);
+    if (TAB_INDEX_SEARCH >= m_tab_widget->currentIndex())
+    {
+        m_search_edit->setFocus();
+    }
+}
+
+void ESPoCApplication::onInternalPathChange(const std::string& url)
+{
+    if (EQUAL == url.compare(Wt::WString::tr("AppHelpInternalPath").toUTF8())) {
+        ShowOrHideInfobox();
+    }
+    WApplication::instance()->setInternalPath("/");
 }
