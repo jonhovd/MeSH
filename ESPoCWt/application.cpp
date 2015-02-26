@@ -97,7 +97,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     //Hierarchy-tab
     Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
     Wt::WVBoxLayout* hierarchy_vbox = new Wt::WVBoxLayout();
-    hierarchy_vbox->setContentsMargins(0, 0, 0, 0);
+    hierarchy_vbox->setContentsMargins(0, 9, 0, 0);
     hierarchy_tab->setLayout(hierarchy_vbox);
 
     m_hierarchy_model = new Wt::WStandardItemModel(hierarchy_vbox);
@@ -132,7 +132,7 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
 {
     Wt::WContainerWidget* search_tab = new Wt::WContainerWidget();
     Wt::WVBoxLayout* search_vbox = new Wt::WVBoxLayout();
-    search_vbox->setContentsMargins(0, 0, 0, 0);
+    search_vbox->setContentsMargins(0, 9, 0, 0);
     search_tab->setLayout(search_vbox);
 
     m_search_edit = new Wt::WLineEdit();
