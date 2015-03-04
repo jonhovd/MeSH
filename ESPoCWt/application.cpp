@@ -997,11 +997,11 @@ void ESPoCApplication::AddWildcard(const std::string filter_str, std::string& wi
 void ESPoCApplication::GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number)
 {
     size_t substring_length = child_tree_number.find_last_of('.');
-    if (std::string::npos==substring_length)
+    if (std::string::npos==substring_length && 1<child_tree_number.length()) //If length==1, we have a forced topnode. We know they do not have a parent
     {
         substring_length = 1; //If we are forcing topnodes, "D" is the valid parent for "D01" (without dot..)
     }
-    parent_tree_number = child_tree_number.substr(0, substring_length);
+    parent_tree_number = (std::string::npos==substring_length) ? "" : child_tree_number.substr(0, substring_length);
 }
 
 bool ESPoCApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item)
