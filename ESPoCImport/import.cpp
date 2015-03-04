@@ -14,13 +14,25 @@ long g_filesize;
 ElasticSearch* g_es;
 
 bool g_should_clean_database = false;
+bool g_should_read_topnodes_file = false;
+bool g_is_reading_topnodes_file = false;
+
 xmlChar* g_language_code = NULL;
 
+long g_total_descriptor_count = 0;
+long g_translated_descriptor_count = 0;
+
+
+void printStatistics(long total, long translated)
+{
+    fprintf(stdout, "\nTotal descriptors: %ld\nTranslated descriptors: %ld\n\n", total, translated);
+    fflush(stdout);
+}
 
 void printDescriptorStatus(long descriptors)
 {
 	float progress = (float)xmlTextReaderByteConsumed(g_reader)/g_filesize*100.0;
-	fprintf(stdout, "Processed descriptors: %ld  (%0.1f%%)\r", descriptors, progress);
+	fprintf(stdout, "Processed descriptors: %ld (%0.1f%%)\r", descriptors, progress);
 	fflush(stdout);
 }
 
@@ -261,7 +273,16 @@ void ReadTreeNumberList(Json::Object& json, xmlNodePtr tree_number_list_ptr)
                 }
                 else
                 {
-                    top_node = true;
+                    if (g_should_read_topnodes_file && !g_is_reading_topnodes_file)
+                    {
+                        Json::Value parent_tree_number;
+                        parent_tree_number.setString(std::string(CONST_CHAR(text_ptr->content), 1));
+                        parent_tree_number_array.addElement(parent_tree_number);
+                    }
+                    else
+                    {
+                        top_node = true;
+                    }
                 }
             }
         }
@@ -442,7 +463,13 @@ bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 		g_es->index("mesh", CONST_CHAR(g_language_code), CONST_CHAR(id), json);
 	}
 
-	return true;
+    g_total_descriptor_count++;
+    if (json.member("english_name"))
+    {
+        g_translated_descriptor_count++;
+    }
+
+    return true;
 }
 
 void PopulateChildrenTreeNumberList(Json::Array& children_tree_number_array, const std::string& tree_number)
@@ -477,7 +504,8 @@ void PopulateChildrenTreeNumberList(Json::Array& children_tree_number_array, con
             const Json::Value tree_number_value = *tree_number_iterator;
             const std::string tree_number_str = tree_number_value.getString();
             size_t substring_length = tree_number_str.find_last_of('.');
-            if (std::string::npos!=substring_length && 0==tree_number_str.compare(0, substring_length, tree_number))
+            if ((std::string::npos==substring_length && g_should_read_topnodes_file && 0==tree_number_str.compare(0, 1, tree_number)) || //If we are forcing topnodes, a valid child of "D" could be "D01" (no dot..)
+                (std::string::npos!=substring_length && 0==tree_number_str.compare(0, substring_length, tree_number))) //For all other nodes, a parent "D01" should only have children "D01.*"
             {
                 Json::Value child_tree_number;
                 child_tree_number.setString(tree_number_str);
@@ -572,12 +600,12 @@ bool ReadDescriptorRecordSet()
     if (g_should_clean_database)
     {
         CleanDatabase();
+        g_should_clean_database = false;
     }
 
 	if (1 != xmlTextReaderRead(g_reader)) //Skip to first DescriptorRecord
 		return false;
 
-	long processed = 0L;
 	bool more = true;
 	xmlNodePtr descriptor_record_ptr;
 	while (more &&
@@ -587,53 +615,103 @@ bool ReadDescriptorRecordSet()
 		ProcessDescriptorRecord(descriptor_record_ptr);
 		more = (1 == xmlTextReaderNext(g_reader)); //Skip to next DescriptorRecord
 
-		if (!more || 0==(++processed)%100)
+		if (!more || 0==(g_total_descriptor_count%100))
 		{
-			printDescriptorStatus(processed);
+			printDescriptorStatus(g_total_descriptor_count);
 		}
 	}
 
-    printDescriptorStatus(processed);
-    fprintf(stdout, "\r\n");
+    printDescriptorStatus(g_total_descriptor_count);
+    printStatistics(g_total_descriptor_count, g_translated_descriptor_count);
     
-	UpdateChildTreeNumbers();
+    if (!g_is_reading_topnodes_file)
+    {
+        UpdateChildTreeNumbers();
+    }
+    
 	return true;
+}
+
+void Usage(const char* name)
+{
+    fprintf(stderr, "Usage: %s <ElasticSearch-location> [--clean] [--topnodes <file>] <MeSH-file>\n\nExample: %s localhost:9200 ~/Downloads/nordesc2015.xml\n\n", name, name);
+}
+
+void ReadFile(const char* filename)
+{
+    struct stat filestat;
+    stat(filename, &filestat);
+    g_filesize = filestat.st_size;
+
+    g_reader = xmlReaderForFile(filename, NULL, XML_PARSE_NOBLANKS|XML_PARSE_NOCDATA|XML_PARSE_COMPACT);
+    if (!g_reader)
+    {
+        fprintf(stderr, "File Not Found: %s\n", filename);
+    }
+    else
+    {
+        if (1==xmlTextReaderNext(g_reader) && XML_READER_TYPE_DOCUMENT_TYPE==xmlTextReaderNodeType(g_reader) && //Skip DOCTYPE
+            1==xmlTextReaderNext(g_reader)) //Read DescriptorRecordSet
+        {
+            ReadDescriptorRecordSet();
+        }
+
+        xmlFreeTextReader(g_reader);
+    }
 }
 
 int main(int argc, char **argv)
 {
 	if (argc < 3)
     {
-        fprintf(stderr, "Usage: %s <ElasticSearch-location> [--clean] <MeSH-file>\n\nExample: %s localhost:9200 ~/Downloads/nordesc2015.xml\n\n", argv[0], argv[0]);
+        Usage(argv[0]);
 		return -1;
     }
 
 	LIBXML_TEST_VERSION
 
 	g_es = new ElasticSearch(argv[1]);
-    g_should_clean_database = (0==strcmp("--clean", argv[2]));
+    
+    const char* filename = NULL;
+    const char* topnodes_filename = NULL;
 
-	const char* filename = argv[argc-1]; //0-indexed
-	struct stat filestat;
-	stat(filename, &filestat);
-	g_filesize = filestat.st_size;
+    int current_arg = 2;
+    while(current_arg < argc)
+    {
+        if (0==strcmp("--clean", argv[current_arg]))
+        {
+            g_should_clean_database = true;
+            current_arg++;
+        }
+        else if (0==strcmp("--topnodes", argv[current_arg]) && current_arg<(argc-2))
+        {
+            current_arg++;
+            topnodes_filename = argv[current_arg];
+            current_arg++;
+            g_should_read_topnodes_file = true;
+        }
+        else if (current_arg == (argc-1))
+        {
+            filename = argv[current_arg];
+            break;
+        }
+        else
+        {
+            Usage(argv[0]);
+            return -1;
+        }
+    }
 
-	g_reader = xmlReaderForFile(filename, NULL, XML_PARSE_NOBLANKS|XML_PARSE_NOCDATA|XML_PARSE_COMPACT);
-	if (!g_reader)
-	{
-		fprintf(stderr, "File Not Found: %s\n", filename);
-	}
-	else
-	{
-		if (1==xmlTextReaderNext(g_reader) && XML_READER_TYPE_DOCUMENT_TYPE==xmlTextReaderNodeType(g_reader) && //Skip DOCTYPE
-		    1==xmlTextReaderNext(g_reader)) //Read DescriptorRecordSet
-		{
-			ReadDescriptorRecordSet();
-		}
+    if (g_should_read_topnodes_file)
+    {
+        g_is_reading_topnodes_file = true;
+        ReadFile(topnodes_filename);
+        g_is_reading_topnodes_file = false;
+    }
 
-		xmlFreeTextReader(g_reader);
-        xmlFree(g_language_code);
-	}
+    ReadFile(filename);
+
+    xmlFree(g_language_code);
 
     xmlCleanupParser();
 	delete g_es;

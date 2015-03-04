@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<!DOCTYPE DescriptorRecordSet SYSTEM "desc2015.dtd">
+<DescriptorRecordSet LanguageCode = "nor">
+<DescriptorRecord>
+  <DescriptorUI>dummy00000001</DescriptorUI>
+  <DescriptorName>
+   <String>Anatomi[Anatomy]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>A</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000002</DescriptorUI>
+  <DescriptorName>
+   <String>Organismer[Organisms]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>B</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000003</DescriptorUI>
+  <DescriptorName>
+   <String>Sykdommer[Diseases]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>C</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000004</DescriptorUI>
+  <DescriptorName>
+   <String>Kjemikalier og legemidler[Chemicals and Drugs]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>D</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000005</DescriptorUI>
+  <DescriptorName>
+   <String>Teknikker og utstyr for analyse, diagnostikk og behandling[Analytical,Diagnostic and Therapeutic Techniques and Equipment]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>E</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000006</DescriptorUI>
+  <DescriptorName>
+   <String>Psykiatri og psykologi[Psychiatry and Psychology]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>F</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000007</DescriptorUI>
+  <DescriptorName>
+   <String>Fenomener og prosesser[Phenomena and Processes]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>G</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000008</DescriptorUI>
+  <DescriptorName>
+   <String>Disipliner og yrker[Disciplines and Occupations]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>H</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000009</DescriptorUI>
+  <DescriptorName>
+   <String>Antropologi, utdanning, sosiologi og sosiale fenomener[Anthropology,Education,Sociology and Social Phenomena]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>I</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000010</DescriptorUI>
+  <DescriptorName>
+   <String>Teknologi, industri og jordbruk[Technology,Industry,Agriculture]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>J</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000011</DescriptorUI>
+  <DescriptorName>
+   <String>Humanistiske fag[Humanities]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>K</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000012</DescriptorUI>
+  <DescriptorName>
+   <String>Informasjonsvitenskap[Information Science]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>L</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000013</DescriptorUI>
+  <DescriptorName>
+   <String>Navngitte grupper[Named Groups]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>M</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000014</DescriptorUI>
+  <DescriptorName>
+   <String>Helsevesen[Health Care]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>N</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000015</DescriptorUI>
+  <DescriptorName>
+   <String>Publikasjonstyper[Publication Characteristics]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>V</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+<DescriptorRecord>
+  <DescriptorUI>dummy00000016</DescriptorUI>
+  <DescriptorName>
+   <String>Geografiske områder[Geographicals]</String>
+  </DescriptorName>
+  <TreeNumberList>
+   <TreeNumber>Z</TreeNumber>
+  </TreeNumberList>
+</DescriptorRecord>
+</DescriptorRecordSet>
