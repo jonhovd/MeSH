@@ -4,10 +4,13 @@ sudo cp /tmp/elasticsearch.list /etc/apt/sources.list.d/ &&
 sudo apt-get update &&
 sudo apt-get dist-upgrade &&
 sudo apt-get install default-jdk elasticsearch g++ git libwthttp-dev libxml2-dev libboost-signals-dev libboost-locale-dev make  &&
-ln -s /usr/share/Wt/resources ESPoCWt/resources &&
-cd ESPoCImport &&
+ln -s /usr/share/Wt/resources ./ESPoCWt/resources &&
+cd ./ESPoCImport/ &&
 git clone https://github.com/QHedgeTech/cpp-elasticsearch.git &&
 make &&
-cd ../ESPoCWt &&
+cd ../ESPoCWt/ &&
+ln -s ../ESPoCImport/cpp-elasticsearch &&
+make &&
+cd ../ParseTreeStructure/ &&
 ln -s ../ESPoCImport/cpp-elasticsearch &&
 make
