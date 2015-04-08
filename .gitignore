@@ -5,5 +5,7 @@
 ESPoCWt/resources
 ESPoCImport/cpp-elasticsearch/
 ESPoCWt/cpp-elasticsearch
+ParseTreeStructure/cpp-elasticsearch
 ESPoCImport/ESPoCImport
 ESPoCWt/ESPoCWt
+ParseTreeStructure/ParseTreeStructure

@@ -13,6 +13,15 @@
 #include <Wt/WStringListModel>
 #include <Wt/WVBoxLayout>
 
+//#define LOG_SUPPORT
+#ifdef LOG_SUPPORT
+# include <boost/thread/mutex.hpp>
+boost::mutex g_log_mutex;
+# define LOG(x) {boost::mutex::scoped_lock lock(g_log_mutex);fprintf(stdout,x);fflush(stdout);}
+#else
+# define LOG(x)
+#endif
+
 #define SUGGESTION_COUNT    (20)
 #define LANGUAGE            "nor"
 
@@ -34,6 +43,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
   m_has_populated_hierarchy_model(false),
   m_hierarchy_popup_menu(NULL)
 {
+    LOG("LOG: start constructor\n");
     messageResourceBundle().use(appRoot() + "strings");
     useStyleSheet(Wt::WLink("MeSH.css"));
 
@@ -119,6 +129,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     TabChanged(TAB_INDEX_SEARCH);
 
     ShowOrHideInfobox();
+    LOG("LOG: end constructor\n");
 }
 
 ESPoCApplication::~ESPoCApplication()
@@ -222,10 +233,14 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
 
 void ESPoCApplication::FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str)
 {
+    LOG("LOG: start FindIndirectHit\n");
     const std::string lowercase_haystack = boost::locale::to_lower(haystack);
     size_t haystack_length = haystack.length();
     if (0 == haystack_length)
+    {
+        LOG("LOG: end FindIndirectHit\n");
         return;
+    }
 
     uint8_t* match_mask = new uint8_t[haystack_length];
     size_t i;
@@ -276,10 +291,12 @@ void ESPoCApplication::FindIndirectHit(const std::string& haystack, const std::s
         indirect_hit_str = haystack;
         best_hit_factor = hit_factor;
     }
+    LOG("LOG: end FindIndirectHit\n");
 }
 
 void ESPoCApplication::FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str)
 {
+    LOG("LOG: start FindIndirectHit2\n");
     indirect_hit_str.clear();
     double best_hit_factor = 0.0;
 
@@ -319,10 +336,12 @@ void ESPoCApplication::FindIndirectHit(const Json::Object& source_object, const 
             FindIndirectHit(term_text_value.getString(), cleaned_filter_str, best_hit_factor, indirect_hit_str);
         }
     }
+    LOG("LOG: end FindIndirectHit2\n");
 }
 
 void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
 {
+    LOG("LOG: start FilterSuggestion\n");
     if (!m_layout_is_cleared)
     {
         ClearLayout();
@@ -405,18 +424,22 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
     }
 
     m_search_suggestion_model->setData(--row, 0, std::string("Wt-more-data"), Wt::StyleClassRole);
+    LOG("LOG: end FilterSuggestion\n");
 }
 
 void ESPoCApplication::SuggestionChanged(Wt::WStandardItem* item)
 {
+    LOG("LOG: start SuggestionChanged\n");
 	if (item)
 	{
 		item = NULL;
 	}
+    LOG("LOG: end SuggestionChanged\n");
 }
 
 void ESPoCApplication::Search(const Wt::WString& mesh_id)
 {
+    LOG("LOG: start Search\n");
     Wt::WString preferred_eng_term;
 
     m_mesh_id_text->setText(mesh_id);
@@ -427,6 +450,7 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
     long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
+        LOG("LOG: end Search\n");
         return;
     }
     
@@ -603,10 +627,12 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
     }
             
     m_layout_is_cleared = false;
+    LOG("LOG: end Search\n");
 }
 
 void ESPoCApplication::CollapseHierarchy()
 {
+    LOG("LOG: start CollapseHierarchy\n");
     PopulateHierarchy(); //Just in case it isn't populated yet
 
     int row = 0;
@@ -620,12 +646,15 @@ void ESPoCApplication::CollapseHierarchy()
         m_hierarchy_tree_view->collapse(index);
         row++;
     }
+    LOG("LOG: end CollapseHierarchy\n");
 }
 
 void ESPoCApplication::ExpandToTreeNumber(const std::string& tree_number_string)
 {
+    LOG("LOG: start ExpandToTreeNumber\n");
     Wt::WModelIndex model_index;
     ExpandTreeNumberRecursive(tree_number_string, model_index);
+    LOG("LOG: end ExpandToTreeNumber\n");
 }
 
 void ESPoCApplication::ExpandTreeNumberRecursive(const std::string& current_tree_number_string, Wt::WModelIndex& model_index)
@@ -647,6 +676,7 @@ void ESPoCApplication::ExpandTreeNumberRecursive(const std::string& current_tree
 
 bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string, bool top_level, Wt::WModelIndex& index)
 {
+    LOG("LOG: start FindChildModelIndex\n");
     int row = 0;
     Wt::WModelIndex child_index;
     Wt::WStandardItem* standard_item;
@@ -655,16 +685,23 @@ bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string
     {
         child_index = top_level ? m_hierarchy_model->index(row, 0) : index.child(row, 0);
         if (!child_index.isValid())
+        {
+            LOG("LOG: end FindChildModelIndex\n");
             return false;
+        }
 
         standard_item = m_hierarchy_model->itemFromIndex(child_index);
         if (!standard_item)
+        {
+            LOG("LOG: end FindChildModelIndex\n");
             return false;
+        }
 
         item_tree_number_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE));
         if (EQUAL == tree_number_string.compare(item_tree_number_string))
         {
             index = child_index;
+            LOG("LOG: end FindChildModelIndex\n");
             return true;
         }
 
@@ -674,11 +711,14 @@ bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string
 
 void ESPoCApplication::SearchEditFocussed()
 {
+    LOG("LOG: start SearchEditFocussed\n");
     m_search_edit->setText("");
+    LOG("LOG: end SearchEditFocussed\n");
 }
 
 void ESPoCApplication::TabChanged(int active_tab_index)
 {
+    LOG("LOG: start TabChanged\n");
     if (TAB_INDEX_SEARCH >= active_tab_index)
     {
         m_search_edit->setFocus();
@@ -687,18 +727,22 @@ void ESPoCApplication::TabChanged(int active_tab_index)
     {
         PopulateHierarchy();
     }
+    LOG("LOG: end TabChanged\n");
 }
 
 void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
 {
+    LOG("LOG: start TreeItemExpanded\n");
     if (!index.isValid())
     {
+        LOG("LOG: end TreeItemExpanded\n");
         return;
     }
 
     Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(index);
     if (!standard_item || !standard_item->hasChildren())
     {
+        LOG("LOG: end TreeItemExpanded\n");
         return;
     }
 
@@ -706,6 +750,7 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
     if (!possible_placeholder || //We don't have a children placeholder. This item should not be populated by children 
         !possible_placeholder->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE).empty()) //This is a real child, not a placeholder. No need to populate children one more time.
     {
+        LOG("LOG: end TreeItemExpanded\n");
         return;
     }
 
@@ -721,6 +766,7 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
     long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
+        LOG("LOG: end TreeItemExpanded\n");
         return;
     }
 
@@ -779,18 +825,24 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
     {
         m_hierarchy_model->sort(0);
     }
+    LOG("LOG: end TreeItemExpanded\n");
 }
 
 void ESPoCApplication::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse)
 {
+    LOG("LOG: start TreeItemClicked\n");
     if (!index.isValid())
     {
+        LOG("LOG: end TreeItemClicked\n");
         return;
     }
     
     Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(index);
     if (!standard_item)
+    {
+        LOG("LOG: end TreeItemClicked\n");
         return;
+    }
     
     if (m_hierarchy_popup_menu)
     {
@@ -806,21 +858,26 @@ void ESPoCApplication::TreeItemClicked(const Wt::WModelIndex& index, const Wt::W
     m_hierarchy_popup_menu->addItem(soek)->triggered().connect(this, &ESPoCApplication::PopupMenuTriggered);
 
     m_hierarchy_popup_menu->popup(mouse);
+    LOG("LOG: end TreeItemClicked\n");
 }
 
 void ESPoCApplication::PopupMenuTriggered(Wt::WMenuItem* item)
 {
+    LOG("LOG: start PopupMenuTriggered\n");
     if (item && !m_popup_menu_id_string.empty())
     {
         ClearLayout();
         m_tab_widget->setCurrentIndex(TAB_INDEX_SEARCH);
         Search(m_popup_menu_id_string);
     }
+    LOG("LOG: end PopupMenuTriggered\n");
 }
 
 void ESPoCApplication::InfoboxButtonClicked()
 {
+    LOG("LOG: start InfoboxButtonClicked\n");
     ShowOrHideInfobox();
+    LOG("LOG: end InfoboxButtonClicked\n");
 }
 
 long ESPoCApplication::ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
@@ -837,8 +894,10 @@ long ESPoCApplication::ESSearch(const std::string& index, const std::string& typ
 
 void ESPoCApplication::PopulateHierarchy()
 {
+    LOG("LOG: start PopulateHierarchy\n");
     if (m_has_populated_hierarchy_model)
     {
+        LOG("LOG: end PopulateHierarchy\n");
         return;
     }
 
@@ -848,6 +907,7 @@ void ESPoCApplication::PopulateHierarchy()
     long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
+        LOG("LOG: end PopulateHierarchy\n");
         return;
     }
     
@@ -903,6 +963,7 @@ void ESPoCApplication::PopulateHierarchy()
     }
     m_hierarchy_model->sort(0);
     m_has_populated_hierarchy_model = true;
+    LOG("LOG: end PopulateHierarchy\n");
 }
 
 Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidget* parent)
@@ -947,6 +1008,7 @@ Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidg
 
 void ESPoCApplication::ClearLayout()
 {
+    LOG("LOG: start ClearLayout\n");
     m_nor_term_panel->setTitle("");
     m_nor_term_panel->expand();
     m_nor_term_panel_layout->clear();
@@ -968,6 +1030,7 @@ void ESPoCApplication::ClearLayout()
     m_result_container->hide();
     
     m_layout_is_cleared = true;
+    LOG("LOG: end ClearLayout\n");
 }
 
 void ESPoCApplication::CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str) const
@@ -1006,6 +1069,7 @@ void ESPoCApplication::GetParentTreeNumber(const std::string& child_tree_number,
 
 bool ESPoCApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item)
 {
+    LOG("LOG: start AddChildPlaceholderIfNeeded\n");
     bool added_placeholder = false;
     //Check if we have a matching child in the child_tree_numbers array
     if (source_object.member("child_tree_numbers"))
@@ -1027,6 +1091,7 @@ bool ESPoCApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_ob
             }
         }
     }
+    LOG("LOG: almost end AddChildPlaceholderIfNeeded\n");
     return added_placeholder;
 }
 
@@ -1042,8 +1107,10 @@ void ESPoCApplication::ShowOrHideInfobox()
 
 void ESPoCApplication::onInternalPathChange(const std::string& url)
 {
+    LOG("LOG: start onInternalPathChange\n");
     if (EQUAL == url.compare(Wt::WString::tr("AppHelpInternalPath").toUTF8())) {
         ShowOrHideInfobox();
     }
     WApplication::instance()->setInternalPath("/");
+    LOG("LOG: end onInternalPathChange\n");
 }

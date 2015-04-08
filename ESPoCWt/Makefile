@@ -7,7 +7,7 @@ all:    $(PROGRAM)
 .PHONY: all
 
 # source files
-#DEBUG_INFO = YES
+DEBUG_INFO = YES
 SOURCES = $(shell find -L . -name '*.cpp'|grep -v "/example/")
 OBJECTS = $(SOURCES:.cpp=.o)
 DEPS = $(OBJECTS:.o=.dep)
@@ -15,7 +15,7 @@ DEPS = $(OBJECTS:.o=.dep)
 ######## compiler- and linker settings #########
 CXX = g++
 CXXFLAGS = -I/usr/include -Icpp-elasticsearch/src -W -Wall -Werror -pipe -std=c++11
-LIBSFLAGS = -L/usr/lib -lwt -lwthttp -lboost_signals -lboost_locale -lpthread
+LIBSFLAGS = -L/usr/lib -lwt -lwthttp -lboost_system -lboost_thread -lboost_signals -lboost_locale -lpthread
 ifdef DEBUG_INFO
  CXXFLAGS += -g
 else
