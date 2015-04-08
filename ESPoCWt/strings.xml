@@ -32,6 +32,8 @@
     <message id="LinkUrl1.3">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
     <message id="LinkText1.4">Oria</message>
     <message id="LinkUrl1.4">http://bibsys-primo.hosted.exlibrisgroup.com/primo_library/libweb/action/dlSearch.do?institution=BIBSYS&amp;vid=BIBSYS&amp;search_scope=blended_scope&amp;query=lsr11,exact,{2}</message>
+    <message id="LinkText1.5">CiSMeF</message>
+    <message id="LinkUrl1.5">http://doccismef.chu-rouen.fr/dc/#lang=en&amp;wt=true&amp;q={2}</message>
 
     <message id="LinkCategory2">Oppslagsverk:</message>
     <message id="LinkText2.1">BMJ&nbsp;Best&nbsp;practice</message>
@@ -44,6 +46,8 @@
     <message id="LinkUrl3.1">http://www.nlm.nih.gov/cgi/mesh/2015/MB_cgi?term={1}&amp;exact=Find+Exact+Term&amp;field=uid</message>
     <message id="LinkText3.2">Svensk&nbsp;MeSH</message>
     <message id="LinkUrl3.2">http://mesh.kib.ki.se/swemesh/swebrowse.cfm?mode=allfields&amp;Term={2}</message>
+    <message id="LinkText3.3">HeTOP</message>
+    <message id="LinkUrl3.3">http://hetop.eu/hetop/#n=500&amp;lang=no&amp;q={2}</message>
 
     <message id="Links">Lenker:</message>
     <message id="MeSH_ID">MeSH ID:</message>
