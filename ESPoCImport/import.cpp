@@ -57,9 +57,9 @@ long ESSearch(const std::string& index, const std::string& type, const std::stri
 
 void CleanDatabase()
 {
-    g_es->deleteIndex("mesh");
-    
     std::stringstream mapping;
+
+    g_es->deleteIndex("mesh");
     mapping << "{\"mappings\": {\"" << g_language_code << "\": {\"properties\": {"
             << "\"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"top_node\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
@@ -72,8 +72,12 @@ void CleanDatabase()
             << "\"concepts.terms.language\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"concepts.terms.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"} "
             << "} } } }";
-            
     g_es->createIndex("mesh", mapping.str().c_str());
+
+    g_es->deleteIndex("statistics");
+    mapping << "{\"mappings\": {\"day\": {\"properties\": {\"count\": {\"type\": \"integer\"} } }, "
+                            << "\"text\": {\"properties\": {\"count\": {\"type\": \"integer\"} } } } }";
+    g_es->createIndex("statistics", mapping.str().c_str());
 }
 
 bool GetThesaurusLanguage(const xmlChar* thesaurus_id, std::string& language)

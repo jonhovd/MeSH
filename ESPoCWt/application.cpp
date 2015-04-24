@@ -7,6 +7,7 @@
 #include <Wt/WAnchor>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
+#include <Wt/WDate>
 #include <Wt/WHBoxLayout>
 #include <Wt/WImage>
 #include <Wt/WStandardItem>
@@ -28,9 +29,6 @@ boost::mutex g_log_mutex;
 #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
 #define EQUAL                           (0)
-
-#define TAB_INDEX_SEARCH                (0)
-#define TAB_INDEX_HIERARCHY             (1)
 
 #define SUGGESTIONLIST_ITEM_ID_ROLE     (Wt::UserRole)
 #define HIERARCHY_ITEM_TREE_NUMBER_ROLE (Wt::UserRole+1)
@@ -92,6 +90,8 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     applinks_vbox->addWidget(appabout_anchor);
     Wt::WAnchor* appquestion_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppSendQuestionUrl").toUTF8()), Wt::WString::tr("AppSendQuestion"));
     applinks_vbox->addWidget(appquestion_anchor);
+    Wt::WAnchor* appstatistics_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppStatisticsInternalPath").toUTF8()), Wt::WString::tr("AppStatistics"));
+    applinks_vbox->addWidget(appstatistics_anchor);
     Wt::WAnchor* apphelp_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppHelpInternalPath").toUTF8()), Wt::WString::tr("AppHelp"));
     applinks_vbox->addWidget(apphelp_anchor);
     header_hbox->addWidget(applinks_widget, 0, Wt::AlignRight|Wt::AlignTop);
@@ -123,6 +123,10 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
     m_tab_widget->addTab(hierarchy_tab, Wt::WString::tr("Hierarchy"));
     m_tab_widget->currentChanged().connect(this, &ESPoCApplication::TabChanged);
 
+    //Statistics-tab
+    m_statistics_tab = CreateStatisticsTab();
+    m_tab_widget->addTab(m_statistics_tab, Wt::WString::tr("Statistics"));
+    m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
 
     ClearLayout();
 
@@ -229,6 +233,16 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     search_vbox->addWidget(m_result_container);
 
     return search_tab;
+}
+
+Wt::WContainerWidget* ESPoCApplication::CreateStatisticsTab()
+{
+    Wt::WContainerWidget* statistics_tab = new Wt::WContainerWidget();
+    m_statistics_layout = new Wt::WGridLayout();
+    m_statistics_layout->setContentsMargins(0, 9, 0, 0);
+    statistics_tab->setLayout(m_statistics_layout);
+
+    return statistics_tab;
 }
 
 void ESPoCApplication::FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str)
@@ -454,6 +468,8 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
         return;
     }
     
+    LogSearch(mesh_id.toUTF8());
+
     Wt::WStringListModel* non_preferred_nor_terms = new Wt::WStringListModel();
     Wt::WStringListModel* non_preferred_eng_terms = new Wt::WStringListModel();
 
@@ -719,13 +735,14 @@ void ESPoCApplication::SearchEditFocussed()
 void ESPoCApplication::TabChanged(int active_tab_index)
 {
     LOG("LOG: start TabChanged\n");
-    if (TAB_INDEX_SEARCH >= active_tab_index)
+    switch(active_tab_index)
     {
-        m_search_edit->setFocus();
-    }
-    else
-    {
-        PopulateHierarchy();
+        case TAB_INDEX_HIERARCHY: PopulateHierarchy(); break;
+
+        case TAB_INDEX_STATISTICS: PopulateStatistics(); break;
+
+        case TAB_INDEX_SEARCH: //Fallthrough
+        default: m_search_edit->setFocus(); break;
     }
     LOG("LOG: end TabChanged\n");
 }
@@ -892,6 +909,48 @@ long ESPoCApplication::ESSearch(const std::string& index, const std::string& typ
     }
 }
 
+void ESPoCApplication::LogSearch(const std::string& search_string)
+{
+    //Update search text statistics
+    int count = 0;
+    Json::Object text_search_result;
+    if (m_es->getDocument("statistics", "text", search_string.c_str(), text_search_result))
+    {
+        const Json::Value source_value = text_search_result.getValue("_source");
+        const Json::Object source_object = source_value.getObject();
+        if (source_object.member("count"))
+        {
+            const Json::Value count_value = source_object.getValue("count");
+            count = count_value.getInt();
+        }
+    }
+    
+    Json::Object textstat_json;
+    textstat_json.addMemberByKey("count", ++count);
+    m_es->upsert("statistics", "text", search_string, textstat_json);
+
+
+    //Update search day statistics
+    Wt::WDate today = Wt::WDate::currentServerDate();
+    const std::string today_string = today.toString("yyyy-MM-dd").toUTF8();
+    count = 0;
+    Json::Object day_search_result;
+    if (m_es->getDocument("statistics", "day", today_string.c_str(), day_search_result))
+    {
+        const Json::Value source_value = day_search_result.getValue("_source");
+        const Json::Object source_object = source_value.getObject();
+        if (source_object.member("count"))
+        {
+            const Json::Value count_value = source_object.getValue("count");
+            count = count_value.getInt();
+        }
+    }
+    
+    Json::Object daystat_json;
+    daystat_json.addMemberByKey("count", ++count);
+    m_es->upsert("statistics", "day", today_string, daystat_json);
+}
+
 void ESPoCApplication::PopulateHierarchy()
 {
     LOG("LOG: start PopulateHierarchy\n");
@@ -964,6 +1023,119 @@ void ESPoCApplication::PopulateHierarchy()
     m_hierarchy_model->sort(0);
     m_has_populated_hierarchy_model = true;
     LOG("LOG: end PopulateHierarchy\n");
+}
+
+void ESPoCApplication::PopulateStatistics()
+{
+    LOG("LOG: start PopulateStatistics\n");
+
+    m_statistics_layout->clear();
+    int i;
+    for (i=0; i<8; i++)
+    {
+        m_statistics_layout->setColumnStretch(i, 0);
+    }
+    for (i=0; i<=8; i+=4)
+    {
+        m_statistics_layout->setColumnStretch(i, 1);
+        m_statistics_layout->addWidget(new Wt::WText(""), 0, i);
+    }
+
+    PopulateDayStatistics();
+    PopulateTextStatistics();
+
+
+    LOG("LOG: end PopulateStatistics\n");
+}
+
+void ESPoCApplication::PopulateDayStatistics()
+{
+    LOG("LOG: start PopulateDayStatistics\n");
+
+    m_statistics_layout->addWidget(new Wt::WText(Wt::WString::tr("StatisticsPerDay")), 0, 1);
+
+    Wt::WString query = Wt::WString::tr("StatisticsDay");
+
+    Json::Object search_result;
+    long result_size = ESSearch("statistics", "day", query.toUTF8(), search_result);
+    if (0 == result_size)
+    {
+        LOG("LOG: end PopulateDayStatistics\n");
+        return;
+    }
+    const Json::Value value = search_result.getValue("hits");
+    const Json::Object value_object = value.getObject();
+    const Json::Value hits_value = value_object.getValue("hits");
+    const Json::Array hits_array = hits_value.getArray();
+
+    int row = 0;
+    Json::Array::const_iterator iterator = hits_array.begin();
+    for (; iterator!=hits_array.end(); ++iterator)
+    {
+        const Json::Value hit_value = *iterator;
+        const Json::Object hit_value_object = hit_value.getObject();
+
+        const Json::Value day_value = hit_value_object.getValue("_id");
+        std::string day_value_string = day_value.getString();
+
+        const Json::Value source_value = hit_value_object.getValue("_source");
+        const Json::Object source_object = source_value.getObject();
+
+        const Json::Value count_value = source_object.getValue("count");
+        int count_value_int = count_value.getInt();
+
+        m_statistics_layout->addWidget(new Wt::WText(day_value_string), row, 2);
+        m_statistics_layout->addWidget(new Wt::WText(Wt::WString("{1}").arg(count_value_int)), row, 3);
+        row++;
+    }
+
+    LOG("LOG: end PopulateDayStatistics\n");
+}
+
+void ESPoCApplication::PopulateTextStatistics()
+{
+    LOG("LOG: start PopulateTextStatistics\n");
+
+    m_statistics_layout->addWidget(new Wt::WText(Wt::WString::tr("StatisticsPerMeSH")), 0, 5);
+
+    Wt::WString query = Wt::WString::tr("StatisticsText");
+
+    Json::Object search_result;
+    long result_size = ESSearch("statistics", "text", query.toUTF8(), search_result);
+    if (0 == result_size)
+    {
+        LOG("LOG: end PopulateTextStatistics\n");
+        return;
+    }
+    const Json::Value value = search_result.getValue("hits");
+    const Json::Object value_object = value.getObject();
+    const Json::Value hits_value = value_object.getValue("hits");
+    const Json::Array hits_array = hits_value.getArray();
+
+    int row = 0;
+    Json::Array::const_iterator iterator = hits_array.begin();
+    for (; iterator!=hits_array.end(); ++iterator)
+    {
+        const Json::Value hit_value = *iterator;
+        const Json::Object hit_value_object = hit_value.getObject();
+
+        const Json::Value mesh_value = hit_value_object.getValue("_id");
+        std::string mesh_value_string = mesh_value.getString();
+
+        const Json::Value source_value = hit_value_object.getValue("_source");
+        const Json::Object source_object = source_value.getObject();
+
+        const Json::Value count_value = source_object.getValue("count");
+        int count_value_int = count_value.getInt();
+
+        std::string name;
+        MeSHToName(mesh_value_string, name);
+        m_statistics_layout->addWidget(new Wt::WText(name), row, 6);
+        m_statistics_layout->addWidget(new Wt::WText(Wt::WString("{1}").arg(count_value_int)), row, 7);
+        row++;
+    }
+
+    LOG("LOG: end PopulateTextStatistics\n");
 }
 
 Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidget* parent)
@@ -1105,11 +1277,82 @@ void ESPoCApplication::ShowOrHideInfobox()
     }
 }
 
+void ESPoCApplication::MeSHToName(const std::string& mesh_id, std::string& name)
+{
+    name = mesh_id;
+
+    Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id);
+    Json::Object search_result;
+    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    if (0 == result_size)
+    {
+        return;
+    }
+    
+    const Json::Value value = search_result.getValue("hits");
+    const Json::Object value_object = value.getObject();
+    const Json::Value hits_value = value_object.getValue("hits");
+    const Json::Array hits_array = hits_value.getArray();
+    const Json::Value hit_value = hits_array.first();
+    const Json::Object hit_value_object = hit_value.getObject();
+    const Json::Value source_value = hit_value_object.getValue("_source");
+    const Json::Object source_object = source_value.getObject();
+    const Json::Value concepts_value = source_object.getValue("concepts");
+    const Json::Array concepts_array = concepts_value.getArray();
+
+    Json::Array::const_iterator concept_iterator = concepts_array.begin();
+    for (; concept_iterator!=concepts_array.end(); ++concept_iterator)
+    {
+        const Json::Value concept_value = *concept_iterator;
+        const Json::Object concept_object = concept_value.getObject();
+        const Json::Value preferred_concept_value = concept_object.getValue("preferred");
+        bool preferred_concept = (EQUAL == preferred_concept_value.getString().compare("yes"));
+        if (!preferred_concept)
+        {
+            continue;
+        }
+
+        const Json::Value terms_value = concept_object.getValue("terms");
+        const Json::Array terms_array = terms_value.getArray();
+        Json::Array::const_iterator term_iterator = terms_array.begin();
+        for (; term_iterator!=terms_array.end(); ++term_iterator)
+        {
+            const Json::Value term_value = *term_iterator;
+            const Json::Object term_object = term_value.getObject();
+            
+            const Json::Value preferred_term_value = term_object.getValue("preferred");
+            bool preferred_term = (EQUAL == preferred_term_value.getString().compare("yes"));
+            if (!preferred_term)
+            {
+                continue;
+            }
+
+            const Json::Value term_text_value = term_object.getValue("text");
+            name = term_text_value.getString();
+            
+            bool is_norwegian = false;
+            if (term_object.member("language"))
+            {
+                const Json::Value language_value = term_object.getValue("language");
+                is_norwegian = (EQUAL == language_value.getString().compare("nor"));
+            }
+            if (is_norwegian)
+            {
+                return;
+            }
+        }
+    }
+}
+
 void ESPoCApplication::onInternalPathChange(const std::string& url)
 {
     LOG("LOG: start onInternalPathChange\n");
     if (EQUAL == url.compare(Wt::WString::tr("AppHelpInternalPath").toUTF8())) {
         ShowOrHideInfobox();
+    }
+    else if (EQUAL == url.compare(Wt::WString::tr("AppStatisticsInternalPath").toUTF8()))
+    {
+        m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, false);
     }
     WApplication::instance()->setInternalPath("/");
     LOG("LOG: end onInternalPathChange\n");

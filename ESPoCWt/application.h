@@ -24,12 +24,19 @@
 
 class ESPoCApplication : public Wt::WApplication
 {
+enum TabId {
+    TAB_INDEX_SEARCH,
+    TAB_INDEX_HIERARCHY,
+    TAB_INDEX_STATISTICS
+};
+
 public:
     ESPoCApplication(const Wt::WEnvironment& environment);
     ~ESPoCApplication();
 
 private:
     Wt::WContainerWidget* CreateSearchTab();
+    Wt::WContainerWidget* CreateStatisticsTab();
     
 private:
     void FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str);
@@ -53,9 +60,13 @@ protected:
 
 private:
 	long ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result);
+    void LogSearch(const std::string& search_string);
 
 private:
     void PopulateHierarchy();
+    void PopulateStatistics();
+    void PopulateDayStatistics();
+    void PopulateTextStatistics();
     Wt::WSuggestionPopup* CreateSuggestionPopup(Wt::WContainerWidget* parent);
     void ClearLayout();
 
@@ -66,6 +77,8 @@ private:
 
     void ShowOrHideInfobox();
 
+    void MeSHToName(const std::string& mesh_id, std::string& name);
+
 private:
     bool m_layout_is_cleared;
     
@@ -73,6 +86,7 @@ private:
     bool m_infobox_visible;
     
     Wt::WTabWidget* m_tab_widget;
+    Wt::WContainerWidget* m_statistics_tab;
 
     Wt::WLineEdit* m_search_edit;
 	Wt::WSuggestionPopup* m_search_suggestion;
@@ -98,6 +112,8 @@ private:
     bool m_has_populated_hierarchy_model;
     Wt::WPopupMenu* m_hierarchy_popup_menu;
     std::string m_popup_menu_id_string;
+
+    Wt::WGridLayout* m_statistics_layout;
 
     ElasticSearch* m_es;
 };
