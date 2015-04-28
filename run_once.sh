@@ -1,4 +1,5 @@
 #!/bin/sh
+wget -qO - https://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add - &&
 echo "deb http://packages.elasticsearch.org/elasticsearch/1.3/debian stable main" > /tmp/elasticsearch.list &&
 sudo cp /tmp/elasticsearch.list /etc/apt/sources.list.d/ &&
 sudo apt-get update &&
