@@ -1,5 +1,6 @@
 #include "application.h"
 
+#include "global.h"
 #include <boost/locale/conversion.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -141,6 +142,10 @@ ESPoCApplication::~ESPoCApplication()
 	delete m_infobox;
 	delete m_hierarchy_popup_menu;
 	delete m_es;
+}
+
+void ESPoCApplication::handleJavaScriptError(const std::string& UNUSED(errorText))
+{
 }
 
 Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
@@ -757,7 +762,7 @@ void ESPoCApplication::TabChanged(int active_tab_index)
         case TAB_INDEX_STATISTICS: PopulateStatistics(); break;
 
         case TAB_INDEX_SEARCH: //Fallthrough
-        default: m_search_edit->setFocus(); break;
+        default: m_search_edit->setFocus(true); break;
     }
     LOG("LOG: end TabChanged\n");
 }
@@ -1288,7 +1293,7 @@ void ESPoCApplication::ShowOrHideInfobox()
     m_infobox->setHidden(!m_infobox_visible);
     if (TAB_INDEX_SEARCH >= m_tab_widget->currentIndex())
     {
-        m_search_edit->setFocus();
+        m_search_edit->setFocus(true);
     }
 }
 
