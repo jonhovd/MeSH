@@ -14,12 +14,14 @@ DEPS = $(OBJECTS:.o=.dep)
 
 ######## compiler- and linker settings #########
 CXX = g++
-CXXFLAGS = -I/usr/include -Icpp-elasticsearch/src -W -Wall -Werror -pipe -std=c++11
-LIBSFLAGS = -L/usr/lib -lwt -lwthttp -lboost_system -lboost_thread -lboost_signals -lboost_locale -lpthread
+CXXFLAGS = -I/usr/local/include -I/usr/include -Icpp-elasticsearch/src -W -Wall -Werror -pipe -std=c++11
+LIBSFLAGS = -L/usr/local/lib -L/usr/lib -lboost_system -lboost_thread -lboost_signals -lboost_locale -lpthread
 ifdef DEBUG_INFO
  CXXFLAGS += -g
+ LIBSFLAGS += -lwtd -lwthttpd
 else
  CXXFLAGS += -O3
+ LIBSFLAGS += -lwt -lwthttp
 endif
 
 %.o: %.cpp
