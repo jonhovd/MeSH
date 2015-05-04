@@ -41,106 +41,106 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
   m_has_populated_hierarchy_model(false),
   m_hierarchy_popup_menu(NULL)
 {
-    LOG("LOG: start constructor\n");
-    messageResourceBundle().use(appRoot() + "strings");
-    useStyleSheet(Wt::WLink("MeSH.css"));
+	LOG("LOG: start constructor\n");
+	messageResourceBundle().use(appRoot() + "strings");
+	useStyleSheet(Wt::WLink("MeSH.css"));
 
-    m_es = new ElasticSearch("localhost:9200");
+	m_es = new ElasticSearch("localhost:9200");
 
-    setTitle(Wt::WString::tr("AppName"));
+	setTitle(Wt::WString::tr("AppName"));
 
-    WApplication::instance()->internalPathChanged().connect(this, &ESPoCApplication::onInternalPathChange);
+	WApplication::instance()->internalPathChanged().connect(this, &ESPoCApplication::onInternalPathChange);
 
-    m_infobox = new Wt::WMessageBox(Wt::WString("Hjelp"), Wt::WString::tr("InfoText"), Wt::Icon::NoIcon, Wt::StandardButton::NoButton, root());
-    m_infobox->setModal(false);
-    m_infobox->setClosable(true);
-    m_infobox->setResizable(false);
-    m_infobox->setDeleteWhenHidden(false);
-    m_infobox->setMaximumSize(Wt::WLength(640, Wt::WLength::Pixel), Wt::WLength::Auto);
-    m_infobox->buttonClicked().connect(this, &ESPoCApplication::InfoboxButtonClicked);
-    m_infobox_visible = false;
-    
-    //Header
-    Wt::WContainerWidget* header_widget = new Wt::WContainerWidget();
-    Wt::WHBoxLayout* header_hbox = new Wt::WHBoxLayout();
-    header_hbox->setContentsMargins(0, 0, 0, 0);
-    header_widget->setLayout(header_hbox);
+	m_infobox = new Wt::WMessageBox(Wt::WString("Hjelp"), Wt::WString::tr("InfoText"), Wt::Icon::NoIcon, Wt::StandardButton::NoButton, root());
+	m_infobox->setModal(false);
+	m_infobox->setClosable(true);
+	m_infobox->setResizable(false);
+	m_infobox->setDeleteWhenHidden(false);
+	m_infobox->setMaximumSize(Wt::WLength(640, Wt::WLength::Pixel), Wt::WLength::Auto);
+	m_infobox->buttonClicked().connect(this, &ESPoCApplication::InfoboxButtonClicked);
+	m_infobox_visible = false;
 
-    Wt::WImage* logo = new Wt::WImage("images/logo.png");
-    header_hbox->addWidget(logo, 0, Wt::AlignLeft|Wt::AlignTop);
+	//Header
+	Wt::WContainerWidget* header_widget = new Wt::WContainerWidget();
+	Wt::WHBoxLayout* header_hbox = new Wt::WHBoxLayout();
+	header_hbox->setContentsMargins(0, 0, 0, 0);
+	header_widget->setLayout(header_hbox);
 
-    Wt::WContainerWidget* appname_widget = new Wt::WContainerWidget();
-    Wt::WVBoxLayout* appname_vbox = new Wt::WVBoxLayout();
-    appname_vbox->setContentsMargins(0, 0, 0, 0);
-    appname_widget->setLayout(appname_vbox);
-    Wt::WText* appname_text = new Wt::WText(Wt::WString::tr("AppName"));
-    appname_text->setStyleClass("mesh-appname");
-    appname_vbox->addWidget(appname_text, 0, Wt::AlignCenter|Wt::AlignMiddle);
-    Wt::WText* appversion_text = new Wt::WText(Wt::WString::tr("AppVersion"));
-    appversion_text->setStyleClass("mesh-appversion");
-    appname_vbox->addWidget(appversion_text, 0, Wt::AlignCenter);
-    header_hbox->addWidget(appname_widget, 1, Wt::AlignCenter|Wt::AlignTop);
+	Wt::WImage* logo = new Wt::WImage("images/logo.png");
+	header_hbox->addWidget(logo, 0, Wt::AlignLeft|Wt::AlignTop);
 
-    Wt::WContainerWidget* applinks_widget = new Wt::WContainerWidget();
-    Wt::WVBoxLayout* applinks_vbox = new Wt::WVBoxLayout();
-    applinks_vbox->setContentsMargins(0, 0, 0, 0);
-    applinks_widget->setLayout(applinks_vbox);
-    Wt::WAnchor* appabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppAboutUrl").toUTF8()), Wt::WString::tr("AppAbout"));
-    appabout_anchor->setTarget(Wt::TargetNewWindow);
-    applinks_vbox->addWidget(appabout_anchor);
-    Wt::WAnchor* appquestion_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppSendQuestionUrl").toUTF8()), Wt::WString::tr("AppSendQuestion"));
-    applinks_vbox->addWidget(appquestion_anchor);
-    Wt::WAnchor* appstatistics_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppStatisticsInternalPath").toUTF8()), Wt::WString::tr("AppStatistics"));
-    applinks_vbox->addWidget(appstatistics_anchor);
-    Wt::WAnchor* apphelp_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppHelpInternalPath").toUTF8()), Wt::WString::tr("AppHelp"));
-    applinks_vbox->addWidget(apphelp_anchor);
-    header_hbox->addWidget(applinks_widget, 0, Wt::AlignRight|Wt::AlignTop);
+	Wt::WContainerWidget* appname_widget = new Wt::WContainerWidget();
+	Wt::WVBoxLayout* appname_vbox = new Wt::WVBoxLayout();
+	appname_vbox->setContentsMargins(0, 0, 0, 0);
+	appname_widget->setLayout(appname_vbox);
+	Wt::WText* appname_text = new Wt::WText(Wt::WString::tr("AppName"));
+	appname_text->setStyleClass("mesh-appname");
+	appname_vbox->addWidget(appname_text, 0, Wt::AlignCenter|Wt::AlignMiddle);
+	Wt::WText* appversion_text = new Wt::WText(Wt::WString::tr("AppVersion"));
+	appversion_text->setStyleClass("mesh-appversion");
+	appname_vbox->addWidget(appversion_text, 0, Wt::AlignCenter);
+	header_hbox->addWidget(appname_widget, 1, Wt::AlignCenter|Wt::AlignTop);
 
-    root()->addWidget(header_widget);
+	Wt::WContainerWidget* applinks_widget = new Wt::WContainerWidget();
+	Wt::WVBoxLayout* applinks_vbox = new Wt::WVBoxLayout();
+	applinks_vbox->setContentsMargins(0, 0, 0, 0);
+	applinks_widget->setLayout(applinks_vbox);
+	Wt::WAnchor* appabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppAboutUrl").toUTF8()), Wt::WString::tr("AppAbout"));
+	appabout_anchor->setTarget(Wt::TargetNewWindow);
+	applinks_vbox->addWidget(appabout_anchor);
+	Wt::WAnchor* appquestion_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppSendQuestionUrl").toUTF8()), Wt::WString::tr("AppSendQuestion"));
+	applinks_vbox->addWidget(appquestion_anchor);
+	Wt::WAnchor* appstatistics_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppStatisticsInternalPath").toUTF8()), Wt::WString::tr("AppStatistics"));
+	applinks_vbox->addWidget(appstatistics_anchor);
+	Wt::WAnchor* apphelp_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppHelpInternalPath").toUTF8()), Wt::WString::tr("AppHelp"));
+	applinks_vbox->addWidget(apphelp_anchor);
+	header_hbox->addWidget(applinks_widget, 0, Wt::AlignRight|Wt::AlignTop);
 
-    //Tabs
-    m_tab_widget = new Wt::WTabWidget(root());
+	root()->addWidget(header_widget);
 
-    //Search-tab
-    m_tab_widget->addTab(CreateSearchTab(), Wt::WString::tr("Search"));
+	//Tabs
+	m_tab_widget = new Wt::WTabWidget(root());
 
-    //Hierarchy-tab
-    Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
-    Wt::WVBoxLayout* hierarchy_vbox = new Wt::WVBoxLayout();
-    hierarchy_vbox->setContentsMargins(0, 9, 0, 0);
-    hierarchy_tab->setLayout(hierarchy_vbox);
+	//Search-tab
+	m_tab_widget->addTab(CreateSearchTab(), Wt::WString::tr("Search"));
 
-    m_hierarchy_model = new Wt::WStandardItemModel(hierarchy_vbox);
-    m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
-    m_hierarchy_tree_view = new Wt::WTreeView();
-    m_hierarchy_tree_view->setModel(m_hierarchy_model);
-    m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
+	//Hierarchy-tab
+	Wt::WContainerWidget* hierarchy_tab = new Wt::WContainerWidget();
+	Wt::WVBoxLayout* hierarchy_vbox = new Wt::WVBoxLayout();
+	hierarchy_vbox->setContentsMargins(0, 9, 0, 0);
+	hierarchy_tab->setLayout(hierarchy_vbox);
 
-    hierarchy_vbox->addWidget(m_hierarchy_tree_view);
-    m_hierarchy_tree_view->expanded().connect(this, &ESPoCApplication::TreeItemExpanded);
-    m_hierarchy_tree_view->clicked().connect(this, &ESPoCApplication::TreeItemClicked);
+	m_hierarchy_model = new Wt::WStandardItemModel(hierarchy_vbox);
+	m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
+	m_hierarchy_tree_view = new Wt::WTreeView();
+	m_hierarchy_tree_view->setModel(m_hierarchy_model);
+	m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
 
-    m_tab_widget->addTab(hierarchy_tab, Wt::WString::tr("Hierarchy"));
-    m_tab_widget->currentChanged().connect(this, &ESPoCApplication::TabChanged);
+	hierarchy_vbox->addWidget(m_hierarchy_tree_view);
+	m_hierarchy_tree_view->expanded().connect(this, &ESPoCApplication::TreeItemExpanded);
+	m_hierarchy_tree_view->clicked().connect(this, &ESPoCApplication::TreeItemClicked);
 
-    //Statistics-tab
-    m_statistics_tab = CreateStatisticsTab();
-    m_tab_widget->addTab(m_statistics_tab, Wt::WString::tr("Statistics"));
-    m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
+	m_tab_widget->addTab(hierarchy_tab, Wt::WString::tr("Hierarchy"));
+	m_tab_widget->currentChanged().connect(this, &ESPoCApplication::TabChanged);
 
-    ClearLayout();
+	//Statistics-tab
+	m_statistics_tab = CreateStatisticsTab();
+	m_tab_widget->addTab(m_statistics_tab, Wt::WString::tr("Statistics"));
+	m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
 
-    TabChanged(TAB_INDEX_SEARCH);
+	ClearLayout();
 
-    ShowOrHideInfobox();
-    LOG("LOG: end constructor\n");
+	TabChanged(TAB_INDEX_SEARCH);
+
+	ShowOrHideInfobox();
+	LOG("LOG: end constructor\n");
 }
 
 ESPoCApplication::~ESPoCApplication()
 {
-    delete m_infobox;
-    delete m_hierarchy_popup_menu;
-    delete m_es;
+	delete m_infobox;
+	delete m_hierarchy_popup_menu;
+	delete m_es;
 }
 
 Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
@@ -628,22 +628,30 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
     delete non_preferred_nor_terms;
     delete non_preferred_eng_terms;
     
-    //Collapse/expand hierarchy
-    CollapseHierarchy();
-    if (source_object.member("tree_numbers"))
-    {
-        const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
-        const Json::Array tree_numbers_array = tree_numbers_value.getArray();
-        Json::Array::const_iterator tree_numbers_iterator = tree_numbers_array.begin();
-        for (; tree_numbers_iterator!=tree_numbers_array.end(); ++tree_numbers_iterator)
-        {
-            const Json::Value tree_number_value = *tree_numbers_iterator;
-            ExpandToTreeNumber(tree_number_value.getString());
-        }
-    }
+	//Clear marked items and collapse/expand hierarchy
+	std::vector<Wt::WStandardItem*>::iterator it = m_marked_hierarchy_items.begin();
+	for (; it!=m_marked_hierarchy_items.end(); ++it)
+	{
+		(*it)->setStyleClass("");
+	}
+	m_marked_hierarchy_items.clear();
+
+	CollapseHierarchy();
+
+	if (source_object.member("tree_numbers"))
+	{
+		const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
+		const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+		Json::Array::const_iterator tree_numbers_iterator = tree_numbers_array.begin();
+		for (; tree_numbers_iterator!=tree_numbers_array.end(); ++tree_numbers_iterator)
+		{
+			const Json::Value tree_number_value = *tree_numbers_iterator;
+			ExpandToTreeNumber(tree_number_value.getString());
+		}
+	}
             
-    m_layout_is_cleared = false;
-    LOG("LOG: end Search\n");
+	m_layout_is_cleared = false;
+	LOG("LOG: end Search\n");
 }
 
 void ESPoCApplication::CollapseHierarchy()
@@ -658,7 +666,6 @@ void ESPoCApplication::CollapseHierarchy()
         index = m_hierarchy_model->index(row, 0);
         if (!index.isValid())
             break;
-
         m_hierarchy_tree_view->collapse(index);
         row++;
     }
@@ -670,6 +677,14 @@ void ESPoCApplication::ExpandToTreeNumber(const std::string& tree_number_string)
     LOG("LOG: start ExpandToTreeNumber\n");
     Wt::WModelIndex model_index;
     ExpandTreeNumberRecursive(tree_number_string, model_index);
+
+	Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(model_index);
+    if (standard_item)
+    {
+		m_marked_hierarchy_items.push_back(standard_item);
+        standard_item->setStyleClass("marked_item");
+    }
+
     LOG("LOG: end ExpandToTreeNumber\n");
 }
 

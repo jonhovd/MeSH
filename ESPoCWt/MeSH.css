@@ -11,3 +11,14 @@
     font-size: 14pt !important;  
   }
 }
+
+.marked_item {
+  color: white !important;
+  background-color: black !important;
+}
+
+/*
+.marked_item::after {
+  content: url('images/star.png') !important;
+}
+*/
