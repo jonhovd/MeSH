@@ -34,6 +34,9 @@ public:
 	ESPoCApplication(const Wt::WEnvironment& environment);
 	~ESPoCApplication();
 
+protected: //From Wt::WApplication
+	virtual void handleJavaScriptError(const std::string& errorText);
+
 private:
 	Wt::WContainerWidget* CreateSearchTab();
 	Wt::WContainerWidget* CreateStatisticsTab();
