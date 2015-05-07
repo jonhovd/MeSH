@@ -27,7 +27,8 @@
     
     <message id="LinkCategory1">Referansedatabaser:</message>
     <message id="LinkText1.1">PubMed</message>
-    <message id="LinkUrl1.1">http://www.ncbi.nlm.nih.gov/pubmed/?term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
+    <message id="LinkUrl1.1">http://proxy.helsebiblioteket.no/login?url=http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
+
     <message id="LinkText1.2">SveMed+</message>
     <message id="LinkUrl1.2">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
     <message id="LinkText1.3">Cochrane&nbsp;library</message>
