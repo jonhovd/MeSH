@@ -2,10 +2,10 @@
 .kdev4
 *.dep
 *.o
-ESPoCWt/resources
-ESPoCImport/cpp-elasticsearch/
-ESPoCWt/cpp-elasticsearch
+MeSHWeb/resources
+MeSHImport/cpp-elasticsearch/
+MeSHWeb/cpp-elasticsearch
 ParseTreeStructure/cpp-elasticsearch
-ESPoCImport/ESPoCImport
-ESPoCWt/ESPoCWt
+MeSHImport/MeSHImport
+MeSHWeb/MeSHWeb
 ParseTreeStructure/ParseTreeStructure

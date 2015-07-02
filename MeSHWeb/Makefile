@@ -1,6 +1,6 @@
 # Based on Makefile from <URL: http://hak5.org/forums/index.php?showtopic=2077&p=27959 >
 
-PROGRAM = ESPoCWt
+PROGRAM = MeSHWeb
 
 ############# Main application #################
 all:    $(PROGRAM)
@@ -15,21 +15,20 @@ DEPS = $(OBJECTS:.o=.dep)
 ######## compiler- and linker settings #########
 CXX = g++
 CXXFLAGS = -I/usr/local/include -I/usr/include -Icpp-elasticsearch/src -W -Wall -Werror -pipe -std=c++11
-LIBSFLAGS = -L/usr/local/lib -L/usr/lib -lboost_system -lboost_thread -lboost_signals -lboost_locale -lpthread
 ifdef DEBUG_INFO
  CXXFLAGS += -g
- LIBSFLAGS += -lwtd -lwthttpd
+ LIBSFLAGS = -L/usr/lib/debug/usr/lib
 else
  CXXFLAGS += -O3
- LIBSFLAGS += -lwt -lwthttp
+ LIBSFLAGS = -L/usr/lib
 endif
+LIBSFLAGS += -lwt -lwthttp -lboost_system -lboost_signals -lboost_locale -lpthread
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 %.dep: %.cpp
 	$(CXX) $(CXXFLAGS) -MM $< -MT $(<:.cpp=.o) > $@
-
 
 ############# Main application #################
 $(PROGRAM):	$(OBJECTS) $(DEPS)

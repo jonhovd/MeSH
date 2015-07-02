@@ -2,13 +2,13 @@
 #define _GLOBAL_H_
 
 #include <Wt/WApplication>
-//#include <Wt/WEnvironment>
-//#include <Wt/WLogger>
+
+//#define LOG_SUPPORT
 
 #define UNUSED(x) /*make compiler happy*/
 
 extern Wt::WLogger g_logger;
-Wt::WLogEntry Log(const std::string& type);
+void Log(const std::string& type, const std::string& msg);
 
 Wt::WApplication* createApplication(const Wt::WEnvironment& env);
 

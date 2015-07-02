@@ -15,15 +15,6 @@
 #include <Wt/WStringListModel>
 #include <Wt/WVBoxLayout>
 
-//#define LOG_SUPPORT
-#ifdef LOG_SUPPORT
-# include <boost/thread/mutex.hpp>
-boost::mutex g_log_mutex;
-# define LOG(x) {boost::mutex::scoped_lock lock(g_log_mutex);fprintf(stdout,x);fflush(stdout);}
-#else
-# define LOG(x)
-#endif
-
 #define SUGGESTION_COUNT    (20)
 #define LANGUAGE            "nor"
 
@@ -36,13 +27,13 @@ boost::mutex g_log_mutex;
 #define HIERARCHY_ITEM_ID_ROLE          (Wt::UserRole+2)
 
 
-ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
+MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
   m_search_signal(this, "search"),
   m_has_populated_hierarchy_model(false),
   m_hierarchy_popup_menu(NULL)
 {
-	LOG("LOG: start constructor\n");
+	::Log("info", "start constructor\n");
 	messageResourceBundle().use(appRoot() + "strings");
 	useStyleSheet(Wt::WLink("MeSH.css"));
 
@@ -50,7 +41,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 
 	setTitle(Wt::WString::tr("AppName"));
 
-	WApplication::instance()->internalPathChanged().connect(this, &ESPoCApplication::onInternalPathChange);
+	WApplication::instance()->internalPathChanged().connect(this, &MeSHApplication::onInternalPathChange);
 
 	m_infobox = new Wt::WMessageBox(Wt::WString("Hjelp"), Wt::WString::tr("InfoText"), Wt::Icon::NoIcon, Wt::StandardButton::NoButton, root());
 	m_infobox->setModal(false);
@@ -58,7 +49,7 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 	m_infobox->setResizable(false);
 	m_infobox->setDeleteWhenHidden(false);
 	m_infobox->setMaximumSize(Wt::WLength(640, Wt::WLength::Pixel), Wt::WLength::Auto);
-	m_infobox->buttonClicked().connect(this, &ESPoCApplication::InfoboxButtonClicked);
+	m_infobox->buttonClicked().connect(this, &MeSHApplication::InfoboxButtonClicked);
 	m_infobox_visible = false;
 
 	//Header
@@ -118,11 +109,11 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 	m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
 
 	hierarchy_vbox->addWidget(m_hierarchy_tree_view);
-	m_hierarchy_tree_view->expanded().connect(this, &ESPoCApplication::TreeItemExpanded);
-	m_hierarchy_tree_view->clicked().connect(this, &ESPoCApplication::TreeItemClicked);
+	m_hierarchy_tree_view->expanded().connect(this, &MeSHApplication::TreeItemExpanded);
+	m_hierarchy_tree_view->clicked().connect(this, &MeSHApplication::TreeItemClicked);
 
 	m_tab_widget->addTab(hierarchy_tab, Wt::WString::tr("Hierarchy"));
-	m_tab_widget->currentChanged().connect(this, &ESPoCApplication::TabChanged);
+	m_tab_widget->currentChanged().connect(this, &MeSHApplication::TabChanged);
 
 	//Statistics-tab
 	m_statistics_tab = CreateStatisticsTab();
@@ -134,21 +125,21 @@ ESPoCApplication::ESPoCApplication(const Wt::WEnvironment& environment)
 	TabChanged(TAB_INDEX_SEARCH);
 
 	ShowOrHideInfobox();
-	LOG("LOG: end constructor\n");
+	::Log("info", "end constructor\n");
 }
 
-ESPoCApplication::~ESPoCApplication()
+MeSHApplication::~MeSHApplication()
 {
 	delete m_infobox;
 	delete m_hierarchy_popup_menu;
 	delete m_es;
 }
 
-void ESPoCApplication::handleJavaScriptError(const std::string& UNUSED(errorText))
+void MeSHApplication::handleJavaScriptError(const std::string& UNUSED(errorText))
 {
 }
 
-Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
+Wt::WContainerWidget* MeSHApplication::CreateSearchTab()
 {
     Wt::WContainerWidget* search_tab = new Wt::WContainerWidget();
     Wt::WVBoxLayout* search_vbox = new Wt::WVBoxLayout();
@@ -156,15 +147,15 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     search_tab->setLayout(search_vbox);
 
     m_search_edit = new Wt::WLineEdit();
-    m_search_edit->focussed().connect(this, &ESPoCApplication::SearchEditFocussed);
+    m_search_edit->focussed().connect(this, &MeSHApplication::SearchEditFocussed);
     m_search_suggestion = CreateSuggestionPopup(root());
     m_search_suggestion->forEdit(m_search_edit);
     m_search_suggestion_model = new Wt::WStandardItemModel(search_vbox);
     m_search_suggestion->setModel(m_search_suggestion_model);
     m_search_suggestion->setFilterLength(2);
-    m_search_suggestion->filterModel().connect(this, &ESPoCApplication::FilterSuggestion);
-    m_search_suggestion_model->itemChanged().connect(this, &ESPoCApplication::SuggestionChanged);
-    m_search_signal.connect(this, &ESPoCApplication::Search);
+    m_search_suggestion->filterModel().connect(this, &MeSHApplication::FilterSuggestion);
+    m_search_suggestion_model->itemChanged().connect(this, &MeSHApplication::SuggestionChanged);
+    m_search_signal.connect(this, &MeSHApplication::Search);
     search_vbox->addWidget(m_search_edit);
 
     m_result_container = new Wt::WContainerWidget();
@@ -240,7 +231,7 @@ Wt::WContainerWidget* ESPoCApplication::CreateSearchTab()
     return search_tab;
 }
 
-Wt::WContainerWidget* ESPoCApplication::CreateStatisticsTab()
+Wt::WContainerWidget* MeSHApplication::CreateStatisticsTab()
 {
     Wt::WContainerWidget* statistics_tab = new Wt::WContainerWidget();
     m_statistics_layout = new Wt::WGridLayout();
@@ -250,14 +241,14 @@ Wt::WContainerWidget* ESPoCApplication::CreateStatisticsTab()
     return statistics_tab;
 }
 
-void ESPoCApplication::FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str)
+void MeSHApplication::FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str)
 {
-    LOG("LOG: start FindIndirectHit\n");
+    ::Log("info", "start FindIndirectHit\n");
     const std::string lowercase_haystack = boost::locale::to_lower(haystack);
     size_t haystack_length = haystack.length();
     if (0 == haystack_length)
     {
-        LOG("LOG: end FindIndirectHit\n");
+        ::Log("info", "end FindIndirectHit\n");
         return;
     }
 
@@ -310,12 +301,12 @@ void ESPoCApplication::FindIndirectHit(const std::string& haystack, const std::s
         indirect_hit_str = haystack;
         best_hit_factor = hit_factor;
     }
-    LOG("LOG: end FindIndirectHit\n");
+    ::Log("info", "end FindIndirectHit\n");
 }
 
-void ESPoCApplication::FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str)
+void MeSHApplication::FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str)
 {
-    LOG("LOG: start FindIndirectHit2\n");
+    ::Log("info", "start FindIndirectHit2\n");
     indirect_hit_str.clear();
     double best_hit_factor = 0.0;
 
@@ -355,12 +346,12 @@ void ESPoCApplication::FindIndirectHit(const Json::Object& source_object, const 
             FindIndirectHit(term_text_value.getString(), cleaned_filter_str, best_hit_factor, indirect_hit_str);
         }
     }
-    LOG("LOG: end FindIndirectHit2\n");
+    ::Log("info", "end FindIndirectHit2\n");
 }
 
-void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
+void MeSHApplication::FilterSuggestion(const Wt::WString& filter)
 {
-    LOG("LOG: start FilterSuggestion\n");
+    ::Log("info", "start FilterSuggestion\n");
     if (!m_layout_is_cleared)
     {
         ClearLayout();
@@ -443,22 +434,22 @@ void ESPoCApplication::FilterSuggestion(const Wt::WString& filter)
     }
 
     m_search_suggestion_model->setData(--row, 0, std::string("Wt-more-data"), Wt::StyleClassRole);
-    LOG("LOG: end FilterSuggestion\n");
+    ::Log("info", "end FilterSuggestion\n");
 }
 
-void ESPoCApplication::SuggestionChanged(Wt::WStandardItem* item)
+void MeSHApplication::SuggestionChanged(Wt::WStandardItem* item)
 {
-    LOG("LOG: start SuggestionChanged\n");
+    ::Log("info", "start SuggestionChanged\n");
 	if (item)
 	{
 		item = NULL;
 	}
-    LOG("LOG: end SuggestionChanged\n");
+    ::Log("info", "end SuggestionChanged\n");
 }
 
-void ESPoCApplication::Search(const Wt::WString& mesh_id)
+void MeSHApplication::Search(const Wt::WString& mesh_id)
 {
-    LOG("LOG: start Search\n");
+    ::Log("info", "start Search\n");
     Wt::WString preferred_eng_term;
 
     m_mesh_id_text->setText(mesh_id);
@@ -469,7 +460,7 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
     long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
-        LOG("LOG: end Search\n");
+        ::Log("info", "end Search\n");
         return;
     }
     
@@ -656,12 +647,12 @@ void ESPoCApplication::Search(const Wt::WString& mesh_id)
 	}
             
 	m_layout_is_cleared = false;
-	LOG("LOG: end Search\n");
+	::Log("info", "end Search\n");
 }
 
-void ESPoCApplication::CollapseHierarchy()
+void MeSHApplication::CollapseHierarchy()
 {
-    LOG("LOG: start CollapseHierarchy\n");
+    ::Log("info", "start CollapseHierarchy\n");
     PopulateHierarchy(); //Just in case it isn't populated yet
 
     int row = 0;
@@ -674,12 +665,12 @@ void ESPoCApplication::CollapseHierarchy()
         m_hierarchy_tree_view->collapse(index);
         row++;
     }
-    LOG("LOG: end CollapseHierarchy\n");
+    ::Log("info", "end CollapseHierarchy\n");
 }
 
-void ESPoCApplication::ExpandToTreeNumber(const std::string& tree_number_string)
+void MeSHApplication::ExpandToTreeNumber(const std::string& tree_number_string)
 {
-    LOG("LOG: start ExpandToTreeNumber\n");
+    ::Log("info", "start ExpandToTreeNumber\n");
     Wt::WModelIndex model_index;
     ExpandTreeNumberRecursive(tree_number_string, model_index);
 
@@ -690,10 +681,10 @@ void ESPoCApplication::ExpandToTreeNumber(const std::string& tree_number_string)
         standard_item->setStyleClass("marked_item");
     }
 
-    LOG("LOG: end ExpandToTreeNumber\n");
+    ::Log("info", "end ExpandToTreeNumber\n");
 }
 
-void ESPoCApplication::ExpandTreeNumberRecursive(const std::string& current_tree_number_string, Wt::WModelIndex& model_index)
+void MeSHApplication::ExpandTreeNumberRecursive(const std::string& current_tree_number_string, Wt::WModelIndex& model_index)
 {
     std::string parent_tree_number_string;
     GetParentTreeNumber(current_tree_number_string, parent_tree_number_string);
@@ -710,9 +701,9 @@ void ESPoCApplication::ExpandTreeNumberRecursive(const std::string& current_tree
     }
 }
 
-bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string, bool top_level, Wt::WModelIndex& index)
+bool MeSHApplication::FindChildModelIndex(const std::string& tree_number_string, bool top_level, Wt::WModelIndex& index)
 {
-    LOG("LOG: start FindChildModelIndex\n");
+    ::Log("info", "start FindChildModelIndex\n");
     int row = 0;
     Wt::WModelIndex child_index;
     Wt::WStandardItem* standard_item;
@@ -722,14 +713,14 @@ bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string
         child_index = top_level ? m_hierarchy_model->index(row, 0) : index.child(row, 0);
         if (!child_index.isValid())
         {
-            LOG("LOG: end FindChildModelIndex\n");
+            ::Log("info", "end FindChildModelIndex\n");
             return false;
         }
 
         standard_item = m_hierarchy_model->itemFromIndex(child_index);
         if (!standard_item)
         {
-            LOG("LOG: end FindChildModelIndex\n");
+            ::Log("info", "end FindChildModelIndex\n");
             return false;
         }
 
@@ -737,7 +728,7 @@ bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string
         if (EQUAL == tree_number_string.compare(item_tree_number_string))
         {
             index = child_index;
-            LOG("LOG: end FindChildModelIndex\n");
+            ::Log("info", "end FindChildModelIndex\n");
             return true;
         }
 
@@ -745,16 +736,16 @@ bool ESPoCApplication::FindChildModelIndex(const std::string& tree_number_string
     }
 }
 
-void ESPoCApplication::SearchEditFocussed()
+void MeSHApplication::SearchEditFocussed()
 {
-    LOG("LOG: start SearchEditFocussed\n");
+    ::Log("info", "start SearchEditFocussed\n");
     m_search_edit->setText("");
-    LOG("LOG: end SearchEditFocussed\n");
+    ::Log("info", "end SearchEditFocussed\n");
 }
 
-void ESPoCApplication::TabChanged(int active_tab_index)
+void MeSHApplication::TabChanged(int active_tab_index)
 {
-    LOG("LOG: start TabChanged\n");
+    ::Log("info", "start TabChanged\n");
     switch(active_tab_index)
     {
         case TAB_INDEX_HIERARCHY: PopulateHierarchy(); break;
@@ -764,22 +755,22 @@ void ESPoCApplication::TabChanged(int active_tab_index)
         case TAB_INDEX_SEARCH: //Fallthrough
         default: m_search_edit->setFocus(true); break;
     }
-    LOG("LOG: end TabChanged\n");
+    ::Log("info", "end TabChanged\n");
 }
 
-void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
+void MeSHApplication::TreeItemExpanded(const Wt::WModelIndex& index)
 {
-    LOG("LOG: start TreeItemExpanded\n");
+    ::Log("info", "start TreeItemExpanded\n");
     if (!index.isValid())
     {
-        LOG("LOG: end TreeItemExpanded\n");
+        ::Log("info", "end TreeItemExpanded\n");
         return;
     }
 
     Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(index);
     if (!standard_item || !standard_item->hasChildren())
     {
-        LOG("LOG: end TreeItemExpanded\n");
+        ::Log("info", "end TreeItemExpanded\n");
         return;
     }
 
@@ -787,7 +778,7 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
     if (!possible_placeholder || //We don't have a children placeholder. This item should not be populated by children 
         !possible_placeholder->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE).empty()) //This is a real child, not a placeholder. No need to populate children one more time.
     {
-        LOG("LOG: end TreeItemExpanded\n");
+        ::Log("info", "end TreeItemExpanded\n");
         return;
     }
 
@@ -803,7 +794,7 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
     long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
-        LOG("LOG: end TreeItemExpanded\n");
+        ::Log("info", "end TreeItemExpanded\n");
         return;
     }
 
@@ -862,22 +853,22 @@ void ESPoCApplication::TreeItemExpanded(const Wt::WModelIndex& index)
     {
         m_hierarchy_model->sort(0);
     }
-    LOG("LOG: end TreeItemExpanded\n");
+    ::Log("info", "end TreeItemExpanded\n");
 }
 
-void ESPoCApplication::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse)
+void MeSHApplication::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse)
 {
-    LOG("LOG: start TreeItemClicked\n");
+    ::Log("info", "start TreeItemClicked\n");
     if (!index.isValid())
     {
-        LOG("LOG: end TreeItemClicked\n");
+        ::Log("info", "end TreeItemClicked\n");
         return;
     }
     
     Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(index);
     if (!standard_item)
     {
-        LOG("LOG: end TreeItemClicked\n");
+        ::Log("info", "end TreeItemClicked\n");
         return;
     }
     
@@ -892,32 +883,32 @@ void ESPoCApplication::TreeItemClicked(const Wt::WModelIndex& index, const Wt::W
     m_popup_menu_id_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_ID_ROLE));
 
     Wt::WString soek = Wt::WString::tr("SearchFromHierarchy").arg(standard_item->text().toUTF8());
-    m_hierarchy_popup_menu->addItem(soek)->triggered().connect(this, &ESPoCApplication::PopupMenuTriggered);
+    m_hierarchy_popup_menu->addItem(soek)->triggered().connect(this, &MeSHApplication::PopupMenuTriggered);
 
     m_hierarchy_popup_menu->popup(mouse);
-    LOG("LOG: end TreeItemClicked\n");
+    ::Log("info", "end TreeItemClicked\n");
 }
 
-void ESPoCApplication::PopupMenuTriggered(Wt::WMenuItem* item)
+void MeSHApplication::PopupMenuTriggered(Wt::WMenuItem* item)
 {
-    LOG("LOG: start PopupMenuTriggered\n");
+    ::Log("info", "start PopupMenuTriggered\n");
     if (item && !m_popup_menu_id_string.empty())
     {
         ClearLayout();
         m_tab_widget->setCurrentIndex(TAB_INDEX_SEARCH);
         Search(m_popup_menu_id_string);
     }
-    LOG("LOG: end PopupMenuTriggered\n");
+    ::Log("info", "end PopupMenuTriggered\n");
 }
 
-void ESPoCApplication::InfoboxButtonClicked()
+void MeSHApplication::InfoboxButtonClicked()
 {
-    LOG("LOG: start InfoboxButtonClicked\n");
+    ::Log("info", "start InfoboxButtonClicked\n");
     ShowOrHideInfobox();
-    LOG("LOG: end InfoboxButtonClicked\n");
+    ::Log("info", "end InfoboxButtonClicked\n");
 }
 
-long ESPoCApplication::ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
+long MeSHApplication::ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
 {
 	try
 	{
@@ -929,7 +920,7 @@ long ESPoCApplication::ESSearch(const std::string& index, const std::string& typ
     }
 }
 
-void ESPoCApplication::LogSearch(const std::string& search_string)
+void MeSHApplication::LogSearch(const std::string& search_string)
 {
     //Update search text statistics
     int count = 0;
@@ -971,12 +962,12 @@ void ESPoCApplication::LogSearch(const std::string& search_string)
     m_es->upsert("statistics", "day", today_string, daystat_json);
 }
 
-void ESPoCApplication::PopulateHierarchy()
+void MeSHApplication::PopulateHierarchy()
 {
-    LOG("LOG: start PopulateHierarchy\n");
+    ::Log("info", "start PopulateHierarchy\n");
     if (m_has_populated_hierarchy_model)
     {
-        LOG("LOG: end PopulateHierarchy\n");
+        ::Log("info", "end PopulateHierarchy\n");
         return;
     }
 
@@ -986,7 +977,7 @@ void ESPoCApplication::PopulateHierarchy()
     long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
-        LOG("LOG: end PopulateHierarchy\n");
+        ::Log("info", "end PopulateHierarchy\n");
         return;
     }
     
@@ -1042,12 +1033,12 @@ void ESPoCApplication::PopulateHierarchy()
     }
     m_hierarchy_model->sort(0);
     m_has_populated_hierarchy_model = true;
-    LOG("LOG: end PopulateHierarchy\n");
+    ::Log("info", "end PopulateHierarchy\n");
 }
 
-void ESPoCApplication::PopulateStatistics()
+void MeSHApplication::PopulateStatistics()
 {
-    LOG("LOG: start PopulateStatistics\n");
+    ::Log("info", "start PopulateStatistics\n");
 
     m_statistics_layout->clear();
     int i;
@@ -1065,12 +1056,12 @@ void ESPoCApplication::PopulateStatistics()
     PopulateTextStatistics();
 
 
-    LOG("LOG: end PopulateStatistics\n");
+    ::Log("info", "end PopulateStatistics\n");
 }
 
-void ESPoCApplication::PopulateDayStatistics()
+void MeSHApplication::PopulateDayStatistics()
 {
-    LOG("LOG: start PopulateDayStatistics\n");
+    ::Log("info", "start PopulateDayStatistics\n");
 
     m_statistics_layout->addWidget(new Wt::WText(Wt::WString::tr("StatisticsPerDay")), 0, 1);
 
@@ -1080,7 +1071,7 @@ void ESPoCApplication::PopulateDayStatistics()
     long result_size = ESSearch("statistics", "day", query.toUTF8(), search_result);
     if (0 == result_size)
     {
-        LOG("LOG: end PopulateDayStatistics\n");
+        ::Log("info", "end PopulateDayStatistics\n");
         return;
     }
     const Json::Value value = search_result.getValue("hits");
@@ -1109,12 +1100,12 @@ void ESPoCApplication::PopulateDayStatistics()
         row++;
     }
 
-    LOG("LOG: end PopulateDayStatistics\n");
+    ::Log("info", "end PopulateDayStatistics\n");
 }
 
-void ESPoCApplication::PopulateTextStatistics()
+void MeSHApplication::PopulateTextStatistics()
 {
-    LOG("LOG: start PopulateTextStatistics\n");
+    ::Log("info", "start PopulateTextStatistics\n");
 
     m_statistics_layout->addWidget(new Wt::WText(Wt::WString::tr("StatisticsPerMeSH")), 0, 5);
 
@@ -1124,7 +1115,7 @@ void ESPoCApplication::PopulateTextStatistics()
     long result_size = ESSearch("statistics", "text", query.toUTF8(), search_result);
     if (0 == result_size)
     {
-        LOG("LOG: end PopulateTextStatistics\n");
+        ::Log("info", "end PopulateTextStatistics\n");
         return;
     }
     const Json::Value value = search_result.getValue("hits");
@@ -1155,10 +1146,10 @@ void ESPoCApplication::PopulateTextStatistics()
         row++;
     }
 
-    LOG("LOG: end PopulateTextStatistics\n");
+    ::Log("info", "end PopulateTextStatistics\n");
 }
 
-Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidget* parent)
+Wt::WSuggestionPopup* MeSHApplication::CreateSuggestionPopup(Wt::WContainerWidget* parent)
 {
     std::string matcherJS = INLINE_JAVASCRIPT(
         function (edit) {
@@ -1198,9 +1189,9 @@ Wt::WSuggestionPopup* ESPoCApplication::CreateSuggestionPopup(Wt::WContainerWidg
     return new Wt::WSuggestionPopup(matcherJS, replacerJS, parent);
 }
 
-void ESPoCApplication::ClearLayout()
+void MeSHApplication::ClearLayout()
 {
-    LOG("LOG: start ClearLayout\n");
+    ::Log("info", "start ClearLayout\n");
     m_nor_term_panel->setTitle("");
     m_nor_term_panel->expand();
     m_nor_term_panel_layout->clear();
@@ -1222,10 +1213,10 @@ void ESPoCApplication::ClearLayout()
     m_result_container->hide();
     
     m_layout_is_cleared = true;
-    LOG("LOG: end ClearLayout\n");
+    ::Log("info", "end ClearLayout\n");
 }
 
-void ESPoCApplication::CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str) const
+void MeSHApplication::CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str) const
 {
     cleaned_filter_str = filter_str;
     size_t filter_length = cleaned_filter_str.length();
@@ -1239,7 +1230,7 @@ void ESPoCApplication::CleanFilterString(const std::string filter_str, std::stri
     }
 }
 
-void ESPoCApplication::AddWildcard(const std::string filter_str, std::string& wildcard_filter_str) const
+void MeSHApplication::AddWildcard(const std::string filter_str, std::string& wildcard_filter_str) const
 {
     wildcard_filter_str = filter_str;
     size_t filter_length = wildcard_filter_str.length();
@@ -1249,7 +1240,7 @@ void ESPoCApplication::AddWildcard(const std::string filter_str, std::string& wi
     }
 }
 
-void ESPoCApplication::GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number)
+void MeSHApplication::GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number)
 {
     size_t substring_length = child_tree_number.find_last_of('.');
     if (std::string::npos==substring_length && 1<child_tree_number.length()) //If length==1, we have a forced topnode. We know they do not have a parent
@@ -1259,9 +1250,9 @@ void ESPoCApplication::GetParentTreeNumber(const std::string& child_tree_number,
     parent_tree_number = (std::string::npos==substring_length) ? "" : child_tree_number.substr(0, substring_length);
 }
 
-bool ESPoCApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item)
+bool MeSHApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item)
 {
-    LOG("LOG: start AddChildPlaceholderIfNeeded\n");
+    ::Log("info", "start AddChildPlaceholderIfNeeded\n");
     bool added_placeholder = false;
     //Check if we have a matching child in the child_tree_numbers array
     if (source_object.member("child_tree_numbers"))
@@ -1283,11 +1274,11 @@ bool ESPoCApplication::AddChildPlaceholderIfNeeded(const Json::Object& source_ob
             }
         }
     }
-    LOG("LOG: almost end AddChildPlaceholderIfNeeded\n");
+    ::Log("info", "almost end AddChildPlaceholderIfNeeded\n");
     return added_placeholder;
 }
 
-void ESPoCApplication::ShowOrHideInfobox()
+void MeSHApplication::ShowOrHideInfobox()
 {
     m_infobox_visible = !m_infobox_visible;
     m_infobox->setHidden(!m_infobox_visible);
@@ -1297,7 +1288,7 @@ void ESPoCApplication::ShowOrHideInfobox()
     }
 }
 
-void ESPoCApplication::MeSHToName(const std::string& mesh_id, std::string& name)
+void MeSHApplication::MeSHToName(const std::string& mesh_id, std::string& name)
 {
     name = mesh_id;
 
@@ -1364,9 +1355,9 @@ void ESPoCApplication::MeSHToName(const std::string& mesh_id, std::string& name)
     }
 }
 
-void ESPoCApplication::onInternalPathChange(const std::string& url)
+void MeSHApplication::onInternalPathChange(const std::string& url)
 {
-    LOG("LOG: start onInternalPathChange\n");
+    ::Log("info", "start onInternalPathChange\n");
     if (EQUAL == url.compare(Wt::WString::tr("AppHelpInternalPath").toUTF8())) {
         ShowOrHideInfobox();
     }
@@ -1375,5 +1366,5 @@ void ESPoCApplication::onInternalPathChange(const std::string& url)
         m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, false);
     }
     WApplication::instance()->setInternalPath("/");
-    LOG("LOG: end onInternalPathChange\n");
+    ::Log("info", "end onInternalPathChange\n");
 }

@@ -1,6 +1,6 @@
 # Based on Makefile from <URL: http://hak5.org/forums/index.php?showtopic=2077&p=27959 >
 
-PROGRAM = ESPoCImport
+PROGRAM = MeSHImport
 
 ############# Main application #################
 all:    $(PROGRAM)

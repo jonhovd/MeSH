@@ -6,14 +6,20 @@
 
 
 Wt::WLogger g_logger;
-Wt::WLogEntry Log(const std::string& type)
+#ifdef LOG_SUPPORT
+void Log(const std::string& type, const std::string& msg)
 {
-    return g_logger.entry(type);
+    g_logger.entry(type) << msg;
 }
+#else
+void Log(const std::string& UNUSED(type), const std::string& UNUSED(msg))
+{
+}
+#endif
 
 Wt::WApplication* createApplication(const Wt::WEnvironment& env)
 {
-    return new ESPoCApplication(env);
+    return new MeSHApplication(env);
 }
 
 int main(int argc, char** argv)

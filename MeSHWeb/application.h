@@ -22,7 +22,7 @@
 #include "elasticsearch/elasticsearch.h"
 
 
-class ESPoCApplication : public Wt::WApplication
+class MeSHApplication : public Wt::WApplication
 {
 enum TabId {
 	TAB_INDEX_SEARCH,
@@ -31,8 +31,8 @@ enum TabId {
 };
 
 public:
-	ESPoCApplication(const Wt::WEnvironment& environment);
-	~ESPoCApplication();
+	MeSHApplication(const Wt::WEnvironment& environment);
+	~MeSHApplication();
 
 protected: //From Wt::WApplication
 	virtual void handleJavaScriptError(const std::string& errorText);
