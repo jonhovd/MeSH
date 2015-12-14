@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
     <message id="AppName">MeSH på norsk og engelsk</message>
-    <message id="AppVersion">Versjon 2015-3, under utvikling</message>
+    <message id="AppVersion">Versjon 2015-desember</message>
     <message id="AppAbout">Om søk, innhold og prosjekt</message>
     <message id="AppAboutUrl">http://www.helsebiblioteket.no/for-bibliotekarer/mesh-medical-subject-headings-pa-norsk-og-engelsk</message>
     <message id="AppSendQuestion">Spørsmål om MeSH?</message>
