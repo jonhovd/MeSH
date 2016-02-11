@@ -5,7 +5,7 @@
     <message id="AppAbout">Om søk, innhold og prosjekt</message>
     <message id="AppAboutUrl">http://www.helsebiblioteket.no/om-oss/artikkelarkiv/mesh-medical-subject-headings-pa-norsk-og-engelsk</message>
     <message id="AppSendQuestion">Spørsmål om MeSH?</message>
-    <message id="AppSendQuestionUrl">mailto:Sigrun.Espelien.Aasen@kunnskapssenteret.no?subject=Spørsmål om MeSH</message>
+    <message id="AppSendQuestionUrl">mailto:SigrunEspelien.Aasen@fhi.no?subject=Spørsmål om MeSH</message>
     <message id="AppStatistics">Statistikk</message>
     <message id="AppStatisticsInternalPath">/statistics</message>
     <message id="AppHelp">Hjelp</message>
