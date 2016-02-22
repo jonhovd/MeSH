@@ -477,6 +477,9 @@ void MeSHApplication::Search(const Wt::WString& mesh_id)
     const Json::Object hit_value_object = hit_value.getObject();
     const Json::Value source_value = hit_value_object.getValue("_source");
     const Json::Object source_object = source_value.getObject();
+	if (!source_object.member("concepts")) //Probably a top-node
+		return;
+
     const Json::Value concepts_value = source_object.getValue("concepts");
     const Json::Array concepts_array = concepts_value.getArray();
 
