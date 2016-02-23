@@ -4,7 +4,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000001</DescriptorUI>
   <DescriptorName>
-   <String>Anatomi[Anatomy]</String>
+   <String>A - Anatomi[A - Anatomy]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>A</TreeNumber>
@@ -13,7 +13,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000002</DescriptorUI>
   <DescriptorName>
-   <String>Organismer[Organisms]</String>
+   <String>B - Organismer[B - Organisms]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>B</TreeNumber>
@@ -22,7 +22,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000003</DescriptorUI>
   <DescriptorName>
-   <String>Sykdommer[Diseases]</String>
+   <String>C - Sykdommer[C - Diseases]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>C</TreeNumber>
@@ -31,7 +31,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000004</DescriptorUI>
   <DescriptorName>
-   <String>Kjemikalier og legemidler[Chemicals and Drugs]</String>
+   <String>D - Kjemikalier og legemidler[D - Chemicals and Drugs]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>D</TreeNumber>
@@ -40,7 +40,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000005</DescriptorUI>
   <DescriptorName>
-   <String>Teknikker og utstyr for analyse, diagnostikk og behandling[Analytical,Diagnostic and Therapeutic Techniques and Equipment]</String>
+   <String>E - Teknikker og utstyr for analyse, diagnostikk og behandling[E - Analytical,Diagnostic and Therapeutic Techniques and Equipment]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>E</TreeNumber>
@@ -49,7 +49,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000006</DescriptorUI>
   <DescriptorName>
-   <String>Psykiatri og psykologi[Psychiatry and Psychology]</String>
+   <String>F - Psykiatri og psykologi[F - Psychiatry and Psychology]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>F</TreeNumber>
@@ -58,7 +58,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000007</DescriptorUI>
   <DescriptorName>
-   <String>Fenomener og prosesser[Phenomena and Processes]</String>
+   <String>G - Fenomener og prosesser[G - Phenomena and Processes]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>G</TreeNumber>
@@ -67,7 +67,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000008</DescriptorUI>
   <DescriptorName>
-   <String>Disipliner og yrker[Disciplines and Occupations]</String>
+   <String>H - Disipliner og yrker[H - Disciplines and Occupations]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>H</TreeNumber>
@@ -76,7 +76,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000009</DescriptorUI>
   <DescriptorName>
-   <String>Antropologi, utdanning, sosiologi og sosiale fenomener[Anthropology,Education,Sociology and Social Phenomena]</String>
+   <String>I - Antropologi, utdanning, sosiologi og sosiale fenomener[I - Anthropology,Education,Sociology and Social Phenomena]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>I</TreeNumber>
@@ -85,7 +85,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000010</DescriptorUI>
   <DescriptorName>
-   <String>Teknologi, industri og jordbruk[Technology,Industry,Agriculture]</String>
+   <String>J - Teknologi, industri og jordbruk[J - Technology,Industry,Agriculture]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>J</TreeNumber>
@@ -94,7 +94,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000011</DescriptorUI>
   <DescriptorName>
-   <String>Humanistiske fag[Humanities]</String>
+   <String>K - Humanistiske fag[K - Humanities]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>K</TreeNumber>
@@ -103,7 +103,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000012</DescriptorUI>
   <DescriptorName>
-   <String>Informasjonsvitenskap[Information Science]</String>
+   <String>L - Informasjonsvitenskap[L - Information Science]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>L</TreeNumber>
@@ -112,7 +112,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000013</DescriptorUI>
   <DescriptorName>
-   <String>Navngitte grupper[Named Groups]</String>
+   <String>M - Navngitte grupper[M - Named Groups]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>M</TreeNumber>
@@ -121,7 +121,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000014</DescriptorUI>
   <DescriptorName>
-   <String>Helsevesen[Health Care]</String>
+   <String>N - Helsevesen[N - Health Care]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>N</TreeNumber>
@@ -130,7 +130,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000015</DescriptorUI>
   <DescriptorName>
-   <String>Publikasjonstyper[Publication Characteristics]</String>
+   <String>V - Publikasjonstyper[V - Publication Characteristics]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>V</TreeNumber>
@@ -139,7 +139,7 @@
 <DescriptorRecord>
   <DescriptorUI>dummy00000016</DescriptorUI>
   <DescriptorName>
-   <String>Geografiske områder[Geographicals]</String>
+   <String>Z - Geografiske områder[Z - Geographicals]</String>
   </DescriptorName>
   <TreeNumberList>
    <TreeNumber>Z</TreeNumber>
