@@ -30,7 +30,7 @@
     <message id="LinkUrl1.1">http://proxy.helsebiblioteket.no/login?url=http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
 
     <message id="LinkText1.2">SveMed+</message>
-    <message id="LinkUrl1.2">https://mesh.kib.ki.se/term/{1}</message>
+    <message id="LinkUrl1.2">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
     <message id="LinkText1.3">Cochrane&nbsp;library</message>
     <message id="LinkUrl1.3">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
     <message id="LinkText1.4">Oria</message>
@@ -46,7 +46,7 @@
     <message id="LinkText3.1">MeSH&nbsp;Browser&nbsp;(NLM)</message>
     <message id="LinkUrl3.1">http://www.nlm.nih.gov/cgi/mesh/2016/MB_cgi?term={1}&amp;exact=Find+Exact+Term&amp;field=uid</message>
     <message id="LinkText3.2">Svensk&nbsp;MeSH</message>
-    <message id="LinkUrl3.2">http://mesh.kib.ki.se/swemesh/swebrowse.cfm?mode=allfields&amp;Term={2}</message>
+    <message id="LinkUrl3.2">https://mesh.kib.ki.se/term/{1}</message>
     <message id="LinkText3.3">HeTOP</message>
     <message id="LinkUrl3.3">http://hetop.eu/hetop/#n=500&amp;lang=no&amp;q={2}</message>
 
