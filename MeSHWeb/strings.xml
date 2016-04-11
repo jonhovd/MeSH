@@ -11,7 +11,7 @@
     <message id="AppHelp">Hjelp</message>
     <message id="AppHelpInternalPath">/help</message>
     <message id="NorwegianDescription">Definisjon:</message>
-    <message id="EnglishDescription">Forklaring:</message>
+    <message id="EnglishDescription">Scope-Note:</message>
     <message id="Hierarchy">Hierarki</message>
     <message id="IndirectHit">{1} ({2})</message>
     
@@ -30,13 +30,11 @@
     <message id="LinkUrl1.1">http://proxy.helsebiblioteket.no/login?url=http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
 
     <message id="LinkText1.2">SveMed+</message>
-    <message id="LinkUrl1.2">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
+    <message id="LinkUrl1.2">https://mesh.kib.ki.se/term/{1}</message>
     <message id="LinkText1.3">Cochrane&nbsp;library</message>
     <message id="LinkUrl1.3">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
     <message id="LinkText1.4">Oria</message>
     <message id="LinkUrl1.4">http://bibsys-primo.hosted.exlibrisgroup.com/primo_library/libweb/action/dlSearch.do?institution=BIBSYS&amp;vid=BIBSYS&amp;search_scope=blended_scope&amp;query=lsr11,exact,{2}</message>
-    <message id="LinkText1.5">CiSMeF</message>
-    <message id="LinkUrl1.5">http://doccismef.chu-rouen.fr/dc/#lang=en&amp;wt=true&amp;q={2}</message>
 
     <message id="LinkCategory2">Oppslagsverk:</message>
     <message id="LinkText2.1">BMJ&nbsp;Best&nbsp;practice</message>
