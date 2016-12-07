@@ -19,6 +19,8 @@
 #include <Wt/WTextArea>
 #include <Wt/WTreeView>
 
+#include "links.h"
+
 #include "elasticsearch/elasticsearch.h"
 
 
@@ -108,7 +110,7 @@ private:
 
 	Wt::WText* m_mesh_id_text;
 
-	Wt::WGridLayout* m_links_layout;
+	Links* m_links;
 
 	Wt::WTreeView* m_hierarchy_tree_view;
 	Wt::WStandardItemModel* m_hierarchy_model;

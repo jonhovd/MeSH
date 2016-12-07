@@ -1,3 +1,4 @@
+
 .mesh-appname {
     font-size: 20pt !important;
 }
@@ -15,6 +16,85 @@
 .marked_item {
   color: white !important;
   background-color: black !important;
+}
+
+body{
+  font-family: 'Lato', sans-serif !important;
+  margin-left:150px;
+  background-color: #f0f5f5;
+}
+
+.Wt-panel {
+border: none !important;
+background-color: white !important;
+ max-width: 800px;
+}
+
+.Wt-panel .body {
+ background: white !important;
+}
+
+.Wt-panel .titlebar {
+  background: white !important;
+}
+
+.scope {
+  max-width:800px;
+  font-weight: bold;
+  
+}
+
+.scope-text {
+  max-width:800px;
+  
+}
+
+a {
+  color: #A8CCD8;
+  background-color:white;
+  /*border: 1px solid lightgrey;*/
+  
+
+}
+
+.search-field{
+  max-width: 800px;
+  height: 30px;
+  padding:10px;
+}
+
+.header {
+  background: white;
+  width: 100%
+
+}
+
+.mainfooter {
+  background: white;
+  width: 100%;
+  border-top: 3px solid lightgrey;
+}
+
+.dialog-layout {
+
+  background:#A8CCD8;
+}
+
+.Wt-dialog .titlebar{
+  background:#A8CCD8;
+  border-bottom: 1px solid grey;
+  color:black !important;
+}
+
+.Wt-tabs a {
+ background: white;
+ color:#75a3a3;
+}
+
+.Wt-treeview ul {
+  font-family: 'Lato', sans-serif !important;
+  font-size: 14px;
+  
 }
 
 /*

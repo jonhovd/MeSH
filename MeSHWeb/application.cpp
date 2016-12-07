@@ -147,6 +147,7 @@ Wt::WContainerWidget* MeSHApplication::CreateSearchTab()
     search_tab->setLayout(search_vbox);
 
     m_search_edit = new Wt::WLineEdit();
+	m_search_edit->setStyleClass("search-field");
     m_search_edit->focussed().connect(this, &MeSHApplication::SearchEditFocussed);
     m_search_suggestion = CreateSuggestionPopup(root());
     m_search_suggestion->forEdit(m_search_edit);
@@ -188,8 +189,11 @@ Wt::WContainerWidget* MeSHApplication::CreateSearchTab()
     result_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
     result_vbox->addWidget(m_nor_term_panel);
 
+	Wt::WText* nor_description_label = new Wt::WText(Wt::WString::tr("NorwegianDescription"));
+	nor_description_label->setStyleClass("scope scope-class");
+    result_vbox->addWidget(nor_description_label);
     m_nor_description_text = new Wt::WText();
-    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("NorwegianDescription")));
+	m_nor_description_text->setStyleClass("scope-note scope-class");
     result_vbox->addWidget(m_nor_description_text);
 
     m_eng_term_panel = new Wt::WPanel();
@@ -209,8 +213,11 @@ Wt::WContainerWidget* MeSHApplication::CreateSearchTab()
     result_vbox->addWidget(new Wt::WText(Wt::WString::tr("PreferredEnglishTerm")));
     result_vbox->addWidget(m_eng_term_panel);
 
+    Wt::WText* eng_description_label = new Wt::WText(Wt::WString::tr("EnglishDescription"));
+	eng_description_label->setStyleClass("scope scope-class");
+    result_vbox->addWidget(eng_description_label);
     m_eng_description_text = new Wt::WText();
-    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("EnglishDescription")));
+	m_eng_description_text->setStyleClass("scope-note scope-class");
     result_vbox->addWidget(m_eng_description_text);
  
     Wt::WContainerWidget* mesh_id_container = new Wt::WContainerWidget();
@@ -222,9 +229,9 @@ Wt::WContainerWidget* MeSHApplication::CreateSearchTab()
     mesh_id_hbox->addWidget(m_mesh_id_text, 1, Wt::AlignLeft);
     result_vbox->addWidget(mesh_id_container);
 
-    m_links_layout = new Wt::WGridLayout();
-    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
-    result_vbox->addLayout(m_links_layout);
+    m_links = new Links();
+//    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
+    result_vbox->addWidget(m_links);
     
     search_vbox->addWidget(m_result_container);
 
@@ -589,40 +596,8 @@ void MeSHApplication::Search(const Wt::WString& mesh_id)
 
     std::string url_encoded_term = Wt::Utils::urlEncode(preferred_eng_term.toUTF8());
     std::string url_encoded_filtertext = Wt::Utils::urlEncode(m_search_edit->text().toUTF8());
-    int link_category_index = 0;
-    int link_index;
-    while (true)
-    {
-        link_category_index++;
-        Wt::WString link_category_key = Wt::WString::tr("LinkCategoryFormat").arg(link_category_index);
-        Wt::WString link_category_text = Wt::WString::tr(link_category_key.toUTF8());
-        if ('?' == link_category_text.toUTF8().at(0))
-            break;
-
-        m_links_layout->addWidget(new Wt::WText(link_category_text), 0, link_category_index-1);
-
-        Wt::WContainerWidget* container = new Wt::WContainerWidget();
-        container->setContentAlignment(Wt::AlignJustify);
-        link_index = 0;
-        while (true)
-        {
-            link_index++;
-            Wt::WString link_text_key = Wt::WString::tr("LinkTextFormat").arg(link_category_index).arg(link_index);
-            Wt::WString link_url_key = Wt::WString::tr("LinkUrlFormat").arg(link_category_index).arg(link_index);
-            Wt::WString link_text = Wt::WString::tr(link_text_key.toUTF8());
-            if ('?' == link_text.toUTF8().at(0))
-                break;
-            
-            Wt::WString link_url = Wt::WString::tr(link_url_key.toUTF8()).arg(mesh_id).arg(url_encoded_term).arg(url_encoded_filtertext);
-            std::string link_str = link_url.toUTF8();
-            boost::replace_all(link_str, "&amp;", "&");
-            Wt::WAnchor* anchor = new Wt::WAnchor(Wt::WLink(link_str), link_text);
-            anchor->setTarget(Wt::TargetNewWindow);
-            anchor->setPadding(Wt::WLength(2.5, Wt::WLength::FontEm), Wt::Right);
-            container->addWidget(anchor);
-        }
-        m_links_layout->addWidget(container, 1, link_category_index-1);
-    }
+	
+	m_links->populate(mesh_id, url_encoded_term, url_encoded_filtertext);
     
     delete non_preferred_nor_terms;
     delete non_preferred_eng_terms;
@@ -1211,7 +1186,7 @@ void MeSHApplication::ClearLayout()
 
     m_mesh_id_text->setText("");
 
-    m_links_layout->clear();
+    m_links->clear();
 
     m_result_container->hide();
     
