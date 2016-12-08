@@ -139,7 +139,7 @@ Wt::WContainerWidget* MeSHApplication::CreateSearchTab()
     m_search_edit = new Wt::WLineEdit();
 	m_search_edit->setStyleClass("search-field");
     m_search_edit->focussed().connect(this, &MeSHApplication::SearchEditFocussed);
-    m_search_suggestion = CreateSuggestionPopup(root());
+    m_search_suggestion = CreateSuggestionPopup(search_tab);
     m_search_suggestion->forEdit(m_search_edit);
     m_search_suggestion_model = new Wt::WStandardItemModel(search_vbox);
     m_search_suggestion->setModel(m_search_suggestion_model);
@@ -1154,7 +1154,9 @@ Wt::WSuggestionPopup* MeSHApplication::CreateSuggestionPopup(Wt::WContainerWidge
         }
      );
 
-    return new Wt::WSuggestionPopup(matcherJS, replacerJS, parent);
+    Wt::WSuggestionPopup* popup = new Wt::WSuggestionPopup(matcherJS, replacerJS, parent);
+	popup->setJavaScriptMember("wtNoReparent", "true");
+    return popup;
 }
 
 void MeSHApplication::ClearLayout()
