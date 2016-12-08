@@ -3,26 +3,7 @@
 
 #include <Wt/WContainerWidget>
 #include <Wt/WVBoxLayout>
-//#include <Wt/WWidget>
-/*
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
-#include <Wt/WJavaScript>
-#include <Wt/WLayout>
-#include <Wt/WLineEdit>
-#include <Wt/WMessageBox>
-#include <Wt/WPanel>
-#include <Wt/WPopupMenu>
-#include <Wt/WStandardItem>
-#include <Wt/WStandardItemModel>
-#include <Wt/WSuggestionPopup>
-#include <Wt/WTabWidget>
-#include <Wt/WText>
-#include <Wt/WTextArea>
-#include <Wt/WTreeView>
 
-#include "elasticsearch/elasticsearch.h"
-*/
 
 class Links : public Wt::WContainerWidget
 {

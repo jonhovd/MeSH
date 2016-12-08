@@ -3,10 +3,6 @@
     font-size: 20pt !important;
 }
 
-.mesh-version {
-    font-size: 10pt !important;
-}
-
 @media print {
   * {
     font-size: 14pt !important;  

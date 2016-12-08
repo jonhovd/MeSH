@@ -43,6 +43,10 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 
 	WApplication::instance()->internalPathChanged().connect(this, &MeSHApplication::onInternalPathChange);
 
+	Wt::WVBoxLayout* root_vbox = new Wt::WVBoxLayout();
+	root_vbox->setContentsMargins(0, 0, 0, 0);
+	root()->setLayout(root_vbox);
+
 	m_infobox = new Wt::WMessageBox(Wt::WString("Hjelp"), Wt::WString::tr("InfoText"), Wt::Icon::NoIcon, Wt::StandardButton::NoButton, root());
 	m_infobox->setModal(false);
 	m_infobox->setClosable(true);
@@ -53,45 +57,17 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	m_infobox_visible = false;
 
 	//Header
-	Wt::WContainerWidget* header_widget = new Wt::WContainerWidget();
+	Wt::WContainerWidget* header_container = new Wt::WContainerWidget();
 	Wt::WHBoxLayout* header_hbox = new Wt::WHBoxLayout();
 	header_hbox->setContentsMargins(0, 0, 0, 0);
-	header_widget->setLayout(header_hbox);
-
-	Wt::WImage* logo = new Wt::WImage("images/logo.png");
-	header_hbox->addWidget(logo, 0, Wt::AlignLeft|Wt::AlignTop);
-
-	Wt::WContainerWidget* appname_widget = new Wt::WContainerWidget();
-	Wt::WVBoxLayout* appname_vbox = new Wt::WVBoxLayout();
-	appname_vbox->setContentsMargins(0, 0, 0, 0);
-	appname_widget->setLayout(appname_vbox);
-	Wt::WText* appname_text = new Wt::WText(Wt::WString::tr("AppName"));
-	appname_text->setStyleClass("mesh-appname");
-	appname_vbox->addWidget(appname_text, 0, Wt::AlignCenter|Wt::AlignMiddle);
-	Wt::WText* appversion_text = new Wt::WText(Wt::WString::tr("AppVersion"));
-	appversion_text->setStyleClass("mesh-appversion");
-	appname_vbox->addWidget(appversion_text, 0, Wt::AlignCenter);
-	header_hbox->addWidget(appname_widget, 1, Wt::AlignCenter|Wt::AlignTop);
-
-	Wt::WContainerWidget* applinks_widget = new Wt::WContainerWidget();
-	Wt::WVBoxLayout* applinks_vbox = new Wt::WVBoxLayout();
-	applinks_vbox->setContentsMargins(0, 0, 0, 0);
-	applinks_widget->setLayout(applinks_vbox);
-	Wt::WAnchor* appabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppAboutUrl").toUTF8()), Wt::WString::tr("AppAbout"));
-	appabout_anchor->setTarget(Wt::TargetNewWindow);
-	applinks_vbox->addWidget(appabout_anchor);
-	Wt::WAnchor* appquestion_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppSendQuestionUrl").toUTF8()), Wt::WString::tr("AppSendQuestion"));
-	applinks_vbox->addWidget(appquestion_anchor);
-	Wt::WAnchor* appstatistics_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppStatisticsInternalPath").toUTF8()), Wt::WString::tr("AppStatistics"));
-	applinks_vbox->addWidget(appstatistics_anchor);
-	Wt::WAnchor* apphelp_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppHelpInternalPath").toUTF8()), Wt::WString::tr("AppHelp"));
-	applinks_vbox->addWidget(apphelp_anchor);
-	header_hbox->addWidget(applinks_widget, 0, Wt::AlignRight|Wt::AlignTop);
-
-	root()->addWidget(header_widget);
+	header_container->setLayout(header_hbox);
+	m_app_name = new AppName();
+	header_hbox->addWidget(m_app_name);
+	root_vbox->addWidget(header_container);
 
 	//Tabs
-	m_tab_widget = new Wt::WTabWidget(root());
+	m_tab_widget = new Wt::WTabWidget();
+	root_vbox->addWidget(m_tab_widget);
 
 	//Search-tab
 	m_tab_widget->addTab(CreateSearchTab(), Wt::WString::tr("Search"));
@@ -119,6 +95,20 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	m_statistics_tab = CreateStatisticsTab();
 	m_tab_widget->addTab(m_statistics_tab, Wt::WString::tr("Statistics"));
 	m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
+
+	root_vbox->addStretch(1);
+
+	//Footer
+	Wt::WContainerWidget* footer_container = new Wt::WContainerWidget();
+	Wt::WHBoxLayout* footer_hbox = new Wt::WHBoxLayout();
+	footer_hbox->setContentsMargins(0, 0, 0, 0);
+	footer_container->setLayout(footer_hbox);
+	m_logo = new Logo();
+	footer_hbox->addWidget(m_logo);
+	footer_hbox->addStretch(1);
+	m_info = new Info();
+	footer_hbox->addWidget(m_info);
+	root_vbox->addWidget(footer_container);
 
 	ClearLayout();
 

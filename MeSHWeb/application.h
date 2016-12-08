@@ -19,7 +19,10 @@
 #include <Wt/WTextArea>
 #include <Wt/WTreeView>
 
+#include "appname.h"
+#include "info.h"
 #include "links.h"
+#include "logo.h"
 
 #include "elasticsearch/elasticsearch.h"
 
@@ -110,7 +113,10 @@ private:
 
 	Wt::WText* m_mesh_id_text;
 
+	AppName* m_app_name;
 	Links* m_links;
+	Logo*  m_logo;
+	Info*  m_info;
 
 	Wt::WTreeView* m_hierarchy_tree_view;
 	Wt::WStandardItemModel* m_hierarchy_model;
