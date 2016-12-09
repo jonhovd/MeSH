@@ -37,7 +37,7 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	messageResourceBundle().use(appRoot() + "strings");
 	useStyleSheet(Wt::WLink("MeSH.css"));
 
-	m_es = new ElasticSearch("localhost:9200");
+	m_es_util = new ElasticSearchUtil();
 
 	setTitle(Wt::WString::tr("AppName"));
 
@@ -92,8 +92,8 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	m_tab_widget->currentChanged().connect(this, &MeSHApplication::TabChanged);
 
 	//Statistics-tab
-	m_statistics_tab = CreateStatisticsTab();
-	m_tab_widget->addTab(m_statistics_tab, Wt::WString::tr("Statistics"));
+	m_statistics = new Statistics(this);
+	m_tab_widget->addTab(m_statistics, Wt::WString::tr("Statistics"));
 	m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
 
 	root_vbox->addStretch(1);
@@ -122,7 +122,7 @@ MeSHApplication::~MeSHApplication()
 {
 	delete m_infobox;
 	delete m_hierarchy_popup_menu;
-	delete m_es;
+	delete m_es_util;
 }
 
 void MeSHApplication::handleJavaScriptError(const std::string& UNUSED(errorText))
@@ -226,16 +226,6 @@ Wt::WContainerWidget* MeSHApplication::CreateSearchTab()
     search_vbox->addWidget(m_result_container);
 
     return search_tab;
-}
-
-Wt::WContainerWidget* MeSHApplication::CreateStatisticsTab()
-{
-    Wt::WContainerWidget* statistics_tab = new Wt::WContainerWidget();
-    m_statistics_layout = new Wt::WGridLayout();
-    m_statistics_layout->setContentsMargins(0, 9, 0, 0);
-    statistics_tab->setLayout(m_statistics_layout);
-
-    return statistics_tab;
 }
 
 void MeSHApplication::FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str)
@@ -371,7 +361,7 @@ void MeSHApplication::FilterSuggestion(const Wt::WString& filter)
     Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 to see if we got more than SUGGESTION_COUNT hits */).arg(filter).arg(wildcard_filter_str);
 
     Json::Object search_result;
-    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    long result_size = m_es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
 
     int row = 0;
     if (0 == result_size)
@@ -454,7 +444,7 @@ void MeSHApplication::Search(const Wt::WString& mesh_id)
     Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id.toUTF8());
 
     Json::Object search_result;
-    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    long result_size = m_es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
         ::Log("info", "end Search\n");
@@ -718,7 +708,7 @@ void MeSHApplication::TabChanged(int active_tab_index)
     {
         case TAB_INDEX_HIERARCHY: PopulateHierarchy(); break;
 
-        case TAB_INDEX_STATISTICS: PopulateStatistics(); break;
+        case TAB_INDEX_STATISTICS: m_statistics->populate(); break;
 
         case TAB_INDEX_SEARCH: //Fallthrough
         default: m_search_edit->setFocus(true); break;
@@ -759,7 +749,7 @@ void MeSHApplication::TreeItemExpanded(const Wt::WModelIndex& index)
     Wt::WString query = Wt::WString::tr("HierarchyChildrenQuery").arg(parent_tree_number_string);
 
     Json::Object search_result;
-    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    long result_size = m_es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
         ::Log("info", "end TreeItemExpanded\n");
@@ -876,24 +866,12 @@ void MeSHApplication::InfoboxButtonClicked()
     ::Log("info", "end InfoboxButtonClicked\n");
 }
 
-long MeSHApplication::ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
-{
-	try
-	{
-		return m_es->search(index, type, query, search_result);
-	}
-    catch(...)
-	{
-		return 0L;
-    }
-}
-
 void MeSHApplication::LogSearch(const std::string& search_string)
 {
     //Update search text statistics
     int count = 0;
     Json::Object text_search_result;
-    if (m_es->getDocument("statistics", "text", search_string.c_str(), text_search_result))
+    if (m_es_util->getDocument("statistics", "text", search_string.c_str(), text_search_result))
     {
         const Json::Value source_value = text_search_result.getValue("_source");
         const Json::Object source_object = source_value.getObject();
@@ -906,7 +884,7 @@ void MeSHApplication::LogSearch(const std::string& search_string)
     
     Json::Object textstat_json;
     textstat_json.addMemberByKey("count", ++count);
-    m_es->upsert("statistics", "text", search_string, textstat_json);
+    m_es_util->upsert("statistics", "text", search_string, textstat_json);
 
 
     //Update search day statistics
@@ -914,7 +892,7 @@ void MeSHApplication::LogSearch(const std::string& search_string)
     const std::string today_string = today.toString("yyyy-MM-dd").toUTF8();
     count = 0;
     Json::Object day_search_result;
-    if (m_es->getDocument("statistics", "day", today_string.c_str(), day_search_result))
+    if (m_es_util->getDocument("statistics", "day", today_string.c_str(), day_search_result))
     {
         const Json::Value source_value = day_search_result.getValue("_source");
         const Json::Object source_object = source_value.getObject();
@@ -927,7 +905,7 @@ void MeSHApplication::LogSearch(const std::string& search_string)
     
     Json::Object daystat_json;
     daystat_json.addMemberByKey("count", ++count);
-    m_es->upsert("statistics", "day", today_string, daystat_json);
+    m_es_util->upsert("statistics", "day", today_string, daystat_json);
 }
 
 void MeSHApplication::PopulateHierarchy()
@@ -942,7 +920,7 @@ void MeSHApplication::PopulateHierarchy()
     Wt::WString query = Wt::WString::tr("HierarchyTopNodesQuery");
 
     Json::Object search_result;
-    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    long result_size = m_es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
         ::Log("info", "end PopulateHierarchy\n");
@@ -1002,119 +980,6 @@ void MeSHApplication::PopulateHierarchy()
     m_hierarchy_model->sort(0);
     m_has_populated_hierarchy_model = true;
     ::Log("info", "end PopulateHierarchy\n");
-}
-
-void MeSHApplication::PopulateStatistics()
-{
-    ::Log("info", "start PopulateStatistics\n");
-
-    m_statistics_layout->clear();
-    int i;
-    for (i=0; i<8; i++)
-    {
-        m_statistics_layout->setColumnStretch(i, 0);
-    }
-    for (i=0; i<=8; i+=4)
-    {
-        m_statistics_layout->setColumnStretch(i, 1);
-        m_statistics_layout->addWidget(new Wt::WText(""), 0, i);
-    }
-
-    PopulateDayStatistics();
-    PopulateTextStatistics();
-
-
-    ::Log("info", "end PopulateStatistics\n");
-}
-
-void MeSHApplication::PopulateDayStatistics()
-{
-    ::Log("info", "start PopulateDayStatistics\n");
-
-    m_statistics_layout->addWidget(new Wt::WText(Wt::WString::tr("StatisticsPerDay")), 0, 1);
-
-    Wt::WString query = Wt::WString::tr("StatisticsDay");
-
-    Json::Object search_result;
-    long result_size = ESSearch("statistics", "day", query.toUTF8(), search_result);
-    if (0 == result_size)
-    {
-        ::Log("info", "end PopulateDayStatistics\n");
-        return;
-    }
-    const Json::Value value = search_result.getValue("hits");
-    const Json::Object value_object = value.getObject();
-    const Json::Value hits_value = value_object.getValue("hits");
-    const Json::Array hits_array = hits_value.getArray();
-
-    int row = 0;
-    Json::Array::const_iterator iterator = hits_array.begin();
-    for (; iterator!=hits_array.end(); ++iterator)
-    {
-        const Json::Value hit_value = *iterator;
-        const Json::Object hit_value_object = hit_value.getObject();
-
-        const Json::Value day_value = hit_value_object.getValue("_id");
-        std::string day_value_string = day_value.getString();
-
-        const Json::Value source_value = hit_value_object.getValue("_source");
-        const Json::Object source_object = source_value.getObject();
-
-        const Json::Value count_value = source_object.getValue("count");
-        int count_value_int = count_value.getInt();
-
-        m_statistics_layout->addWidget(new Wt::WText(day_value_string), row, 2);
-        m_statistics_layout->addWidget(new Wt::WText(Wt::WString("{1}").arg(count_value_int)), row, 3);
-        row++;
-    }
-
-    ::Log("info", "end PopulateDayStatistics\n");
-}
-
-void MeSHApplication::PopulateTextStatistics()
-{
-    ::Log("info", "start PopulateTextStatistics\n");
-
-    m_statistics_layout->addWidget(new Wt::WText(Wt::WString::tr("StatisticsPerMeSH")), 0, 5);
-
-    Wt::WString query = Wt::WString::tr("StatisticsText");
-
-    Json::Object search_result;
-    long result_size = ESSearch("statistics", "text", query.toUTF8(), search_result);
-    if (0 == result_size)
-    {
-        ::Log("info", "end PopulateTextStatistics\n");
-        return;
-    }
-    const Json::Value value = search_result.getValue("hits");
-    const Json::Object value_object = value.getObject();
-    const Json::Value hits_value = value_object.getValue("hits");
-    const Json::Array hits_array = hits_value.getArray();
-
-    int row = 0;
-    Json::Array::const_iterator iterator = hits_array.begin();
-    for (; iterator!=hits_array.end(); ++iterator)
-    {
-        const Json::Value hit_value = *iterator;
-        const Json::Object hit_value_object = hit_value.getObject();
-
-        const Json::Value mesh_value = hit_value_object.getValue("_id");
-        std::string mesh_value_string = mesh_value.getString();
-
-        const Json::Value source_value = hit_value_object.getValue("_source");
-        const Json::Object source_object = source_value.getObject();
-
-        const Json::Value count_value = source_object.getValue("count");
-        int count_value_int = count_value.getInt();
-
-        std::string name;
-        MeSHToName(mesh_value_string, name);
-        m_statistics_layout->addWidget(new Wt::WText(name), row, 6);
-        m_statistics_layout->addWidget(new Wt::WText(Wt::WString("{1}").arg(count_value_int)), row, 7);
-        row++;
-    }
-
-    ::Log("info", "end PopulateTextStatistics\n");
 }
 
 Wt::WSuggestionPopup* MeSHApplication::CreateSuggestionPopup(Wt::WContainerWidget* parent)
@@ -1258,13 +1123,13 @@ void MeSHApplication::ShowOrHideInfobox()
     }
 }
 
-void MeSHApplication::MeSHToName(const std::string& mesh_id, std::string& name)
+void MeSHApplication::MeSHToName(const std::string& mesh_id, std::string& name) const
 {
     name = mesh_id;
 
     Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id);
     Json::Object search_result;
-    long result_size = ESSearch("mesh", LANGUAGE, query.toUTF8(), search_result);
+    long result_size = m_es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
         return;

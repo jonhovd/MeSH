@@ -20,11 +20,11 @@
 #include <Wt/WTreeView>
 
 #include "appname.h"
+#include "elasticsearchutil.h"
 #include "info.h"
 #include "links.h"
 #include "logo.h"
-
-#include "elasticsearch/elasticsearch.h"
+#include "statistics.h"
 
 
 class MeSHApplication : public Wt::WApplication
@@ -44,7 +44,6 @@ protected: //From Wt::WApplication
 
 private:
 	Wt::WContainerWidget* CreateSearchTab();
-	Wt::WContainerWidget* CreateStatisticsTab();
     
 private:
 	void FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str);
@@ -67,14 +66,10 @@ protected:
 	void onInternalPathChange(const std::string& url);
 
 private:
-	long ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result);
 	void LogSearch(const std::string& search_string);
 
 private:
 	void PopulateHierarchy();
-	void PopulateStatistics();
-	void PopulateDayStatistics();
-	void PopulateTextStatistics();
 	Wt::WSuggestionPopup* CreateSuggestionPopup(Wt::WContainerWidget* parent);
 	void ClearLayout();
 
@@ -85,7 +80,11 @@ private:
 
 	void ShowOrHideInfobox();
 
-	void MeSHToName(const std::string& mesh_id, std::string& name);
+public:
+	void MeSHToName(const std::string& mesh_id, std::string& name) const;
+
+public:
+	ElasticSearchUtil* GetElasticSearchUtil() const {return m_es_util;}
 
 private:
 	bool m_layout_is_cleared;
@@ -94,7 +93,7 @@ private:
 	bool m_infobox_visible;
 
 	Wt::WTabWidget* m_tab_widget;
-	Wt::WContainerWidget* m_statistics_tab;
+	Statistics* m_statistics;
 
 	Wt::WLineEdit* m_search_edit;
 	Wt::WSuggestionPopup* m_search_suggestion;
@@ -128,7 +127,7 @@ private:
 
 	Wt::WGridLayout* m_statistics_layout;
 
-	ElasticSearch* m_es;
+	ElasticSearchUtil* m_es_util;
 };
 
 #endif // _APPLICATION_H_
