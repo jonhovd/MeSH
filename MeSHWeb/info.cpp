@@ -18,8 +18,6 @@ Info::Info(Wt::WContainerWidget* parent)
 	m_layout->addWidget(appquestion_anchor);
 	Wt::WAnchor* appstatistics_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppStatisticsInternalPath").toUTF8()), Wt::WString::tr("AppStatistics"));
 	m_layout->addWidget(appstatistics_anchor);
-	Wt::WAnchor* apphelp_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, Wt::WString::tr("AppHelpInternalPath").toUTF8()), Wt::WString::tr("AppHelp"));
-	m_layout->addWidget(apphelp_anchor);
 }
 
 Info::~Info()

@@ -4,7 +4,6 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WGridLayout>
 
-#include "elasticsearchutil.h"
 
 class MeSHApplication;
 class Statistics : public Wt::WContainerWidget
@@ -20,6 +19,8 @@ public:
 private:
 	void PopulateDayStatistics();
 	void PopulateTextStatistics();
+
+	void MeSHToName(const std::string& mesh_id, std::string& name) const;
 
 private:
 	const MeSHApplication* m_mesh_application;

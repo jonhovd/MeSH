@@ -15,4 +15,4 @@ private:
    Wt::WVBoxLayout* m_layout;
 };
 
-#endif // _LOGO_H_
+#endif // _INFO_H_

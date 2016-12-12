@@ -7,19 +7,11 @@
     <message id="AppSendQuestionUrl">mailto:SigrunEspelien.Aasen@fhi.no?subject=Spørsmål om MeSH</message>
     <message id="AppStatistics">Statistikk</message>
     <message id="AppStatisticsInternalPath">/statistics</message>
-    <message id="AppHelp">Hjelp</message>
-    <message id="AppHelpInternalPath">/help</message>
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope-Note:</message>
     <message id="Hierarchy">Hierarki</message>
     <message id="IndirectHit">{1} ({2})</message>
     
-    <message id="InfoText"><p>I feltet «Søk» kan du skrive inn en term på norsk eller engelsk. Du får listet opp forslag til norsk MeSH (hovedterm) og velger en av dem. Da vises all informasjon på norsk og engelsk på valgte term.</p>
-                           <p>Alternative termer er synonymer og nærliggende begrep som omfattes av definisjonen.</p>
-                           <p>Vil du se termens hierarkiske plassering, klikk på «Hierarki» og du kan velge f.eks. underordnet/overordnet term for videre søk. Klikk på termen, som blir farget blå og klikk igjen slik at du kommer inn på termens hovedside.</p>
-                           <br/>
-                           <p>Nederst på termens hovedside kan en søke i andre databaser ved å klikke på lenkene</p></message>
-
     <message id="LinkCategoryFormat">LinkCategory{1}</message>
     <message id="LinkTextFormat">LinkText{1}.{2}</message>
     <message id="LinkUrlFormat">LinkUrl{1}.{2}</message>
