@@ -63,6 +63,7 @@ void CleanDatabase()
     mapping << "{\"mappings\": {\"" << g_language_code << "\": {\"properties\": {"
             << "\"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"top_node\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"see_related.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"parent_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"child_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
@@ -242,6 +243,40 @@ xmlChar* AddLanguage(Json::Object& json, xmlNodePtr thesaurus_id_list_ptr)
     }
 
     return text_str;
+}
+
+void ReadSeeRelatedList(Json::Object& json, xmlNodePtr see_related_list_ptr)
+//<!ELEMENT SeeRelatedList (SeeRelatedDescriptor)+>
+{
+    Json::Array see_related_array;
+    xmlNodePtr see_related_descriptor_ptr = see_related_list_ptr->children;
+    while (NULL!=see_related_descriptor_ptr)
+    {
+        if (XML_ELEMENT_NODE==see_related_descriptor_ptr->type && 0==xmlStrcmp(BAD_CAST("SeeRelatedDescriptor"), see_related_descriptor_ptr->name) && NULL!=see_related_descriptor_ptr->children)
+        {
+            xmlNodePtr descriptor_referred_to_ptr = see_related_descriptor_ptr->children;
+			if (XML_ELEMENT_NODE==descriptor_referred_to_ptr->type && 0==xmlStrcmp(BAD_CAST("DescriptorReferredTo"), descriptor_referred_to_ptr->name) && NULL!=descriptor_referred_to_ptr->children)
+			{
+				xmlNodePtr child = descriptor_referred_to_ptr->children;
+				while (NULL!=child)
+				{
+					if (XML_ELEMENT_NODE == child->type && 0==xmlStrcmp(BAD_CAST("DescriptorUI"), child->name))
+					{
+						Json::Object descriptor_ui;
+						AddText(descriptor_ui, "id", child);
+						see_related_array.addElement(descriptor_ui);
+					}
+					child = child->next;
+				}
+			}
+		}
+		see_related_descriptor_ptr=see_related_descriptor_ptr->next;
+	}
+
+	if (!see_related_array.empty())
+	{
+		json.addMemberByKey("see_related", see_related_array);
+	}
 }
 
 void ReadTreeNumberList(Json::Object& json, xmlNodePtr tree_number_list_ptr)
@@ -448,6 +483,10 @@ bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 			else if (0==xmlStrcmp(BAD_CAST("DescriptorName"), child->name))
 			{
 				AddName(json, child);
+			}
+			else if (0==xmlStrcmp(BAD_CAST("SeeRelatedList"), child->name))
+			{
+				ReadSeeRelatedList(json, child);
 			}
 			else if (0==xmlStrcmp(BAD_CAST("TreeNumberList"), child->name))
 			{
