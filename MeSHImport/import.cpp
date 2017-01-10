@@ -63,7 +63,7 @@ void CleanDatabase()
     mapping << "{\"mappings\": {\"" << g_language_code << "\": {\"properties\": {"
             << "\"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"top_node\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"see_related.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
+            << "\"see_related\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"parent_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
             << "\"child_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
@@ -262,15 +262,19 @@ void ReadSeeRelatedList(Json::Object& json, xmlNodePtr see_related_list_ptr)
 				{
 					if (XML_ELEMENT_NODE == child->type && 0==xmlStrcmp(BAD_CAST("DescriptorUI"), child->name))
 					{
-						Json::Object descriptor_ui;
-						AddText(descriptor_ui, "id", child);
-						see_related_array.addElement(descriptor_ui);
+						xmlNodePtr descriptorUI_ptr = child->children;
+						if (XML_TEXT_NODE==descriptorUI_ptr->type && NULL!=descriptorUI_ptr->content)
+						{
+							Json::Value descriptor_ui;
+							descriptor_ui.setString(CONST_CHAR(descriptorUI_ptr->content));
+							see_related_array.addElement(descriptor_ui);
+						}
 					}
 					child = child->next;
 				}
 			}
 		}
-		see_related_descriptor_ptr=see_related_descriptor_ptr->next;
+		see_related_descriptor_ptr = see_related_descriptor_ptr->next;
 	}
 
 	if (!see_related_array.empty())
