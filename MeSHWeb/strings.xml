@@ -36,6 +36,8 @@
     <message id="LinkUrl1.4">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
     <message id="LinkText1.5">Oria</message>
     <message id="LinkUrl1.5">http://bibsys-primo.hosted.exlibrisgroup.com/primo_library/libweb/action/dlSearch.do?institution=BIBSYS&amp;vid=BIBSYS&amp;search_scope=blended_scope&amp;query=lsr11,exact,{2}</message>
+    <message id="LinkText1.6">Virtual Health Library</message>
+    <message id="LinkUrl1.6">http://pesquisa.bvsalud.org/portal/?output=site&amp;lang=en&amp;from=0&amp;format=summary&amp;count=20&amp;page=1&amp;filter%5Bdb%5D%5B%5D=WHOLIS&amp;q=%22{2}%22&amp;index=mh</message>
 
     <message id="LinkCategory2">Oppslagsverk:</message>
     <message id="LinkText2.1">BMJ&nbsp;Best&nbsp;practice</message>

@@ -108,7 +108,7 @@ private:
 
 	Wt::WText* m_mesh_id_text;
 
-	Wt::WGridLayout* m_links_layout;
+	Wt::WLayout* m_links_layout;
 
 	Wt::WTreeView* m_hierarchy_tree_view;
 	Wt::WStandardItemModel* m_hierarchy_model;

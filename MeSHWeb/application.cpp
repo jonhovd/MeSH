@@ -222,7 +222,7 @@ Wt::WContainerWidget* MeSHApplication::CreateSearchTab()
     mesh_id_hbox->addWidget(m_mesh_id_text, 1, Wt::AlignLeft);
     result_vbox->addWidget(mesh_id_container);
 
-    m_links_layout = new Wt::WGridLayout();
+    m_links_layout = new Wt::WVBoxLayout();
     result_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
     result_vbox->addLayout(m_links_layout);
     
@@ -599,31 +599,36 @@ void MeSHApplication::Search(const Wt::WString& mesh_id)
         if ('?' == link_category_text.toUTF8().at(0))
             break;
 
-        m_links_layout->addWidget(new Wt::WText(link_category_text), 0, link_category_index-1);
+		m_links_layout->addWidget(new Wt::WText(link_category_text));
 
-        Wt::WContainerWidget* container = new Wt::WContainerWidget();
-        container->setContentAlignment(Wt::AlignJustify);
-        link_index = 0;
-        while (true)
-        {
-            link_index++;
-            Wt::WString link_text_key = Wt::WString::tr("LinkTextFormat").arg(link_category_index).arg(link_index);
-            Wt::WString link_url_key = Wt::WString::tr("LinkUrlFormat").arg(link_category_index).arg(link_index);
-            Wt::WString link_text = Wt::WString::tr(link_text_key.toUTF8());
-            if ('?' == link_text.toUTF8().at(0))
-                break;
-            
-            Wt::WString link_url = Wt::WString::tr(link_url_key.toUTF8()).arg(mesh_id).arg(url_encoded_term).arg(url_encoded_filtertext);
-            std::string link_str = link_url.toUTF8();
-            boost::replace_all(link_str, "&amp;", "&");
-            Wt::WAnchor* anchor = new Wt::WAnchor(Wt::WLink(link_str), link_text);
-            anchor->setTarget(Wt::TargetNewWindow);
-            anchor->setPadding(Wt::WLength(2.5, Wt::WLength::FontEm), Wt::Right);
-            container->addWidget(anchor);
-        }
-        m_links_layout->addWidget(container, 1, link_category_index-1);
+		Wt::WContainerWidget* links_container = new Wt::WContainerWidget();
+		Wt::WHBoxLayout* links_container_layout = new Wt::WHBoxLayout();
+		links_container_layout->setContentsMargins(0, 0, 0, 0);
+		links_container->setLayout(links_container_layout);
+
+		link_index = 0;
+		while (true)
+		{
+			link_index++;
+			Wt::WString link_text_key = Wt::WString::tr("LinkTextFormat").arg(link_category_index).arg(link_index);
+			Wt::WString link_url_key = Wt::WString::tr("LinkUrlFormat").arg(link_category_index).arg(link_index);
+			Wt::WString link_text = Wt::WString::tr(link_text_key.toUTF8());
+			if ('?' == link_text.toUTF8().at(0))
+				break;
+			
+			Wt::WString link_url = Wt::WString::tr(link_url_key.toUTF8()).arg(mesh_id).arg(url_encoded_term).arg(url_encoded_filtertext);
+			std::string link_str = link_url.toUTF8();
+			boost::replace_all(link_str, "&amp;", "&");
+			Wt::WAnchor* anchor = new Wt::WAnchor(Wt::WLink(link_str), link_text);
+			anchor->setTarget(Wt::TargetNewWindow);
+			anchor->setPadding(Wt::WLength(2.5, Wt::WLength::FontEm), Wt::Right);
+			links_container_layout->addWidget(anchor);
+		}
+		links_container_layout->addStretch(1);
+
+		m_links_layout->addWidget(links_container);
     }
-    
+
     delete non_preferred_nor_terms;
     delete non_preferred_eng_terms;
     
