@@ -15,6 +15,7 @@
 #include "statistics.h"
 
 #define SUGGESTION_COUNT    (20)
+#define RESULTLIST_COUNT    (10)
 #define LANGUAGE            "nor"
 
 #define EQUAL                           (0)

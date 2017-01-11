@@ -3,17 +3,17 @@
 
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
-#include <Wt/WPanel>
+#include <Wt/WPushButton>
 #include <Wt/WStandardItem>
 #include <Wt/WStandardItemModel>
 #include <Wt/WSuggestionPopup>
-#include <Wt/WText>
 #include <Wt/WVBoxLayout>
 
 #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
 #include "elasticsearchutil.h"
-#include "links.h"
+#include "mesh_result.h"
+#include "mesh_resultlist.h"
 
 
 class MeSHApplication;
@@ -24,21 +24,28 @@ public:
 	~Search();
 
 public:
+	void ClearLayout();
+
 	void FocusSearchEdit();
 	void OnSearch(const Wt::WString& mesh_id);
-	void ClearLayout();
 	
 protected:
+	void SearchButtonClicked();
+
 	void SearchEditFocussed();
 	void SuggestionChanged(Wt::WStandardItem* item);
 	void FilterSuggestion(const Wt::WString& filter);
-
+	
 private:
 	Wt::WSuggestionPopup* CreateSuggestionPopup(Wt::WContainerWidget* parent);
-	void CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str) const;
-	void AddWildcard(const std::string filter_str, std::string& wildcard_filter_str) const;
-	void FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str);
-	void FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str);
+
+public:
+	static void CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str);
+	static void FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str);
+	static void FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str);
+
+public:
+	static void AddWildcard(const std::string filter_str, std::string& wildcard_filter_str);
 
 private:
 	MeSHApplication* m_mesh_application;
@@ -48,19 +55,10 @@ private:
 	Wt::WSuggestionPopup* m_search_suggestion;
 	Wt::WStandardItemModel* m_search_suggestion_model;
 
-	Wt::WContainerWidget* m_result_container;
+	Wt::WPushButton* m_search_button;
 
-	Wt::WPanel* m_nor_term_panel;
-	Wt::WLayout* m_nor_term_panel_layout;
-	Wt::WText* m_nor_description_text;
-
-	Wt::WPanel* m_eng_term_panel;
-	Wt::WLayout* m_eng_term_panel_layout;
-	Wt::WText* m_eng_description_text;
-
-	Wt::WText* m_mesh_id_text;
-
-	Links* m_links;
+	MeshResultList* m_mesh_resultlist;
+	MeshResult* m_mesh_result;
 };
 
 #endif // _SEARCH_H_

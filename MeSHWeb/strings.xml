@@ -51,6 +51,7 @@
     <message id="PreferredNorwegianTerm"></message>
     <message id="PreferredEnglishTerm"></message>
     <message id="Search">Søk</message>
+    <message id="SearchButton">SØK</message>
     <message id="SearchFromHierarchy">Søk etter "{1}"</message>
     <message id="Statistics">Statistikk</message>
     <message id="StatisticsPerDay">Søk pr dag:</message>

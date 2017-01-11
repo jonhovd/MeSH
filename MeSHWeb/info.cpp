@@ -7,6 +7,7 @@ Info::Info(Wt::WContainerWidget* parent)
 : Wt::WContainerWidget(parent),
   m_layout(nullptr)
 {
+	setStyleClass("info-box");
 	m_layout = new Wt::WVBoxLayout();
 	m_layout->setContentsMargins(0, 0, 0, 0);
 	setLayout(m_layout);

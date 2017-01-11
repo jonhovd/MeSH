@@ -24,6 +24,7 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 
 	//Header
 	Wt::WContainerWidget* header_container = new Wt::WContainerWidget();
+	header_container->setStyleClass("mesh-header");
 	Wt::WHBoxLayout* header_hbox = new Wt::WHBoxLayout();
 	header_hbox->setContentsMargins(0, 0, 0, 0);
 	header_container->setLayout(header_hbox);
@@ -32,8 +33,13 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	root_vbox->addWidget(header_container);
 
 	//Tabs
+	Wt::WContainerWidget* tabs_container = new Wt::WContainerWidget();
+	Wt::WHBoxLayout* tabs_hbox = new Wt::WHBoxLayout();
+	tabs_hbox->setContentsMargins(0, 0, 0, 0);
+	tabs_container->setLayout(tabs_hbox);
+
 	m_tab_widget = new Wt::WTabWidget();
-	root_vbox->addWidget(m_tab_widget);
+	m_tab_widget->setStyleClass("mesh-tabs");
 
 	//Search-tab
 	m_search = new Search(this);
@@ -51,10 +57,17 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	m_tab_widget->addTab(m_statistics, Wt::WString::tr("Statistics"));
 	m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
 
-	root_vbox->addStretch(1);
+	tabs_hbox->addStretch(1);
+	tabs_hbox->addWidget(m_tab_widget);
+	tabs_hbox->addStretch(1);
+
+	root_vbox->addWidget(tabs_container, 1);
+
+//	root_vbox->addStretch(1);
 
 	//Footer
 	Wt::WContainerWidget* footer_container = new Wt::WContainerWidget();
+	footer_container->setStyleClass("mesh-footer");
 	Wt::WHBoxLayout* footer_hbox = new Wt::WHBoxLayout();
 	footer_hbox->setContentsMargins(0, 0, 0, 0);
 	footer_container->setLayout(footer_hbox);

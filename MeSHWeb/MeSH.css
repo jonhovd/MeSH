@@ -14,16 +14,84 @@
   background-color: black !important;
 }
 
-body{
+body {
   font-family: 'Lato', sans-serif !important;
-  margin-left:150px;
-  background-color: #f0f5f5;
+  background-color: #eeeeee;
+}
+
+.mesh-header {
+  width: 100%;
+  padding: 1em;
+  color: #ffffff;
+  background-color: #535353;
+  border-bottom: 2px solid #ffffff;
+}
+
+.mesh-tabs {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 800px;
+}
+
+.Wt-tabs li {
+  border-bottom: none;
+  background: inherit;
+}
+
+.Wt-tabs .itemselected {
+  background-position: 0% 0%;
+}
+
+.Wt-tabs .item {
+  background-position: 0% 0%;
+}
+
+.Wt-tabs .itemselected a {
+  background-position: 0% 0%;
+  background: #abcdef;
+}
+
+.Wt-tabs .item a {
+  background-position: 0% 0%;
+  background: #89abcd;
+  margin: 0 1px;
+}
+
+.Wt-tabs {
+  padding-top: 0;
+  background: inherit;
+}
+
+.Wt-stack {
+  background: white;
+}
+
+.search-box {
+  padding: 1.5em;
+  background: #abcdef;
+}
+
+.search-result {
+  background: green;
+  padding: 0 0.5em 0.5em;
+}
+
+.Wt-suggest {
+    background-color: #eeeeee;
+    color: black;
+}
+
+.mesh-footer {
+  width: 100%;
+  padding-top: 0.5em;
+  background-color: white;
+  border-top: 2px solid #535353;
 }
 
 .Wt-panel {
 border: none !important;
 background-color: white !important;
- max-width: 800px;
+ x-max-width: 800px;
 }
 
 .Wt-panel .body {
@@ -31,32 +99,27 @@ background-color: white !important;
 }
 
 .Wt-panel .titlebar {
+  color: black !important;
   background: white !important;
+  font-size: large !important;
+  font-weight: bold !important;
 }
 
 .scope {
-  max-width:800px;
+  x-max-width:800px;
   font-weight: bold;
   
 }
 
 .scope-text {
-  max-width:800px;
+  x-max-width:800px;
   
 }
 
-a {
-  color: #A8CCD8;
-  background-color:white;
-  /*border: 1px solid lightgrey;*/
-  
-
-}
-
-.search-field{
-  max-width: 800px;
-  height: 30px;
-  padding:10px;
+.info-box a {
+  color: black;
+  background-color: white;
+  text-decoration: underline;
 }
 
 .header {
@@ -72,19 +135,17 @@ a {
 }
 
 .dialog-layout {
-
   background:#A8CCD8;
 }
 
-.Wt-dialog .titlebar{
+.Wt-dialog .titlebar {
   background:#A8CCD8;
   border-bottom: 1px solid grey;
   color:black !important;
 }
 
-.Wt-tabs a {
- background: white;
- color:#75a3a3;
+.Wt-tabs {
+  padding-top: 0 !important;
 }
 
 .Wt-treeview ul {
