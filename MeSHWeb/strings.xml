@@ -44,6 +44,7 @@
 
     <message id="Links">Lenker:</message>
     <message id="MeSH_ID">MeSH ID:</message>
+    <message id="SeeRelated">Se også:</message>
     <message id="MoreHits">(viser maksimalt {1} treff)</message>
     <message id="NoHits">(...ingen treff)</message>
     <message id="NonPreferredNorwegianTerms">Alternative termer:</message>

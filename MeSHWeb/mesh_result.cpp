@@ -90,6 +90,12 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	mesh_id_hbox->addWidget(m_mesh_id_text, 1, Wt::AlignLeft);
 	m_layout->addWidget(mesh_id_container);
 
+	Wt::WContainerWidget* see_related_container = new Wt::WContainerWidget();
+	m_see_related_vbox = new Wt::WVBoxLayout();
+	m_see_related_vbox->setContentsMargins(0, 0, 0, 0);
+	see_related_container->setLayout(m_see_related_vbox);
+	m_layout->addWidget(see_related_container);
+
 	m_links = new Links();
 	//    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
 	m_layout->addWidget(m_links);
@@ -117,6 +123,8 @@ void MeshResult::ClearLayout()
 
     m_mesh_id_text->setText("");
 
+	m_see_related_vbox->clear();
+	
     m_links->clear();
 
     hide();
@@ -264,6 +272,27 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
     m_nor_term_panel->expand();
     m_eng_term_panel->collapse();
 
+	//See Related
+	if (source_object.member("see_related"))
+	{
+		m_see_related_vbox->addWidget(new Wt::WText(Wt::WString::tr("SeeRelated")), 0, Wt::AlignLeft);
+
+		const Json::Value see_related_values = source_object.getValue("see_related");
+		const Json::Array see_related_array = see_related_values.getArray();
+		Json::Array::const_iterator see_related_iterator = see_related_array.begin();
+		for (; see_related_iterator!=see_related_array.end(); ++see_related_iterator)
+		{
+			const Json::Value see_related_value = *see_related_iterator;
+
+			std::string see_related_id = see_related_value.getString();
+			std::string title = see_related_id;
+			Wt::WAnchor* see_related_anchor = new Wt::WAnchor(Wt::WLink("/mesh/"+see_related_id), Wt::WString::fromUTF8(title));
+			see_related_anchor->setTarget(Wt::TargetThisWindow);
+			m_see_related_vbox->addWidget(see_related_anchor);
+		}
+	}
+
+	//Links
     std::string url_encoded_term = Wt::Utils::urlEncode(preferred_eng_term.toUTF8());
     std::string url_encoded_filtertext = Wt::Utils::urlEncode(search_text);
 	

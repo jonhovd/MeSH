@@ -35,6 +35,8 @@ private:
 
 	Wt::WText* m_mesh_id_text;
 
+	Wt::WVBoxLayout* m_see_related_vbox;
+	
 	Links* m_links;
 };
 
