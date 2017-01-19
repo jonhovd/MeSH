@@ -20,8 +20,6 @@ private:
 	void PopulateDayStatistics();
 	void PopulateTextStatistics();
 
-	void MeSHToName(const std::string& mesh_id, std::string& name) const;
-
 private:
 	const MeSHApplication* m_mesh_application;
 	Wt::WGridLayout* m_layout;

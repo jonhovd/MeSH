@@ -46,6 +46,7 @@ public:
 
 public:
 	static void AddWildcard(const std::string filter_str, std::string& wildcard_filter_str);
+	static void MeSHToName(ElasticSearchUtil* es_util, const std::string& mesh_id, std::string& name);
 
 private:
 	MeSHApplication* m_mesh_application;

@@ -273,7 +273,8 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 			const Json::Value see_related_value = *see_related_iterator;
 
 			std::string see_related_id = see_related_value.getString();
-			std::string title = see_related_id;
+			std::string title;
+	        Search::MeSHToName(es_util, see_related_id, title);
 			std::string url = (Wt::WString::tr("MeshIdInternalPath")+"&"+Wt::WString::tr("MeshIdInternalPathParam").arg(see_related_id)).toUTF8();
 			Wt::WAnchor* see_related_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, url), Wt::WString::fromUTF8(title));
 			m_see_related_vbox->addWidget(see_related_anchor);
