@@ -8,10 +8,13 @@
     <message id="AppStatistics">Statistikk</message>
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope-Note:</message>
-    <message id="Hierarchy">Hierarki</message>
     <message id="IndirectHit">{1} ({2})</message>
 
-    <message id="AppStatisticsInternalPath">/statistics</message>
+    <message id="Hierarchy">Hierarki-søk</message>
+    <message id="Search">Tekst-søk</message>
+    <message id="Statistics">Statistikk</message>
+
+	<message id="AppStatisticsInternalPath">/statistics</message>
     <message id="MeshIdInternalPath">/mesh</message>
     <message id="MeshIdInternalPathParam">id={1}</message>
 
@@ -53,10 +56,8 @@
     <message id="NonPreferredEnglishTerms">Alternative engelske termer:</message>
     <message id="PreferredNorwegianTerm"></message>
     <message id="PreferredEnglishTerm"></message>
-    <message id="Search">Søk</message>
     <message id="SearchButton">SØK</message>
     <message id="SearchFromHierarchy">Søk etter "{1}"</message>
-    <message id="Statistics">Statistikk</message>
     <message id="StatisticsPerDay">Søk pr dag:</message>
     <message id="StatisticsPerMeSH">Søk pr MeSH:</message>
 
