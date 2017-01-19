@@ -81,14 +81,48 @@ void MeshResultList::OnSearch(const Wt::WString& filter)
             {
                 Search::FindIndirectHit(source_object, cleaned_filter_str, indirect_hit_str);
             }
-            
+
+            std::string description;
+			if (source_object.member("concepts"))
+			{
+				const Json::Value concepts_value = source_object.getValue("concepts");
+				const Json::Array concepts_array = concepts_value.getArray();
+
+				Json::Array::const_iterator concept_iterator = concepts_array.begin();
+				for (; concept_iterator!=concepts_array.end(); ++concept_iterator)
+				{
+					const Json::Value concept_value = *concept_iterator;
+					const Json::Object concept_object = concept_value.getObject();
+					const Json::Value preferred_concept_value = concept_object.getValue("preferred");
+					bool preferred_concept = (EQUAL == preferred_concept_value.getString().compare("yes"));
+					if (preferred_concept)
+					{
+						Json::Value description_value;
+						if (concept_object.member("description"))
+						{
+							description_value = concept_object.getValue("description");
+						}
+						else if (concept_object.member("english_description"))
+						{
+							description_value = concept_object.getValue("english_description");
+						}
+						else
+						{
+							continue;
+						}
+						description = description_value.getString();
+						boost::replace_all(description, "\\n", "\n");
+					}
+				}
+			}
+
             if (!indirect_hit_str.empty())
             {
-				AppendHit(id_value.getString(), Wt::WString::tr("IndirectHit").arg(name_value.getString()).arg(indirect_hit_str).toUTF8(), "todo");
+				AppendHit(id_value.getString(), Wt::WString::tr("IndirectHit").arg(name_value.getString()).arg(indirect_hit_str).toUTF8(), description);
             }
             else
             {
-				AppendHit(id_value.getString(), name_value.getString(), "todo");
+				AppendHit(id_value.getString(), name_value.getString(), description);
             }
 
             ++iterator;
