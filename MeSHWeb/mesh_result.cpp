@@ -81,15 +81,6 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	m_eng_description_text->setStyleClass("scope-note scope-class");
 	m_layout->addWidget(m_eng_description_text);
 
-	Wt::WContainerWidget* mesh_id_container = new Wt::WContainerWidget();
-	Wt::WHBoxLayout* mesh_id_hbox = new Wt::WHBoxLayout();
-	mesh_id_hbox->setContentsMargins(0, 0, 0, 0);
-	mesh_id_container->setLayout(mesh_id_hbox);
-	m_mesh_id_text = new Wt::WText();
-	mesh_id_hbox->addWidget(new Wt::WText(Wt::WString::tr("MeSH_ID")), 0, Wt::AlignLeft);
-	mesh_id_hbox->addWidget(m_mesh_id_text, 1, Wt::AlignLeft);
-	m_layout->addWidget(mesh_id_container);
-
 	Wt::WContainerWidget* see_related_container = new Wt::WContainerWidget();
 	m_see_related_vbox = new Wt::WVBoxLayout();
 	m_see_related_vbox->setContentsMargins(0, 0, 0, 0);
@@ -121,8 +112,6 @@ void MeshResult::ClearLayout()
     m_eng_description_text->setText("");
     m_eng_description_text->hide();
 
-    m_mesh_id_text->setText("");
-
 	m_see_related_vbox->clear();
 	
     m_links->clear();
@@ -133,8 +122,6 @@ void MeshResult::ClearLayout()
 void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_text)
 {
     Wt::WString preferred_eng_term;
-
-    m_mesh_id_text->setText(mesh_id);
 
     m_nor_term_panel_layout->clear();
     m_eng_term_panel_layout->clear();

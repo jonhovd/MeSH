@@ -33,8 +33,6 @@ private:
 	Wt::WVBoxLayout* m_eng_term_panel_layout;
 	Wt::WText* m_eng_description_text;
 
-	Wt::WText* m_mesh_id_text;
-
 	Wt::WVBoxLayout* m_see_related_vbox;
 	
 	Links* m_links;
