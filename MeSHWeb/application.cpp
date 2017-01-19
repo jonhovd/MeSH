@@ -126,9 +126,35 @@ void MeSHApplication::SearchMesh(const Wt::WString& mesh_id)
 
 void MeSHApplication::onInternalPathChange(const std::string& url)
 {
+    WApplication::instance()->setInternalPath("/");
+
+	std::string meshIdInternalPath = Wt::WString::tr("MeshIdInternalPath").toUTF8();
     if (EQUAL == url.compare(Wt::WString::tr("AppStatisticsInternalPath").toUTF8()))
     {
         m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, false);
     }
-    WApplication::instance()->setInternalPath("/");
+    else if (EQUAL == url.compare(0, meshIdInternalPath.length(), meshIdInternalPath))
+    {
+		std::string meshId;
+		parseIdFromUrl(url, meshId);
+		SearchMesh(meshId);
+    }
+}
+
+void MeSHApplication::parseIdFromUrl(const std::string& url, std::string& id)
+{
+	id = "";
+
+	// Ugly low-level parsing. Limitations in Wt and the us-asciiness of MeshID makes it work
+	const char* str = url.c_str();
+	const char* separator = strchr(str, '&');
+	while (separator)
+	{
+		if (4<=strlen(separator) && EQUAL==strncmp(separator, "&id=", 4))
+		{
+			id = separator+4;
+			break;
+		}
+		separator = strchr(separator+1, '&');
+	}
 }

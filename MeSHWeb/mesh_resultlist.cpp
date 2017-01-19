@@ -103,8 +103,8 @@ void MeshResultList::AppendHit(const std::string& mesh_id, const std::string& ti
 	Wt::WVBoxLayout* result_vbox = new Wt::WVBoxLayout();
 	result_container->setLayout(result_vbox);
 
-	Wt::WAnchor* title_anchor = new Wt::WAnchor(Wt::WLink("/mesh/"+mesh_id), Wt::WString::fromUTF8(title));
-	title_anchor->setTarget(Wt::TargetThisWindow);
+	std::string url = (Wt::WString::tr("MeshIdInternalPath")+"&"+Wt::WString::tr("MeshIdInternalPathParam").arg(mesh_id)).toUTF8();
+	Wt::WAnchor* title_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, url), Wt::WString::fromUTF8(title));
 	result_vbox->addWidget(title_anchor);
 
 	Wt::WText* description_text = new Wt::WText(Wt::WString::fromUTF8(description));

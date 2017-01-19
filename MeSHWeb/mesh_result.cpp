@@ -138,6 +138,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 
     m_nor_term_panel_layout->clear();
     m_eng_term_panel_layout->clear();
+	m_see_related_vbox->clear();
 
 	Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id.toUTF8());
 
@@ -286,8 +287,8 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 
 			std::string see_related_id = see_related_value.getString();
 			std::string title = see_related_id;
-			Wt::WAnchor* see_related_anchor = new Wt::WAnchor(Wt::WLink("/mesh/"+see_related_id), Wt::WString::fromUTF8(title));
-			see_related_anchor->setTarget(Wt::TargetThisWindow);
+			std::string url = (Wt::WString::tr("MeshIdInternalPath")+"&"+Wt::WString::tr("MeshIdInternalPathParam").arg(see_related_id)).toUTF8();
+			Wt::WAnchor* see_related_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, url), Wt::WString::fromUTF8(title));
 			m_see_related_vbox->addWidget(see_related_anchor);
 		}
 	}

@@ -45,6 +45,9 @@ protected:
 	void onTabChanged(int active_tab_index);
 	void onInternalPathChange(const std::string& url);
 
+private:
+	void parseIdFromUrl(const std::string& url, std::string& id);
+
 public:
 	void ClearLayout();
 	void SetActiveTab(int tab_index);

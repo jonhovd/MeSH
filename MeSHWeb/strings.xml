@@ -6,12 +6,15 @@
     <message id="AppSendQuestion">Spørsmål om MeSH?</message>
     <message id="AppSendQuestionUrl">mailto:SigrunEspelien.Aasen@fhi.no?subject=Spørsmål om MeSH</message>
     <message id="AppStatistics">Statistikk</message>
-    <message id="AppStatisticsInternalPath">/statistics</message>
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope-Note:</message>
     <message id="Hierarchy">Hierarki</message>
     <message id="IndirectHit">{1} ({2})</message>
-    
+
+    <message id="AppStatisticsInternalPath">/statistics</message>
+    <message id="MeshIdInternalPath">/mesh</message>
+    <message id="MeshIdInternalPathParam">id={1}</message>
+
     <message id="LinkCategoryFormat">LinkCategory{1}</message>
     <message id="LinkTextFormat">LinkText{1}.{2}</message>
     <message id="LinkUrlFormat">LinkUrl{1}.{2}</message>
