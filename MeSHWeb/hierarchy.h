@@ -34,7 +34,8 @@ private:
 	void ExpandTreeNumberRecursive(const std::string& current_tree_number_string, Wt::WModelIndex& model_index);
 	bool FindChildModelIndex(const std::string& tree_number_string, bool top_level, Wt::WModelIndex& index);
 	bool AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item);
-	void GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number);
+public:
+	static void GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number);
 
 private:
 	MeSHApplication* m_mesh_application;

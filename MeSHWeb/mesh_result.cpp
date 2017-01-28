@@ -6,7 +6,6 @@
 #include <Wt/Utils>
 
 #include "application.h"
-#include "elasticsearchutil.h"
 #include "log.h"
 
 /*
@@ -81,6 +80,13 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	m_eng_description_text->setStyleClass("scope-note scope-class");
 	m_layout->addWidget(m_eng_description_text);
 
+	m_hierarchy_model = new Wt::WStandardItemModel(m_layout);
+	m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
+	m_hierarchy_tree_view = new Wt::WTreeView();
+	m_hierarchy_tree_view->setModel(m_hierarchy_model);
+	m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
+	m_layout->addWidget(m_hierarchy_tree_view);
+
 	Wt::WContainerWidget* see_related_container = new Wt::WContainerWidget();
 	m_see_related_vbox = new Wt::WVBoxLayout();
 	m_see_related_vbox->setContentsMargins(0, 0, 0, 0);
@@ -112,6 +118,8 @@ void MeshResult::ClearLayout()
     m_eng_description_text->setText("");
     m_eng_description_text->hide();
 
+	m_hierarchy_model->clear();
+
 	m_see_related_vbox->clear();
 	
     m_links->clear();
@@ -125,6 +133,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 
     m_nor_term_panel_layout->clear();
     m_eng_term_panel_layout->clear();
+	m_hierarchy_model->clear();
 	m_see_related_vbox->clear();
 
 	Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id.toUTF8());
@@ -260,6 +269,8 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
     m_nor_term_panel->expand();
     m_eng_term_panel->collapse();
 
+	PopulateHierarchy(es_util, source_object);
+
 	//See Related
 	if (source_object.member("see_related"))
 	{
@@ -290,10 +301,10 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
     delete non_preferred_nor_terms;
     delete non_preferred_eng_terms;
     
+	//Mark search-result in hierarchy search tab
 	Hierarchy* hierarchy = m_mesh_application->GetHierarchy();
 	hierarchy->ClearMarkedItems();
 	hierarchy->Collapse();
-
 	if (source_object.member("tree_numbers"))
 	{
 		const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
@@ -303,6 +314,82 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 		{
 			const Json::Value tree_number_value = *tree_numbers_iterator;
 			hierarchy->ExpandToTreeNumber(tree_number_value.getString());
+		}
+	}
+}
+
+void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row, std::map<std::string,Wt::WStandardItem*>& node_map, const std::string& tree_number, bool mark_item) {
+	if (tree_number.empty() || //parent of top-node
+		0<node_map.count(tree_number)) //Already added?
+	{
+		return;
+	}
+
+	//Make sure parent is added
+	std::string parent_tree_number;
+	Hierarchy::GetParentTreeNumber(tree_number, parent_tree_number);
+	RecursiveAddHierarchyItem(es_util, row, node_map, parent_tree_number, false);
+
+	std::string name;
+	std::string mesh_id;
+	Search::TreeNumberToName(es_util, tree_number, name, &mesh_id);
+	std::stringstream node_text;
+	node_text << name;
+	if (!tree_number.empty())
+	{
+		node_text << " [" << tree_number << "]";
+	}
+    Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
+	item->setData(boost::any(tree_number), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
+	item->setData(boost::any(mesh_id), HIERARCHY_ITEM_ID_ROLE);
+
+	std::map<std::string,Wt::WStandardItem*>::iterator iter = node_map.find(parent_tree_number);
+	if (node_map.end() == iter) //No parent -> top-node
+	{
+		m_hierarchy_model->setItem(row++, 0, item);
+	}
+	else
+	{
+		Wt::WStandardItem* parent_item = iter->second;
+		parent_item->setChild(parent_item->rowCount(), 0, item);
+		m_hierarchy_tree_view->expand(parent_item->index());
+	}
+
+	if (mark_item)
+	{
+		item->setStyleClass("marked_item");
+	}
+
+	node_map[tree_number] = item;
+}
+
+void MeshResult::PopulateHierarchy(ElasticSearchUtil* es_util, const Json::Object& source_object)
+{
+	m_hierarchy_model->clear();
+	int row = 0;
+
+	std::map<std::string,Wt::WStandardItem*> node_map;
+
+	if (source_object.member("tree_numbers"))
+	{
+		const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
+		const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+		Json::Array::const_iterator tree_numbers_iterator = tree_numbers_array.begin();
+		for (; tree_numbers_iterator!=tree_numbers_array.end(); ++tree_numbers_iterator)
+		{
+			const Json::Value tree_number_value = *tree_numbers_iterator;
+			RecursiveAddHierarchyItem(es_util, row, node_map, tree_number_value.getString(), true);
+		}
+	}
+	if (source_object.member("child_tree_numbers"))
+	{
+		const Json::Value child_tree_numbers_value = source_object.getValue("child_tree_numbers");
+		const Json::Array child_tree_numbers_array = child_tree_numbers_value.getArray();
+		Json::Array::const_iterator child_tree_numbers_iterator = child_tree_numbers_array.begin();
+		for (; child_tree_numbers_iterator!=child_tree_numbers_array.end(); ++child_tree_numbers_iterator)
+		{
+			const Json::Value child_tree_number_value = *child_tree_numbers_iterator;
+			RecursiveAddHierarchyItem(es_util, row, node_map, child_tree_number_value.getString(), false);
 		}
 	}
 }
