@@ -6,11 +6,8 @@
 #include <Wt/WMessageBox>
 #include <Wt/WTabWidget>
 
-#include "appname.h"
 #include "elasticsearchutil.h"
 #include "hierarchy.h"
-#include "info.h"
-#include "logo.h"
 #include "search.h"
 #include "statistics.h"
 
@@ -65,11 +62,8 @@ private:
 	Wt::WTabWidget* m_tab_widget;
 	Statistics* m_statistics;
 
-	AppName* m_app_name;
 	Search* m_search;
 	Hierarchy* m_hierarchy;
-	Logo*  m_logo;
-	Info*  m_info;
 
 	Wt::WGridLayout* m_statistics_layout;
 

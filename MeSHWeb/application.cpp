@@ -1,6 +1,8 @@
 #include "application.h"
 
 #include "global.h"
+#include "header.h"
+#include "footer.h"
 
 #include <Wt/WHBoxLayout>
 
@@ -23,14 +25,8 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	root()->setLayout(root_vbox);
 
 	//Header
-	Wt::WContainerWidget* header_container = new Wt::WContainerWidget();
-	header_container->setStyleClass("mesh-header");
-	Wt::WHBoxLayout* header_hbox = new Wt::WHBoxLayout();
-	header_hbox->setContentsMargins(0, 0, 0, 0);
-	header_container->setLayout(header_hbox);
-	m_app_name = new AppName();
-	header_hbox->addWidget(m_app_name);
-	root_vbox->addWidget(header_container);
+	Header* header = new Header();
+	root_vbox->addWidget(header);
 
 	//Tabs
 	Wt::WContainerWidget* tabs_container = new Wt::WContainerWidget();
@@ -66,17 +62,8 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 //	root_vbox->addStretch(1);
 
 	//Footer
-	Wt::WContainerWidget* footer_container = new Wt::WContainerWidget();
-	footer_container->setStyleClass("mesh-footer");
-	Wt::WHBoxLayout* footer_hbox = new Wt::WHBoxLayout();
-	footer_hbox->setContentsMargins(0, 0, 0, 0);
-	footer_container->setLayout(footer_hbox);
-	m_logo = new Logo();
-	footer_hbox->addWidget(m_logo);
-	footer_hbox->addStretch(1);
-	m_info = new Info();
-	footer_hbox->addWidget(m_info);
-	root_vbox->addWidget(footer_container);
+	Footer* footer = new Footer();
+	root_vbox->addWidget(footer);
 
 	ClearLayout();
 
