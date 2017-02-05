@@ -34,6 +34,7 @@ private:
 
 	Wt::WPanel* m_nor_term_panel;
 	Wt::WVBoxLayout* m_nor_term_panel_layout;
+	Wt::WText* m_nor_description_label;
 	Wt::WText* m_nor_description_text;
 
 	Wt::WPanel* m_eng_term_panel;

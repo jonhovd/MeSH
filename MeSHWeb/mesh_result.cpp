@@ -49,9 +49,9 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	m_layout->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
 	m_layout->addWidget(m_nor_term_panel);
 
-	Wt::WText* nor_description_label = new Wt::WText(Wt::WString::tr("NorwegianDescription"));
-	nor_description_label->setStyleClass("scope scope-class");
-	m_layout->addWidget(nor_description_label);
+	m_nor_description_label = new Wt::WText(Wt::WString::tr("NorwegianDescription"));
+	m_nor_description_label->setStyleClass("scope scope-class");
+	m_layout->addWidget(m_nor_description_label);
 	m_nor_description_text = new Wt::WText();
 	m_nor_description_text->setStyleClass("scope-note scope-class");
 	m_layout->addWidget(m_nor_description_text);
@@ -151,6 +151,8 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 
     Wt::WStringListModel* non_preferred_nor_terms = new Wt::WStringListModel();
     Wt::WStringListModel* non_preferred_eng_terms = new Wt::WStringListModel();
+	bool found_norwegian_preferred_term = false;
+	m_nor_description_text->setText(Wt::WString::tr("NotTranslated"));
 
     const Json::Value value = search_result.getValue("hits");
     const Json::Object value_object = value.getObject();
@@ -222,6 +224,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
                 {
                     preferred_eng_term = term_text_str;
                 }
+                found_norwegian_preferred_term |= (is_norwegian!=false);
             }
             else
             {
@@ -266,8 +269,22 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
             non_preferred_term_layout->addWidget(non_preferred_term_text);
         }
     }
-    m_nor_term_panel->expand();
-    m_eng_term_panel->collapse();
+
+    if (found_norwegian_preferred_term)
+	{
+		m_nor_term_panel->expand();
+		m_eng_term_panel->collapse();
+		m_nor_description_label->show();
+		m_nor_description_text->show();
+	}
+	else
+	{
+		m_nor_term_panel->setTitle(Wt::WString::tr("NotTranslated"));
+		m_nor_term_panel->collapse();
+		m_eng_term_panel->expand();
+		m_nor_description_label->hide();
+		m_nor_description_text->hide();
+	}
 
 	PopulateHierarchy(es_util, source_object);
 

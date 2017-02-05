@@ -9,6 +9,7 @@
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope-Note:</message>
     <message id="IndirectHit">{1} ({2})</message>
+    <message id="NotTranslated">(Ikke oversatt)</message>
 
     <message id="Hierarchy">Hierarki-søk</message>
     <message id="Search">Tekst-søk</message>
