@@ -39,6 +39,7 @@ private:
 
 	Wt::WPanel* m_eng_term_panel;
 	Wt::WVBoxLayout* m_eng_term_panel_layout;
+	Wt::WText* m_eng_description_label;
 	Wt::WText* m_eng_description_text;
 
 	Wt::WTreeView* m_hierarchy_tree_view;
