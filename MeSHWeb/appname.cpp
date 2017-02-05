@@ -12,7 +12,7 @@ AppName::AppName(Wt::WContainerWidget* parent)
 
 	Wt::WText* appname_text = new Wt::WText(Wt::WString::tr("AppName"));
 	appname_text->setStyleClass("mesh-appname");
-	m_layout->addWidget(appname_text, 0, Wt::AlignCenter|Wt::AlignMiddle);
+	m_layout->addWidget(appname_text);
 }
 
 AppName::~AppName()
