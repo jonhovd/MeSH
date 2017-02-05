@@ -19,11 +19,13 @@
     <message id="MeshIdInternalPath">/mesh</message>
     <message id="MeshIdInternalPathParam">id={1}</message>
 
+    <message id="LinkLabel">Søk på {1} i databasene under:</message>
+
     <message id="LinkCategoryFormat">LinkCategory{1}</message>
     <message id="LinkTextFormat">LinkText{1}.{2}</message>
     <message id="LinkUrlFormat">LinkUrl{1}.{2}</message>
     
-    <message id="LinkCategory1">Referansedatabaser:</message>
+    <message id="LinkCategory1"> </message>
     <message id="LinkText1.1">PubMed (helsebib)</message>
     <message id="LinkUrl1.1">http://proxy.helsebiblioteket.no/login?url=http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
     <message id="LinkText1.2">PubMed (alle)</message>
@@ -35,7 +37,7 @@
     <message id="LinkText1.5">Oria</message>
     <message id="LinkUrl1.5">http://bibsys-primo.hosted.exlibrisgroup.com/primo_library/libweb/action/dlSearch.do?institution=BIBSYS&amp;vid=BIBSYS&amp;search_scope=blended_scope&amp;query=lsr11,exact,{2}</message>
 
-    <message id="LinkCategory2">Oppslagsverk:</message>
+    <message id="LinkCategory2"> </message>
     <message id="LinkText2.1">BMJ&nbsp;Best&nbsp;practice</message>
     <message id="LinkUrl2.1">http://bestpractice.bmj.com/best-practice/search.html?searchableText={2}&amp;languageCode=en</message>
     <message id="LinkText2.2">MedlinePlus</message>

@@ -27,13 +27,15 @@ void Links::clear()
 	Wt::WContainerWidget::clear();
 }
 
-void Links::populate(const Wt::WString& mesh_id, const std::string& url_encoded_term, const std::string& url_encoded_filtertext)
+void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_term, const std::string& url_encoded_term, const std::string& url_encoded_filtertext)
 {
 	clear();
 
 	m_layout = new Wt::WVBoxLayout();
 	m_layout->setContentsMargins(0, 0, 0, 0);
 	setLayout(m_layout);
+
+	m_layout->addWidget(new Wt::WText(Wt::WString::tr("LinkLabel").arg(preferred_term)));
 
 	int link_category_index = 0;
 	int link_index;
@@ -45,7 +47,10 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& url_encoded_
 		if ('?' == link_category_text.toUTF8().at(0))
 			break;
 
-		m_layout->addWidget(new Wt::WText(link_category_text));
+		if (!link_category_text.trim().empty())
+		{
+			m_layout->addWidget(new Wt::WText(link_category_text));
+		}
 
 		Wt::WContainerWidget* links_container = new Wt::WContainerWidget();
 		Wt::WHBoxLayout* links_container_layout = new Wt::WHBoxLayout();

@@ -13,7 +13,7 @@ public:
 
 public:
   virtual void clear();
-  virtual void populate(const Wt::WString& mesh_id, const std::string& url_encoded_term, const std::string& url_encoded_filtertext);
+  virtual void populate(const Wt::WString& mesh_id, const std::string& preferred_term, const std::string& url_encoded_term, const std::string& url_encoded_filtertext);
 
 private:
    Wt::WVBoxLayout* m_layout;

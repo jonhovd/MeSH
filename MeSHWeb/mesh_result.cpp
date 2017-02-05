@@ -129,6 +129,7 @@ void MeshResult::ClearLayout()
 
 void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_text)
 {
+	std::string preferred_term;
     Wt::WString preferred_eng_term;
 
     m_nor_term_panel_layout->clear();
@@ -178,8 +179,8 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
         const Json::Value concept_value = *concept_iterator;
         const Json::Object concept_object = concept_value.getObject();
         const Json::Value preferred_concept_value = concept_object.getValue("preferred");
-        bool preferred_concept = (EQUAL == preferred_concept_value.getString().compare("yes"));
-        if (preferred_concept && concept_object.member("description"))
+        bool is_preferred_concept = (EQUAL == preferred_concept_value.getString().compare("yes"));
+        if (is_preferred_concept && concept_object.member("description"))
         {
             const Json::Value description_value = concept_object.getValue("description");
             std::string description_str = description_value.getString();
@@ -190,7 +191,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
             m_nor_description_text->setText(Wt::WString::fromUTF8(description_str));
             m_nor_description_text->show();
         }
-        if (preferred_concept && concept_object.member("english_description"))
+        if (is_preferred_concept && concept_object.member("english_description"))
         {
             const Json::Value description_value = concept_object.getValue("english_description");
             std::string description_str = description_value.getString();
@@ -221,13 +222,18 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
             const Wt::WString term_text_str = Wt::WString::fromUTF8(term_text_value.getString());
             
             const Json::Value preferred_term_value = term_object.getValue("preferred");
-            bool preferred_term = (EQUAL == preferred_term_value.getString().compare("yes"));
-            if (preferred_concept && preferred_term)
+            bool is_preferred_term = (EQUAL == preferred_term_value.getString().compare("yes"));
+            if (is_preferred_concept && is_preferred_term)
             {
                 Wt::WPanel* term_panel = (is_norwegian ? m_nor_term_panel : m_eng_term_panel);
                 term_panel->setTitle(term_text_str);
-                if (!is_norwegian && preferred_eng_term.empty())
+				if (is_norwegian)
+				{
+					preferred_term = term_text_value.getString();
+				}
+                else if (!is_norwegian && preferred_eng_term.empty())
                 {
+					preferred_term = term_text_value.getString();
                     preferred_eng_term = term_text_str;
                 }
                 found_norwegian_preferred_term |= (is_norwegian!=false);
@@ -315,7 +321,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
     std::string url_encoded_term = Wt::Utils::urlEncode(preferred_eng_term.toUTF8());
     std::string url_encoded_filtertext = Wt::Utils::urlEncode(search_text);
 	
-	m_links->populate(mesh_id, url_encoded_term, url_encoded_filtertext);
+	m_links->populate(mesh_id, preferred_term, url_encoded_term, url_encoded_filtertext);
     
     delete non_preferred_nor_terms;
     delete non_preferred_eng_terms;
