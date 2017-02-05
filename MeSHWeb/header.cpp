@@ -18,8 +18,7 @@ Header::Header(Wt::WContainerWidget* parent)
 	m_app_name = new AppName();
 	m_layout->addWidget(m_app_name, 0, Wt::AlignCenter);
 
-	Wt::WImage* optikerforbund_logo = new Wt::WImage("images/optikerforbund_transparent.png");
-	m_layout->addWidget(optikerforbund_logo, 1, Wt::AlignRight|Wt::AlignMiddle);
+	m_layout->addStretch(1);
 }
 
 Header::~Header()
