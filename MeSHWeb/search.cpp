@@ -45,7 +45,7 @@ Search::Search(MeSHApplication* mesh_application, Wt::WContainerWidget* parent)
 
 	m_mesh_result = new MeshResult(mesh_application);
     m_layout->addWidget(m_mesh_result);
-	
+
 	m_layout->addStretch(1);
 }
 

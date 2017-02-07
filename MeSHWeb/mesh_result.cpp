@@ -8,12 +8,6 @@
 #include "application.h"
 #include "log.h"
 
-/*
-#include <boost/algorithm/string/split.hpp>
-#include <boost/locale/conversion.hpp>
-#include <Wt/WCssDecorationStyle>
-
-*/
 
 MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* parent)
 : Wt::WContainerWidget(parent),
@@ -23,15 +17,7 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	m_layout = new Wt::WVBoxLayout();
 	m_layout->setContentsMargins(0, 0, 0, 0);
 	setLayout(m_layout);
-/*
-	Wt::WCssDecorationStyle panel_style;
-	panel_style.setBackgroundColor(Wt::WColor(232, 232, 232));
-	panel_style.setForegroundColor(Wt::WColor(Wt::GlobalColor::black));
-	Wt::WFont panel_font;
-	panel_font.setSize(Wt::WFont::Size::Large);
-	panel_font.setWeight(Wt::WFont::Weight::Bold);
-	panel_style.setFont(panel_font);
-*/
+
 	m_nor_term_panel = new Wt::WPanel();
 	m_nor_term_panel->setCollapsible(true);
 	Wt::WContainerWidget* nor_term_container = new Wt::WContainerWidget();
@@ -44,7 +30,6 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	m_nor_term_panel->titleBarWidget()->insertWidget(0, nor_flag);
 	nor_flag->setHeight(Wt::WLength(1.0, Wt::WLength::FontEm));
 	nor_flag->setMargin(Wt::WLength(3.0, Wt::WLength::Pixel));
-//	m_nor_term_panel->titleBarWidget()->setDecorationStyle(panel_style);
 
 	m_layout->addWidget(new Wt::WText(Wt::WString::tr("PreferredNorwegianTerm")));
 	m_layout->addWidget(m_nor_term_panel);
@@ -68,7 +53,6 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	m_eng_term_panel->titleBarWidget()->insertWidget(0, eng_flag);
 	eng_flag->setHeight(Wt::WLength(1.0, Wt::WLength::FontEm));
 	eng_flag->setMargin(Wt::WLength(3.0, Wt::WLength::Pixel));
-//	m_eng_term_panel->titleBarWidget()->setDecorationStyle(panel_style);
 
 	m_layout->addWidget(new Wt::WText(Wt::WString::tr("PreferredEnglishTerm")));
 	m_layout->addWidget(m_eng_term_panel);
@@ -93,8 +77,10 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	see_related_container->setLayout(m_see_related_vbox);
 	m_layout->addWidget(see_related_container);
 
+#if 0
+	m_layout->addWidget(new Wt::WText(Wt::WString::tr("Links")));
+#endif
 	m_links = new Links();
-	//    result_vbox->addWidget(new Wt::WText(Wt::WString::tr("Links")));
 	m_layout->addWidget(m_links);
 }
 
@@ -343,7 +329,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 	}
 }
 
-void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row, std::map<std::string,Wt::WStandardItem*>& node_map, const std::string& tree_number, bool mark_item) {
+void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row, std::map<std::string, Wt::WStandardItem*>& node_map, const std::string& tree_number, bool mark_item) {
 	if (tree_number.empty() || //parent of top-node
 		0<node_map.count(tree_number)) //Already added?
 	{
