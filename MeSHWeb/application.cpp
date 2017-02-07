@@ -5,6 +5,7 @@
 #include "footer.h"
 
 #include <Wt/WHBoxLayout>
+#include <Wt/WScrollArea>
 
 
 MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
@@ -39,7 +40,9 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 
 	//Search-tab
 	m_search = new Search(this);
-	m_tab_widget->addTab(m_search, Wt::WString::tr("Search"));
+	Wt::WScrollArea* scroll_area = new Wt::WScrollArea();
+	scroll_area->setWidget(m_search);
+	m_tab_widget->addTab(scroll_area, Wt::WString::tr("Search"));
     m_search_signal.connect(this, &MeSHApplication::SearchMesh);
 
 	//Hierarchy-tab
@@ -53,13 +56,11 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	m_tab_widget->addTab(m_statistics, Wt::WString::tr("Statistics"));
 	m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
 
-	tabs_hbox->addStretch(1);
+	tabs_hbox->addStretch(1); //Add left margin
 	tabs_hbox->addWidget(m_tab_widget);
-	tabs_hbox->addStretch(1);
+	tabs_hbox->addStretch(1); //Add right margin
 
-	root_vbox->addWidget(tabs_container, 1);
-
-//	root_vbox->addStretch(1);
+	root_vbox->addWidget(tabs_container, 1); //Header and footer is static. tabs_container should take rest of available space
 
 	//Footer
 	Footer* footer = new Footer();
