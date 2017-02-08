@@ -45,7 +45,8 @@ private:
 	Wt::WTreeView* m_hierarchy_tree_view;
 	Wt::WStandardItemModel* m_hierarchy_model;
 
-	Wt::WVBoxLayout* m_see_related_vbox;
+	Wt::WText* m_see_related_text;
+	Wt::WContainerWidget* m_see_related_container;
 	
 	Links* m_links;
 };

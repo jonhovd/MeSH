@@ -4,16 +4,7 @@
 
 #include "application.h"
 #include "search.h"
-/*
-#include <boost/algorithm/string/split.hpp>
-#include <Wt/Utils>
-#include <Wt/WCssDecorationStyle>
-#include <Wt/WHBoxLayout>
-#include <Wt/WImage>
-#include <Wt/WStringListModel>
 
-#include "log.h"
-*/
 
 MeshResultList::MeshResultList(MeSHApplication* mesh_application, Wt::WContainerWidget* parent)
 : Wt::WContainerWidget(parent),
@@ -135,10 +126,12 @@ void MeshResultList::AppendHit(const std::string& mesh_id, const std::string& ti
 	Wt::WContainerWidget* result_container = new Wt::WContainerWidget();
 	result_container->setStyleClass("result");
 	Wt::WVBoxLayout* result_vbox = new Wt::WVBoxLayout();
+    result_vbox->setContentsMargins(0, 0, 0, 0);
 	result_container->setLayout(result_vbox);
 
 	std::string url = (Wt::WString::tr("MeshIdInternalPath")+"&"+Wt::WString::tr("MeshIdInternalPathParam").arg(mesh_id)).toUTF8();
 	Wt::WAnchor* title_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, url), Wt::WString::fromUTF8(title));
+	title_anchor->setStyleClass("mesh-link");
 	result_vbox->addWidget(title_anchor);
 
 	Wt::WText* description_text = new Wt::WText(Wt::WString::fromUTF8(description));

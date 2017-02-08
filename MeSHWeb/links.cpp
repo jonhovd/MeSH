@@ -34,6 +34,7 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_te
 	m_layout = new Wt::WVBoxLayout();
 	m_layout->setContentsMargins(0, 0, 0, 0);
 	setLayout(m_layout);
+	setStyleClass("mesh-links");
 
 	m_layout->addWidget(new Wt::WText(Wt::WString::tr("LinkLabel").arg(preferred_term)));
 
@@ -53,9 +54,6 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_te
 		}
 
 		Wt::WContainerWidget* links_container = new Wt::WContainerWidget();
-		Wt::WHBoxLayout* links_container_layout = new Wt::WHBoxLayout();
-		links_container_layout->setContentsMargins(0, 0, 0, 0);
-		links_container->setLayout(links_container_layout);
 
 		link_index = 0;
 		while (true)
@@ -72,11 +70,9 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_te
 			boost::replace_all(link_str, "&amp;", "&");
 			Wt::WAnchor* anchor = new Wt::WAnchor(Wt::WLink(link_str), link_text);
 			anchor->setTarget(Wt::TargetNewWindow);
-			anchor->setPadding(Wt::WLength(2.5, Wt::WLength::FontEm), Wt::Right);
-			links_container_layout->addWidget(anchor);
+			anchor->setStyleClass("mesh-link");
+			links_container->addWidget(anchor);
 		}
-		links_container_layout->addStretch(1);
-		
 		m_layout->addWidget(links_container);
 	}
 }

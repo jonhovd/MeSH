@@ -64,6 +64,8 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	m_eng_description_text->setStyleClass("scope-note scope-class");
 	m_layout->addWidget(m_eng_description_text);
 
+	m_layout->addSpacing(Wt::WLength(2.0, Wt::WLength::FontEm));
+	
 	m_hierarchy_model = new Wt::WStandardItemModel(m_layout);
 	m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
 	m_hierarchy_tree_view = new Wt::WTreeView();
@@ -71,11 +73,14 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
 	m_layout->addWidget(m_hierarchy_tree_view);
 
-	Wt::WContainerWidget* see_related_container = new Wt::WContainerWidget();
-	m_see_related_vbox = new Wt::WVBoxLayout();
-	m_see_related_vbox->setContentsMargins(0, 0, 0, 0);
-	see_related_container->setLayout(m_see_related_vbox);
-	m_layout->addWidget(see_related_container);
+	m_layout->addSpacing(Wt::WLength(1.0, Wt::WLength::FontEm));
+
+	m_see_related_text = new Wt::WText(Wt::WString::tr("SeeRelated"));
+	m_layout->addWidget(m_see_related_text);
+	m_see_related_container = new Wt::WContainerWidget();
+	m_layout->addWidget(m_see_related_container);
+
+	m_layout->addSpacing(Wt::WLength(1.0, Wt::WLength::FontEm));
 
 #if 0
 	m_layout->addWidget(new Wt::WText(Wt::WString::tr("Links")));
@@ -106,7 +111,8 @@ void MeshResult::ClearLayout()
 
 	m_hierarchy_model->clear();
 
-	m_see_related_vbox->clear();
+	m_see_related_text->hide();
+	m_see_related_container->clear();
 	
     m_links->clear();
 
@@ -121,7 +127,8 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
     m_nor_term_panel_layout->clear();
     m_eng_term_panel_layout->clear();
 	m_hierarchy_model->clear();
-	m_see_related_vbox->clear();
+	m_see_related_text->hide();
+	m_see_related_container->clear();
 
 	m_nor_description_label->hide();
 	m_nor_description_text->hide();
@@ -285,7 +292,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 	//See Related
 	if (source_object.member("see_related"))
 	{
-		m_see_related_vbox->addWidget(new Wt::WText(Wt::WString::tr("SeeRelated")), 0, Wt::AlignLeft);
+		m_see_related_text->show();
 
 		const Json::Value see_related_values = source_object.getValue("see_related");
 		const Json::Array see_related_array = see_related_values.getArray();
@@ -299,7 +306,8 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 	        Search::MeSHToName(es_util, see_related_id, title);
 			std::string url = (Wt::WString::tr("MeshIdInternalPath")+"&"+Wt::WString::tr("MeshIdInternalPathParam").arg(see_related_id)).toUTF8();
 			Wt::WAnchor* see_related_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, url), Wt::WString::fromUTF8(title));
-			m_see_related_vbox->addWidget(see_related_anchor);
+			see_related_anchor->setStyleClass("mesh-link");
+			m_see_related_container->addWidget(see_related_anchor);
 		}
 	}
 

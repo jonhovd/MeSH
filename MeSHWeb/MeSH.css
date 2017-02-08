@@ -19,6 +19,14 @@ body {
   background-color: #eeeeee;
 }
 
+.info-box a, .mesh-link {
+  color: black;
+  background-color: #eeeeee;
+  text-align: center;
+  text-decoration: underline;
+  padding: 5px;
+}
+
 .mesh-header {
   width: 100%;
   padding: 1em;
@@ -74,14 +82,28 @@ body {
   background: #abcdef;
 }
 
-.search-result {
+.result {
   background: white;
-  padding: 0 0.5em 0.5em;
+  padding: 0;
+  margin: 0 5px;
+}
+
+.result-description {
+  background: white;
+  margin-bottom: 2.5em;
 }
 
 .Wt-suggest {
-    background-color: #eeeeee;
-    color: black;
+  background-color: #eeeeee;
+  color: black;
+}
+
+.mesh-links {
+}
+
+.mesh-link {
+  display: inline-block;
+  margin: 5px 1em;
 }
 
 .mesh-footer {
@@ -92,9 +114,9 @@ body {
 }
 
 .Wt-panel {
-border: none !important;
-background-color: white !important;
- x-max-width: 800px;
+  border: none !important;
+  background-color: white !important;
+  x-max-width: 800px;
 }
 
 .Wt-panel .body {
@@ -109,26 +131,13 @@ background-color: white !important;
 }
 
 .scope {
-  x-max-width:800px;
   font-weight: bold;
   
-}
-
-.scope-text {
-  x-max-width:800px;
-  
-}
-
-.info-box a {
-  color: black;
-  background-color: white;
-  text-decoration: underline;
 }
 
 .header {
   background: white;
   width: 100%
-
 }
 
 .mainfooter {
