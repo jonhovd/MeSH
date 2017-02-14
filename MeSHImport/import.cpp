@@ -564,73 +564,52 @@ void PopulateChildrenTreeNumberList(Json::Array& children_tree_number_array, con
 
 void UpdateChildTreeNumbers()
 {
-    int total = 0;
-    int from = 0;
-    int size = 100;
-    bool more = true;
-    
-    while (more)
+    Json::Array resultArray;
+    std::string scroll_id;
+    if (g_es->initScroll(scroll_id, "mesh", CONST_CHAR(g_language_code), ""))
     {
-        std::stringstream query;
-        query << "{\"from\": " << from << ", \"size\": " << size << ", \"sort\": {\"id\": {\"order\": \"asc\"}}, \"query\": {\"match_all\": {} } }";
-
-        Json::Object search_result;
-        long result_size = ESSearch("mesh", CONST_CHAR(g_language_code), query.str(), search_result);
-        if (0 == result_size)
-            break;
-        
-        const Json::Value value = search_result.getValue("hits");
-        const Json::Object value_object = value.getObject();
-
-        const Json::Value total_value = value_object.getValue("total");
-        total = total_value.getInt();
-        
-        printUpdateHierarchyStatus(from, total);
-        
-        const Json::Value hits_value = value_object.getValue("hits");
-        const Json::Array hits_array = hits_value.getArray();
-
-        Json::Array::const_iterator hits_iterator = hits_array.begin();
-        for (; hits_iterator!=hits_array.end(); ++hits_iterator)
+        while (g_es->scrollNext(scroll_id, resultArray))
         {
-            from++;
+            if (resultArray.empty())
+                break;
 
-            const Json::Value hit_value = *hits_iterator;
-            const Json::Object hit_value_object = hit_value.getObject();
-            const Json::Value source_value = hit_value_object.getValue("_source");
-            const Json::Object source_object = source_value.getObject();
-
-            const Json::Value id_value = source_object.getValue("id");
-            const std::string id_value_str = id_value.getString();
-            if (id_value_str.empty())
-                continue;
-
-            if (!source_object.member("tree_numbers"))
-                continue;
-            
-            const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
-            const Json::Array tree_numbers_array = tree_numbers_value.getArray();
-
-            Json::Array children_tree_number_array;
-            Json::Array::const_iterator tree_number_iterator = tree_numbers_array.begin();
-            for (; tree_number_iterator!=tree_numbers_array.end(); ++tree_number_iterator)
+            Json::Array::const_iterator hits_iterator = resultArray.begin();
+            for (; hits_iterator!=resultArray.end(); ++hits_iterator)
             {
-                const Json::Value tree_number_value = *tree_number_iterator;
-                PopulateChildrenTreeNumberList(children_tree_number_array, tree_number_value.getString());
-            }
+                const Json::Value hit_value = *hits_iterator;
+                const Json::Object hit_value_object = hit_value.getObject();
+                const Json::Value source_value = hit_value_object.getValue("_source");
+                const Json::Object source_object = source_value.getObject();
 
-            if (!children_tree_number_array.empty())
-            {
-                Json::Object updated_value_object;
-                updated_value_object.addMemberByKey("child_tree_numbers", children_tree_number_array);
-                g_es->update("mesh", CONST_CHAR(g_language_code), id_value_str, updated_value_object);
+                const Json::Value id_value = source_object.getValue("id");
+                const std::string id_value_str = id_value.getString();
+                if (id_value_str.empty())
+                    continue;
+
+                if (!source_object.member("tree_numbers"))
+                    continue;
+                
+                const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
+                const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+
+                Json::Array children_tree_number_array;
+                Json::Array::const_iterator tree_number_iterator = tree_numbers_array.begin();
+                for (; tree_number_iterator!=tree_numbers_array.end(); ++tree_number_iterator)
+                {
+                    const Json::Value tree_number_value = *tree_number_iterator;
+                    PopulateChildrenTreeNumberList(children_tree_number_array, tree_number_value.getString());
+                }
+
+                if (!children_tree_number_array.empty())
+                {
+                    Json::Object updated_value_object;
+                    updated_value_object.addMemberByKey("child_tree_numbers", children_tree_number_array);
+                    g_es->update("mesh", CONST_CHAR(g_language_code), id_value_str, updated_value_object);
+                }
             }
+            resultArray.clear();
         }
-        
-        more = (from < total);
     }
-    printUpdateHierarchyStatus(from, total);
-    fprintf(stdout, "\r\n");
 }
 
 bool ReadDescriptorRecordSet()
