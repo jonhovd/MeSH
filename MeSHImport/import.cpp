@@ -60,19 +60,35 @@ void CleanDatabase()
     std::stringstream mapping;
 
     g_es->deleteIndex("mesh");
-    mapping << "{\"mappings\": {\"" << g_language_code << "\": {\"properties\": {"
-            << "\"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"top_node\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"see_related\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"parent_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"child_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"concepts.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"concepts.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"concepts.terms.id\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"concepts.terms.language\": {\"type\": \"string\", \"index\": \"not_analyzed\"}, "
-            << "\"concepts.terms.preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"} "
-            << "} } } }";
+
+	mapping << "{"
+	        << " \"mappings\": {"
+	        << "  \"" << g_language_code << "\": {"
+	        << "   \"properties\": {"
+	        << "    \"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "    \"top_node\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "    \"see_related\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "    \"tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "    \"parent_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "    \"child_tree_numbers\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "    \"concepts\": {"
+	        << "     \"type\": \"nested\", \"properties\": {"
+	        << "      \"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "      \"preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "      \"terms\": {"
+	        << "       \"type\": \"nested\", \"properties\": {"
+	        << "        \"id\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "        \"language\": {\"type\": \"string\", \"index\": \"not_analyzed\"},"
+	        << "        \"preferred\": {\"type\": \"string\", \"index\": \"not_analyzed\"}"
+	        << "       }"
+	        << "      }"
+	        << "     }"
+	        << "    }"
+	        << "   }"
+	        << "  }"
+	        << " }"
+	        << "}";
+
     g_es->createIndex("mesh", mapping.str().c_str());
 
     g_es->deleteIndex("statistics");
