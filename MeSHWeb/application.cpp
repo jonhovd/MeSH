@@ -56,8 +56,11 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	m_tab_widget->addTab(m_statistics, Wt::WString::tr("Statistics"));
 	m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
 
+	Wt::WContainerWidget* tmp_tab_container = new Wt::WContainerWidget(); //stretch and tabwidget doesn't mix very well. Wrap tabwidget in a containerwidget
+	tmp_tab_container->addWidget(m_tab_widget);
+
 	tabs_hbox->addStretch(1); //Add left margin
-	tabs_hbox->addWidget(m_tab_widget);
+	tabs_hbox->addWidget(tmp_tab_container);
 	tabs_hbox->addStretch(1); //Add right margin
 
 	root_vbox->addWidget(tabs_container, 1); //Header and footer is static. tabs_container should take rest of available space
