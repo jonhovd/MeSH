@@ -32,7 +32,7 @@ public:
 protected:
 	void SearchButtonClicked();
 
-	void SearchEditFocussed();
+	void OnSearchEditFocussed();
 	void SuggestionChanged(Wt::WStandardItem* item);
 	void FilterSuggestion(const Wt::WString& filter);
 	
