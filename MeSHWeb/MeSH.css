@@ -1,4 +1,3 @@
-
 .mesh-appname {
     font-size: 20pt !important;
 }
@@ -19,6 +18,11 @@ body {
   background-color: #eeeeee;
 }
 
+.page {
+	min-height: 100%;
+	overflow: scroll;
+}
+
 .info-box a, .mesh-link {
   color: black;
   background-color: #eeeeee;
@@ -37,7 +41,20 @@ body {
   background-position: 10px;
   border-bottom: 2px solid #ffffff;
 }
-
+.mesh-footer {
+  width: 100%;
+  padding: 1em;
+  background-color: white;
+  border-bottom: 2px solid #535353;
+}
+/*
+.mesh-footer {
+  width: 100%;
+  padding-top: 0.5em;
+  background-color: white;
+  border-top: 2px solid #535353;
+}
+*/
 .mesh-tabs {
   margin-left: auto;
   margin-right: auto;
@@ -106,17 +123,9 @@ body {
   margin: 5px 1em;
 }
 
-.mesh-footer {
-  width: 100%;
-  padding-top: 0.5em;
-  background-color: white;
-  border-top: 2px solid #535353;
-}
-
 .Wt-panel {
   border: none !important;
   background-color: white !important;
-  x-max-width: 800px;
 }
 
 .Wt-panel .body {

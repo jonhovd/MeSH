@@ -6,6 +6,7 @@
 
 #include <Wt/WHBoxLayout>
 #include <Wt/WScrollArea>
+#include <Wt/WTable>
 
 
 MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
@@ -25,9 +26,21 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	root_vbox->setContentsMargins(0, 0, 0, 0);
 	root()->setLayout(root_vbox);
 
+	Wt::WContainerWidget* page_container = new Wt::WContainerWidget();
+	Wt::WVBoxLayout* page_layout = new Wt::WVBoxLayout();
+	page_layout->setContentsMargins(0, 0, 0, 0);
+	page_container->setLayout(page_layout);
+	page_container->setStyleClass("page");
+	page_container->setId("pageId");
+
 	//Header
+#if 0
 	Header* header = new Header();
-	root_vbox->addWidget(header);
+	page_layout->addWidget(header, 0);
+#else
+	m_footer = new Footer();
+	page_layout->addWidget(m_footer, 0);
+#endif
 
 	//Tabs
 	Wt::WContainerWidget* tabs_container = new Wt::WContainerWidget();
@@ -40,9 +53,7 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 
 	//Search-tab
 	m_search = new Search(this);
-	Wt::WScrollArea* scroll_area = new Wt::WScrollArea();
-	scroll_area->setWidget(m_search);
-	m_tab_widget->addTab(scroll_area, Wt::WString::tr("Search"));
+	m_tab_widget->addTab(m_search, Wt::WString::tr("Search"));
     m_search_signal.connect(this, &MeSHApplication::SearchMesh);
 
 	//Hierarchy-tab
@@ -63,11 +74,21 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	tabs_hbox->addWidget(tmp_tab_container);
 	tabs_hbox->addStretch(1); //Add right margin
 
-	root_vbox->addWidget(tabs_container, 1); //Header and footer is static. tabs_container should take rest of available space
+	page_layout->addWidget(tabs_container, 1); //Header and footer is static. tabs_container should take rest of available space
 
+#if 0
 	//Footer
-	Footer* footer = new Footer();
-	root_vbox->addWidget(footer);
+	m_footer = new Footer();
+	page_layout->addWidget(m_footer, 0);
+#endif
+
+#if 0
+	Wt::WScrollArea* scroll_area = new Wt::WScrollArea();
+	scroll_area->setWidget(page_container);
+	root_vbox->addWidget(scroll_area);
+#else
+	root_vbox->addWidget(page_container);
+#endif
 
 	ClearLayout();
 

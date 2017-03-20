@@ -10,6 +10,7 @@
 #include "hierarchy.h"
 #include "search.h"
 #include "statistics.h"
+#include "footer.h"
 
 #define SUGGESTION_COUNT    (20)
 #define RESULTLIST_COUNT    (10)
@@ -64,6 +65,7 @@ private:
 
 	Search* m_search;
 	Hierarchy* m_hierarchy;
+	Footer* m_footer;
 
 	Wt::WGridLayout* m_statistics_layout;
 
