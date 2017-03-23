@@ -538,7 +538,7 @@ bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 void PopulateChildrenTreeNumberList(Json::Array& children_tree_number_array, const std::string& tree_number)
 {
     std::stringstream query;
-    query << "{\"from\": 0, \"size\": 100, \"query\": {\"bool\": {\"must\": {\"term\": {\"nor.parent_tree_numbers\": \"" << tree_number << "\"} } } } }";
+    query << "{\"from\": 0, \"size\": 100, \"query\": {\"bool\": {\"must\": {\"term\": {\"parent_tree_numbers\": \"" << tree_number << "\"} } } } }";
 
     Json::Object search_result;
     if (0 == ESSearch("mesh", CONST_CHAR(g_language_code), query.str(), search_result))
@@ -582,7 +582,7 @@ void UpdateChildTreeNumbers()
 {
     Json::Array resultArray;
     std::string scroll_id;
-    if (g_es->initScroll(scroll_id, "mesh", CONST_CHAR(g_language_code), ""))
+    if (g_es->initScroll(scroll_id, "mesh", CONST_CHAR(g_language_code), "", 1))
     {
         while (g_es->scrollNext(scroll_id, resultArray))
         {
