@@ -47,11 +47,11 @@
 
     <message id="LinkCategory3">Termbaser:</message>
     <message id="LinkText3.1">MeSH&nbsp;Browser&nbsp;(NLM)</message>
-    <message id="LinkUrl3.1">http://www.nlm.nih.gov/cgi/mesh/2016/MB_cgi?term={1}&amp;exact=Find+Exact+Term&amp;field=uid</message>
+    <message id="LinkUrl3.1">https://meshb.nlm.nih.gov/#/record/ui?ui={1}</message>
     <message id="LinkText3.2">Svensk&nbsp;MeSH</message>
     <message id="LinkUrl3.2">https://mesh.kib.ki.se/term/{1}</message>
     <message id="LinkText3.3">HeTOP</message>
-    <message id="LinkUrl3.3">http://hetop.eu/hetop/#n=500&amp;lang=no&amp;q={2}</message>
+    <message id="LinkUrl3.3">http://hetop.eu/hetop/?la=no&tab=0&q={2}</message>
 
     <message id="Links">Lenker:</message>
     <message id="MeSH_ID">MeSH ID:</message>
