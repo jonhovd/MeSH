@@ -19,6 +19,7 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	m_es_util = new ElasticSearchUtil();
 
 	setTitle(Wt::WString::tr("AppName"));
+	addMetaHeader(Wt::MetaName, "viewport", "width=device-width, initial-scale=1.0");
 
 	WApplication::instance()->internalPathChanged().connect(this, &MeSHApplication::onInternalPathChange);
 
