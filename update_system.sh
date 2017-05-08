@@ -27,7 +27,8 @@ cd build &&
 sudo apt-get install cmake &&
 cmake ../ -DWT_CPP_11_MODE:STRING="-std=c++11" &&
 make -j2 &&
-sudo make install
+sudo make install &&
+sudo ldconfig
 
 # Oppdater med ny Wt-lokasjon
 cd ../../MeSH/ &&
