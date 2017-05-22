@@ -64,17 +64,6 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 	m_eng_description_text->setStyleClass("scope-note scope-class");
 	m_layout->addWidget(m_eng_description_text);
 
-	m_layout->addSpacing(Wt::WLength(2.0, Wt::WLength::FontEm));
-	
-	m_hierarchy_model = new Wt::WStandardItemModel(m_layout);
-	m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
-	m_hierarchy_tree_view = new Wt::WTreeView();
-	m_hierarchy_tree_view->setModel(m_hierarchy_model);
-	m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
-	m_layout->addWidget(m_hierarchy_tree_view);
-
-	m_layout->addSpacing(Wt::WLength(1.0, Wt::WLength::FontEm));
-
 	m_see_related_text = new Wt::WText(Wt::WString::tr("SeeRelated"));
 	m_layout->addWidget(m_see_related_text);
 	m_see_related_container = new Wt::WContainerWidget();
@@ -87,6 +76,15 @@ MeshResult::MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* 
 #endif
 	m_links = new Links();
 	m_layout->addWidget(m_links);
+
+	m_layout->addSpacing(Wt::WLength(2.0, Wt::WLength::FontEm));
+	
+	m_hierarchy_model = new Wt::WStandardItemModel(m_layout);
+	m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
+	m_hierarchy_tree_view = new Wt::WTreeView();
+	m_hierarchy_tree_view->setModel(m_hierarchy_model);
+	m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
+	m_layout->addWidget(m_hierarchy_tree_view);
 }
 
 MeshResult::~MeshResult()
