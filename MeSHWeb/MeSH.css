@@ -2,10 +2,6 @@
     font-size: 20pt !important;
 }
 
-.mesh-version {
-    font-size: 10pt !important;
-}
-
 @media print {
   * {
     font-size: 14pt !important;  
@@ -15,6 +11,168 @@
 .marked_item {
   color: white !important;
   background-color: black !important;
+}
+
+body {
+  font-family: 'Lato', sans-serif !important;
+  background-color: #eeeeee;
+}
+
+.page {
+	min-height: 100%;
+	overflow: scroll;
+}
+
+.info-box a, .mesh-link {
+  color: black;
+  background-color: #eeeeee;
+  text-align: center;
+  text-decoration: underline;
+  padding: 5px;
+}
+
+.mesh-header {
+  width: 100%;
+  padding: 1em;
+  color: #ffffff;
+  background-color: #535353;
+  background-image: url("images/helsebiblioteket_transparent.png");
+  background-repeat: no-repeat;
+  background-position: 10px;
+  border-bottom: 2px solid #ffffff;
+}
+.mesh-footer {
+  width: 100%;
+  padding: 1em;
+  background-color: white;
+  border-bottom: 2px solid #535353;
+}
+/*
+.mesh-footer {
+  width: 100%;
+  padding-top: 0.5em;
+  background-color: white;
+  border-top: 2px solid #535353;
+}
+*/
+.mesh-tabs {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 800px;
+}
+
+.Wt-tabs li {
+  border-bottom: none;
+  background: inherit;
+}
+
+.Wt-tabs .itemselected {
+  background-position: 0% 0%;
+}
+
+.Wt-tabs .item {
+  background-position: 0% 0%;
+}
+
+.Wt-tabs .itemselected a {
+  background-position: 0% 0%;
+  background: #abcdef;
+}
+
+.Wt-tabs .item a {
+  background-position: 0% 0%;
+  background: #89abcd;
+  margin: 0 1px;
+}
+
+.Wt-tabs {
+  padding-top: 0;
+  background: inherit;
+}
+
+.Wt-stack {
+  background: white;
+}
+
+.search-box {
+  padding: 1.5em;
+  background: #abcdef;
+}
+
+.result {
+  background: white;
+  padding: 0;
+  margin: 0 5px;
+}
+
+.result-description {
+  background: white;
+  margin-bottom: 2.5em;
+}
+
+.Wt-suggest {
+  background-color: #eeeeee;
+  color: black;
+}
+
+.mesh-links {
+}
+
+.mesh-link {
+  display: inline-block;
+  margin: 5px 1em;
+}
+
+.Wt-panel {
+  border: none !important;
+  background-color: white !important;
+}
+
+.Wt-panel .body {
+ background: white !important;
+}
+
+.Wt-panel .titlebar {
+  color: black !important;
+  background: white !important;
+  font-size: large !important;
+  font-weight: bold !important;
+}
+
+.scope {
+  font-weight: bold;
+  
+}
+
+.header {
+  background: white;
+  width: 100%
+}
+
+.mainfooter {
+  background: white;
+  width: 100%;
+  border-top: 3px solid lightgrey;
+}
+
+.dialog-layout {
+  background:#A8CCD8;
+}
+
+.Wt-dialog .titlebar {
+  background:#A8CCD8;
+  border-bottom: 1px solid grey;
+  color:black !important;
+}
+
+.Wt-tabs {
+  padding-top: 0 !important;
+}
+
+.Wt-treeview ul {
+  font-family: 'Lato', sans-serif !important;
+  font-size: 14px;
+  
 }
 
 /*

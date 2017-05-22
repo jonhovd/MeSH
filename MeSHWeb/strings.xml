@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
-    <message id="AppName">MeSH på norsk og engelsk</message>
-    <message id="AppVersion">Versjon 2016-desember</message>
-    <message id="AppAbout">Kontakt Helsebiblioteket.no</message>
-    <message id="AppAboutUrl">http://www.helsebiblioteket.no/om-oss/kontakt-oss</message>
+    <message id="AppName">MeSH på norsk - begreper innen medisin og helsefag</message>
+    <message id="AppAbout">Om søk, innhold og prosjekt</message>
+    <message id="AppAboutUrl">http://www.helsebiblioteket.no/om-oss/artikkelarkiv/mesh-medical-subject-headings-pa-norsk-og-engelsk</message>
     <message id="AppSendQuestion">Spørsmål om MeSH?</message>
     <message id="AppSendQuestionUrl">mailto:SigrunEspelien.Aasen@fhi.no?subject=Spørsmål om MeSH</message>
     <message id="AppStatistics">Statistikk</message>
-    <message id="AppStatisticsInternalPath">/statistics</message>
-    <message id="AppHelp">Hjelp</message>
-    <message id="AppHelpInternalPath">/help</message>
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope-Note:</message>
-    <message id="Hierarchy">Hierarki</message>
     <message id="IndirectHit">{1} ({2})</message>
-    
-    <message id="InfoText"><p>I feltet «Søk» kan du skrive inn en term på norsk eller engelsk. Du får listet opp forslag til norsk MeSH (hovedterm) og velger en av dem. Da vises all informasjon på norsk og engelsk på valgte term.</p>
-                           <p>Alternative termer er synonymer og nærliggende begrep som omfattes av definisjonen.</p>
-                           <p>Vil du se termens hierarkiske plassering, klikk på «Hierarki» og du kan velge f.eks. underordnet/overordnet term for videre søk. Klikk på termen, som blir farget blå og klikk igjen slik at du kommer inn på termens hovedside.</p>
-                           <br/>
-                           <p>Nederst på termens hovedside kan en søke i andre databaser ved å klikke på lenkene</p></message>
+    <message id="NotTranslated">(Ikke oversatt)</message>
+
+    <message id="Hierarchy">Hierarki-søk</message>
+    <message id="Search">Tekst-søk</message>
+    <message id="Statistics">Statistikk</message>
+
+    <message id="AppStatisticsInternalPath">/statistics</message>
+    <message id="MeshIdInternalPath">/mesh</message>
+    <message id="MeshIdInternalPathParam">id={1}</message>
+
+    <message id="LinkLabel">Søk på {1} i databasene under:</message>
 
     <message id="LinkCategoryFormat">LinkCategory{1}</message>
     <message id="LinkTextFormat">LinkText{1}.{2}</message>
     <message id="LinkUrlFormat">LinkUrl{1}.{2}</message>
     
-    <message id="LinkCategory1">Referansedatabaser:</message>
-    <message id="LinkText1.1">PubMed (helsebib)</message>
-    <message id="LinkUrl1.1">http://proxy.helsebiblioteket.no/login?url=http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
-    <message id="LinkText1.2">PubMed (alle)</message>
-    <message id="LinkUrl1.2">http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
-    <message id="LinkText1.3">SveMed+</message>
-    <message id="LinkUrl1.3">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
-    <message id="LinkText1.4">Cochrane&nbsp;library</message>
-    <message id="LinkUrl1.4">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
-    <message id="LinkText1.5">Oria</message>
-    <message id="LinkUrl1.5">http://bibsys-primo.hosted.exlibrisgroup.com/primo_library/libweb/action/dlSearch.do?institution=BIBSYS&amp;vid=BIBSYS&amp;search_scope=blended_scope&amp;query=lsr11,exact,{2}</message>
-    <message id="LinkText1.6">Virtual Health Library</message>
-    <message id="LinkUrl1.6">http://pesquisa.bvsalud.org/portal/?output=site&amp;lang=en&amp;from=0&amp;format=summary&amp;count=20&amp;page=1&amp;q=%22{2}%22&amp;index=mh</message>
+    <message id="LinkCategory1"> </message>
+    <message id="LinkText1.1">Virtual Health Library</message>
+    <message id="LinkUrl1.1">http://pesquisa.bvsalud.org/portal/?output=site&amp;lang=en&amp;from=0&amp;format=summary&amp;count=20&amp;page=1&amp;q=%22{2}%22&amp;index=mh</message>
+    <message id="LinkText1.2">Cochrane&nbsp;library</message>
+    <message id="LinkUrl1.2">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
+    <message id="LinkText1.3">PubMed (helsebib)</message>
+    <message id="LinkUrl1.3">http://proxy.helsebiblioteket.no/login?url=http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
+    <message id="LinkText1.4">PubMed (alle)</message>
+    <message id="LinkUrl1.4">http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
+    <message id="LinkText1.5">SveMed+</message>
+    <message id="LinkUrl1.5">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
+    <message id="LinkText1.6">Oria</message>
+    <message id="LinkUrl1.6">http://bibsys-primo.hosted.exlibrisgroup.com/primo_library/libweb/action/dlSearch.do?institution=BIBSYS&amp;vid=BIBSYS&amp;search_scope=blended_scope&amp;query=lsr11,exact,{2}</message>
 
-    <message id="LinkCategory2">Oppslagsverk:</message>
+    <message id="LinkCategory2"> </message>
     <message id="LinkText2.1">BMJ&nbsp;Best&nbsp;practice</message>
     <message id="LinkUrl2.1">http://bestpractice.bmj.com/best-practice/search.html?searchableText={2}&amp;languageCode=en</message>
     <message id="LinkText2.2">MedlinePlus</message>
@@ -47,29 +47,32 @@
 
     <message id="LinkCategory3">Termbaser:</message>
     <message id="LinkText3.1">MeSH&nbsp;Browser&nbsp;(NLM)</message>
-    <message id="LinkUrl3.1">https://meshb.nlm.nih.gov/#/record/ui?ui={1}</message>
+    <message id="LinkUrl3.1">https://meshb-prev.nlm.nih.gov/#/record/ui?ui={1}</message>
     <message id="LinkText3.2">Svensk&nbsp;MeSH</message>
     <message id="LinkUrl3.2">https://mesh.kib.ki.se/term/{1}</message>
     <message id="LinkText3.3">HeTOP</message>
     <message id="LinkUrl3.3">http://hetop.eu/hetop/?la=no&amp;tab=0&amp;q={2}</message>
 
     <message id="Links">Lenker:</message>
-    <message id="MeSH_ID">MeSH ID:</message>
+    <message id="SeeRelated">Se også:</message>
     <message id="MoreHits">(viser maksimalt {1} treff)</message>
     <message id="NoHits">(...ingen treff)</message>
     <message id="NonPreferredNorwegianTerms">Alternative termer:</message>
     <message id="NonPreferredEnglishTerms">Alternative engelske termer:</message>
     <message id="PreferredNorwegianTerm"></message>
     <message id="PreferredEnglishTerm"></message>
-    <message id="Search">Søk</message>
+    <message id="SearchButton">SØK</message>
     <message id="SearchFromHierarchy">Søk etter "{1}"</message>
-    <message id="Statistics">Statistikk</message>
     <message id="StatisticsPerDay">Søk pr dag:</message>
     <message id="StatisticsPerMeSH">Søk pr MeSH:</message>
 
+    <message id="SearchTooltip">MeSH på norsk - søk på begreper innen medisin og helsefag</message>
+    <message id="SearchbuttonTooltip">Søk og vis treff i listeform</message>
+	
     <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}, {"name": {"order": "asc"}}], "query": {"bool": {"should": [{"term": {"name": {"value": "{3}", "boost": 3} } }, {"term": {"id": {"value": "{3}", "boost": 2} } }, {"simple_query_string": {"query": "{4}", "fields": ["name","id","concepts.name","concepts.terms.text"], "default_operator": "AND"} }] } } }</message>
     <message id="SearchFilterQuery">{"from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
     <message id="HierarchyTopNodesQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"top_node": "yes"} } } } } } }</message>
+    <message id="HierarchyTreeNodeQuery">{"from": 0, "size": 1, "query": {"bool": {"must": {"term": {"tree_numbers": "{1}"} } } } }</message>
     <message id="HierarchyChildrenQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"bool": {"must": {"term": {"parent_tree_numbers": "{1}"} } } } }</message>
     <message id="StatisticsDay">{"from": 0, "size": 50, "sort": {"_uid": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
     <message id="StatisticsText">{"from": 0, "size": 50, "sort": {"count": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
