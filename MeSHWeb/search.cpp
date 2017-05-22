@@ -24,6 +24,7 @@ Search::Search(MeSHApplication* mesh_application, Wt::WContainerWidget* parent)
     searchform_container->setLayout(searchform_hbox);
 
 	m_search_edit = new Wt::WLineEdit();
+	m_search_edit->setToolTip(Wt::WString::tr("SearchTooltip"));
     m_search_edit->focussed().connect(this, &Search::OnSearchEditFocussed);
     m_search_suggestion = CreateSuggestionPopup(this);
     m_search_suggestion->forEdit(m_search_edit);
@@ -35,6 +36,7 @@ Search::Search(MeSHApplication* mesh_application, Wt::WContainerWidget* parent)
     searchform_hbox->addWidget(m_search_edit, 1, Wt::AlignJustify);
 
 	m_search_button = new Wt::WPushButton(Wt::WString::tr("SearchButton"));
+	m_search_button->setToolTip(Wt::WString::tr("SearchbuttonTooltip"));
 	m_search_button->clicked().connect(this, &Search::SearchButtonClicked);
 	searchform_hbox->addWidget(m_search_button, 0, Wt::AlignLeft);
 

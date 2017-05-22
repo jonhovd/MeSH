@@ -26,18 +26,18 @@
     <message id="LinkUrlFormat">LinkUrl{1}.{2}</message>
     
     <message id="LinkCategory1"> </message>
-    <message id="LinkText1.1">Cochrane&nbsp;library</message>
-    <message id="LinkUrl1.1">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
-    <message id="LinkText1.2">PubMed (helsebib)</message>
-    <message id="LinkUrl1.2">http://proxy.helsebiblioteket.no/login?url=http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
-    <message id="LinkText1.3">PubMed (alle)</message>
-    <message id="LinkUrl1.3">http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
-    <message id="LinkText1.4">SveMed+</message>
-    <message id="LinkUrl1.4">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
-    <message id="LinkText1.5">Oria</message>
-    <message id="LinkUrl1.5">http://bibsys-primo.hosted.exlibrisgroup.com/primo_library/libweb/action/dlSearch.do?institution=BIBSYS&amp;vid=BIBSYS&amp;search_scope=blended_scope&amp;query=lsr11,exact,{2}</message>
-	<message id="LinkText1.6">Virtual Health Library</message>
-    <message id="LinkUrl1.6">http://pesquisa.bvsalud.org/portal/?output=site&amp;lang=en&amp;from=0&amp;format=summary&amp;count=20&amp;page=1&amp;q=%22{2}%22&amp;index=mh</message>
+	<message id="LinkText1.1">Virtual Health Library</message>
+    <message id="LinkUrl1.1">http://pesquisa.bvsalud.org/portal/?output=site&amp;lang=en&amp;from=0&amp;format=summary&amp;count=20&amp;page=1&amp;q=%22{2}%22&amp;index=mh</message>
+    <message id="LinkText1.2">Cochrane&nbsp;library</message>
+    <message id="LinkUrl1.2">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
+    <message id="LinkText1.3">PubMed (helsebib)</message>
+    <message id="LinkUrl1.3">http://proxy.helsebiblioteket.no/login?url=http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
+    <message id="LinkText1.4">PubMed (alle)</message>
+    <message id="LinkUrl1.4">http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
+    <message id="LinkText1.5">SveMed+</message>
+    <message id="LinkUrl1.5">http://svemedplus.kib.ki.se/Default.aspx?query=exp:%22{2}%22%20Limits:%20mesh_en:%22{2}%22&amp;searchform=simple</message>
+    <message id="LinkText1.6">Oria</message>
+    <message id="LinkUrl1.6">http://bibsys-primo.hosted.exlibrisgroup.com/primo_library/libweb/action/dlSearch.do?institution=BIBSYS&amp;vid=BIBSYS&amp;search_scope=blended_scope&amp;query=lsr11,exact,{2}</message>
 
     <message id="LinkCategory2"> </message>
     <message id="LinkText2.1">BMJ&nbsp;Best&nbsp;practice</message>
@@ -66,6 +66,9 @@
     <message id="StatisticsPerDay">Søk pr dag:</message>
     <message id="StatisticsPerMeSH">Søk pr MeSH:</message>
 
+    <message id="SearchTooltip">MeSH på norsk - søk på begreper innen medisin og helsefag</message>
+    <message id="SearchbuttonTooltip">Søk og vis treff i listeform</message>
+	
     <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}, {"name": {"order": "asc"}}], "query": {"bool": {"should": [{"term": {"name": {"value": "{3}", "boost": 3} } }, {"term": {"id": {"value": "{3}", "boost": 2} } }, {"simple_query_string": {"query": "{4}", "fields": ["name","id","concepts.name","concepts.terms.text"], "default_operator": "AND"} }] } } }</message>
     <message id="SearchFilterQuery">{"from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
     <message id="HierarchyTopNodesQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"top_node": "yes"} } } } } } }</message>
