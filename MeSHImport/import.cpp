@@ -43,6 +43,12 @@ void printUpdateHierarchyStatus(int current, int total)
     fflush(stdout);
 }
 
+void printUpdateChildNumbers(int count, int updated_count)
+{
+    fprintf(stdout, "Updating child numbers: %d / %d\r", count, updated_count);
+    fflush(stdout);
+}
+
 long ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
 {
     try
@@ -582,12 +588,15 @@ void UpdateChildTreeNumbers()
 {
     Json::Array resultArray;
     std::string scroll_id;
+	int count = 0, updated_count = 0;
     if (g_es->initScroll(scroll_id, "mesh", CONST_CHAR(g_language_code), "", 1))
     {
         while (g_es->scrollNext(scroll_id, resultArray))
         {
             if (resultArray.empty())
                 break;
+
+			count += resultArray.size();
 
             Json::Array::const_iterator hits_iterator = resultArray.begin();
             for (; hits_iterator!=resultArray.end(); ++hits_iterator)
@@ -618,10 +627,14 @@ void UpdateChildTreeNumbers()
 
                 if (!children_tree_number_array.empty())
                 {
+					updated_count += children_tree_number_array.size();
+
                     Json::Object updated_value_object;
                     updated_value_object.addMemberByKey("child_tree_numbers", children_tree_number_array);
                     g_es->update("mesh", CONST_CHAR(g_language_code), id_value_str, updated_value_object);
                 }
+
+                printUpdateChildNumbers(count, updated_count);
             }
             resultArray.clear();
         }
