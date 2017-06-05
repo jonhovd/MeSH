@@ -69,7 +69,7 @@
     <message id="SearchTooltip">MeSH på norsk - søk på begreper innen medisin og helsefag</message>
     <message id="SearchbuttonTooltip">Søk og vis treff i listeform</message>
 	
-    <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}, {"name": {"order": "asc"}}], "query": {"bool": {"should": [{"term": {"name": {"value": "{3}", "boost": 3} } }, {"term": {"id": {"value": "{3}", "boost": 2} } }, {"simple_query_string": {"query": "{4}", "fields": ["name","id","concepts.name","concepts.terms.text"], "default_operator": "AND"} }] } } }</message>
+    <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}, {"name": {"order": "asc"}}], "query": {"bool": {"should": [{"term": {"name": {"value": "{3}", "boost": 3} } }, {"term": {"id": {"value": "{3}", "boost": 2} } }, {"simple_query_string": {"query": "{4}", "fields": ["name","id","concepts.name","concepts.terms.text","_all"], "default_operator": "AND"} }] } } }</message>
     <message id="SearchFilterQuery">{"from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
     <message id="HierarchyTopNodesQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"top_node": "yes"} } } } } } }</message>
     <message id="HierarchyTreeNodeQuery">{"from": 0, "size": 1, "query": {"bool": {"must": {"term": {"tree_numbers": "{1}"} } } } }</message>
