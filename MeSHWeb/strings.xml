@@ -47,7 +47,7 @@
 
     <message id="LinkCategory3">Termbaser:</message>
     <message id="LinkText3.1">MeSH&nbsp;Browser&nbsp;(NLM)</message>
-    <message id="LinkUrl3.1">https://meshb-prev.nlm.nih.gov/#/record/ui?ui={1}</message>
+    <message id="LinkUrl3.1">https://meshb.nlm.nih.gov/record/ui?ui={1}</message>
     <message id="LinkText3.2">Svensk&nbsp;MeSH</message>
     <message id="LinkUrl3.2">https://mesh.kib.ki.se/term/{1}</message>
     <message id="LinkText3.3">HeTOP</message>
