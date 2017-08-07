@@ -9,7 +9,7 @@ Info::Info(Wt::WContainerWidget* parent)
 {
 	setStyleClass("info-box");
 	m_layout = new Wt::WVBoxLayout();
-	m_layout->setContentsMargins(0, 0, 0, 0);
+	m_layout->setContentsMargins(0, 0, 8, 0);
 	setLayout(m_layout);
 
 	Wt::WAnchor* appabout_anchor = new Wt::WAnchor(Wt::WLink(Wt::WString::tr("AppAboutUrl").toUTF8()), Wt::WString::tr("AppAbout"));

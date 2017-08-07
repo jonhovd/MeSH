@@ -1,7 +1,3 @@
-.mesh-appname {
-    font-size: 20pt !important;
-}
-
 @media print {
   * {
     font-size: 14pt !important;  
@@ -14,13 +10,18 @@
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
   font-family: 'Lato', sans-serif !important;
   background-color: #eeeeee;
+  overflow: auto !important;
 }
 
-.page {
-	min-height: 100%;
-	overflow: scroll;
+#page {
+  min-height: 100%;
+  position:relative;
 }
 
 .info-box a, .mesh-link {
@@ -31,9 +32,9 @@ body {
   padding: 5px;
 }
 
-.mesh-header {
+#mesh-header {
   width: 100%;
-  padding: 1em;
+  padding: 8px 0;
   color: #ffffff;
   background-color: #535353;
   background-image: url("images/helsebiblioteket_transparent.png");
@@ -41,20 +42,29 @@ body {
   background-position: 10px;
   border-bottom: 2px solid #ffffff;
 }
-.mesh-footer {
-  width: 100%;
-  padding: 1em;
-  background-color: white;
-  border-bottom: 2px solid #535353;
+
+#mesh-content {
+  padding-top: 8px;
+  padding-bottom: 142px; /* Height of mesh-footer plus padding and whitespace */
 }
-/*
-.mesh-footer {
+
+#mesh-footer {
+  position: absolute;
+  bottom: 0;
   width: 100%;
-  padding-top: 0.5em;
+  padding-top: 8px;
+  height: 122px; /* Height of the footer image (112px) plus vertical border and padding */
   background-color: white;
+  background-image: url("images/logo.png");
+  background-repeat: no-repeat;
+  background-position: 8px;
   border-top: 2px solid #535353;
 }
-*/
+
+.mesh-appname {
+  font-size: 20pt !important;
+}
+
 .mesh-tabs {
   margin-left: auto;
   margin-right: auto;
@@ -142,17 +152,6 @@ body {
 .scope {
   font-weight: bold;
   
-}
-
-.header {
-  background: white;
-  width: 100%
-}
-
-.mainfooter {
-  background: white;
-  width: 100%;
-  border-top: 3px solid lightgrey;
 }
 
 .dialog-layout {

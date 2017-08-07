@@ -7,6 +7,7 @@
 #include <Wt/WTabWidget>
 
 #include "elasticsearchutil.h"
+#include "header.h"
 #include "hierarchy.h"
 #include "search.h"
 #include "statistics.h"
@@ -56,13 +57,20 @@ public:
 	Hierarchy* GetHierarchy() const {return m_hierarchy;}
 
 private:
+	Wt::WContainerWidget* CreateHeaderWidget();
+	Wt::WContainerWidget* CreateContentWidget();
+	Wt::WContainerWidget* CreateFooterWidget();
+
+private:
 	Wt::JSignal<Wt::WString> m_search_signal;
 
 	bool m_layout_is_cleared;
 
+	Wt::WContainerWidget* m_tabs_container;
 	Wt::WTabWidget* m_tab_widget;
 	Statistics* m_statistics;
 
+	Header* m_header;
 	Search* m_search;
 	Hierarchy* m_hierarchy;
 	Footer* m_footer;

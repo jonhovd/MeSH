@@ -5,7 +5,6 @@
 #include <Wt/WHBoxLayout>
 
 #include "info.h"
-#include "logo.h"
 
 
 class Footer : public Wt::WContainerWidget
@@ -16,7 +15,6 @@ public:
 
 private:
 	Wt::WHBoxLayout* m_layout;
-	Logo*  m_logo;
 	Info*  m_info;
 };
 

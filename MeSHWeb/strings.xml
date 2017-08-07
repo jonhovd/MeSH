@@ -76,4 +76,6 @@
     <message id="HierarchyChildrenQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"bool": {"must": {"term": {"parent_tree_numbers": "{1}"} } } } }</message>
     <message id="StatisticsDay">{"from": 0, "size": 50, "sort": {"_uid": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
     <message id="StatisticsText">{"from": 0, "size": 50, "sort": {"count": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
+
+	<message id="PageTemplate"> <div id="page"><div id="mesh-header">${HeaderWidget}</div><div id="mesh-content">${ContentWidget}</div><div id="mesh-footer">${FooterWidget}</div></div> </message>
 </messages>

@@ -1,18 +1,21 @@
 #include "application.h"
 
 #include "global.h"
-#include "header.h"
-#include "footer.h"
 
 #include <Wt/WHBoxLayout>
 #include <Wt/WScrollArea>
+#include <Wt/WTemplate>
 #include <Wt/WTable>
 
 
 MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
-  m_search_signal(this, "search")
+  m_search_signal(this, "search"),
+  m_tabs_container(nullptr),
+  m_header(nullptr),
+  m_footer(nullptr)
 {
+
 	messageResourceBundle().use(appRoot() + "strings");
 	useStyleSheet(Wt::WLink("MeSH.css"));
 
@@ -27,69 +30,11 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	root_vbox->setContentsMargins(0, 0, 0, 0);
 	root()->setLayout(root_vbox);
 
-	Wt::WContainerWidget* page_container = new Wt::WContainerWidget();
-	Wt::WVBoxLayout* page_layout = new Wt::WVBoxLayout();
-	page_layout->setContentsMargins(0, 0, 0, 0);
-	page_container->setLayout(page_layout);
-	page_container->setStyleClass("page");
-	page_container->setId("pageId");
-
-	//Header
-#if 0
-	Header* header = new Header();
-	page_layout->addWidget(header, 0);
-#else
-	m_footer = new Footer();
-	page_layout->addWidget(m_footer, 0);
-#endif
-
-	//Tabs
-	Wt::WContainerWidget* tabs_container = new Wt::WContainerWidget();
-	Wt::WHBoxLayout* tabs_hbox = new Wt::WHBoxLayout();
-	tabs_hbox->setContentsMargins(0, 0, 0, 0);
-	tabs_container->setLayout(tabs_hbox);
-
-	m_tab_widget = new Wt::WTabWidget();
-	m_tab_widget->setStyleClass("mesh-tabs");
-
-	//Search-tab
-	m_search = new Search(this);
-	m_tab_widget->addTab(m_search, Wt::WString::tr("Search"));
-    m_search_signal.connect(this, &MeSHApplication::SearchMesh);
-
-	//Hierarchy-tab
-	m_hierarchy = new Hierarchy(this);
-	m_tab_widget->addTab(m_hierarchy, Wt::WString::tr("Hierarchy"));
-
-	m_tab_widget->currentChanged().connect(this, &MeSHApplication::onTabChanged);
-
-	//Statistics-tab
-	m_statistics = new Statistics(this);
-	m_tab_widget->addTab(m_statistics, Wt::WString::tr("Statistics"));
-	m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
-
-	Wt::WContainerWidget* tmp_tab_container = new Wt::WContainerWidget(); //stretch and tabwidget doesn't mix very well. Wrap tabwidget in a containerwidget
-	tmp_tab_container->addWidget(m_tab_widget);
-
-	tabs_hbox->addStretch(1); //Add left margin
-	tabs_hbox->addWidget(tmp_tab_container);
-	tabs_hbox->addStretch(1); //Add right margin
-
-	page_layout->addWidget(tabs_container, 1); //Header and footer is static. tabs_container should take rest of available space
-
-#if 0
-	//Footer
-	m_footer = new Footer();
-	page_layout->addWidget(m_footer, 0);
-#endif
-
-#if 0
-	Wt::WScrollArea* scroll_area = new Wt::WScrollArea();
-	scroll_area->setWidget(page_container);
-	root_vbox->addWidget(scroll_area);
-#else
-	root_vbox->addWidget(page_container);
-#endif
+	Wt::WTemplate* page_template = new Wt::WTemplate(Wt::WString::tr("PageTemplate"));
+	page_template->bindWidget("HeaderWidget", CreateHeaderWidget());
+	page_template->bindWidget("ContentWidget", CreateContentWidget());
+	page_template->bindWidget("FooterWidget", CreateFooterWidget());
+	root_vbox->addWidget(page_template);
 
 	ClearLayout();
 
@@ -170,4 +115,61 @@ void MeSHApplication::parseIdFromUrl(const std::string& url, std::string& id)
 		}
 		separator = strchr(separator+1, '&');
 	}
+}
+
+Wt::WContainerWidget* MeSHApplication::CreateHeaderWidget()
+{
+	if (!m_header)
+	{
+		m_header = new Header();
+	}
+	return m_header;
+}
+
+Wt::WContainerWidget* MeSHApplication::CreateContentWidget()
+{
+	if (!m_tabs_container)
+	{
+		m_tabs_container = new Wt::WContainerWidget();
+		m_tabs_container->setStyleClass("mesh-content");
+		Wt::WHBoxLayout* tabs_hbox = new Wt::WHBoxLayout();
+		tabs_hbox->setContentsMargins(0, 0, 0, 0);
+		m_tabs_container->setLayout(tabs_hbox);
+
+		m_tab_widget = new Wt::WTabWidget();
+		m_tab_widget->setStyleClass("mesh-tabs");
+
+		//Search-tab
+		m_search = new Search(this);
+		m_tab_widget->addTab(m_search, Wt::WString::tr("Search"));
+		m_search_signal.connect(this, &MeSHApplication::SearchMesh);
+
+		//Hierarchy-tab
+		m_hierarchy = new Hierarchy(this);
+		m_tab_widget->addTab(m_hierarchy, Wt::WString::tr("Hierarchy"));
+
+		m_tab_widget->currentChanged().connect(this, &MeSHApplication::onTabChanged);
+
+		//Statistics-tab
+		m_statistics = new Statistics(this);
+		m_tab_widget->addTab(m_statistics, Wt::WString::tr("Statistics"));
+		m_tab_widget->setTabHidden(TAB_INDEX_STATISTICS, true);
+
+		Wt::WContainerWidget* tmp_tab_container = new Wt::WContainerWidget(); //stretch and tabwidget doesn't mix very well. Wrap tabwidget in a containerwidget
+		tmp_tab_container->addWidget(m_tab_widget);
+
+		tabs_hbox->addStretch(1); //Add left margin
+		tabs_hbox->addWidget(tmp_tab_container);
+		tabs_hbox->addStretch(1); //Add right margin
+	}
+	return m_tabs_container;
+}
+
+Wt::WContainerWidget* MeSHApplication::CreateFooterWidget()
+{
+	if (!m_footer)
+	{
+		m_footer = new Footer();
+	}
+	return m_footer;
 }
