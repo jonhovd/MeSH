@@ -1,18 +1,21 @@
 #include "appname.h"
 
-#include <Wt/WText>
+#include <memory>
+
+#include <Wt/WVBoxLayout.h>
+#include <Wt/WText.h>
 
 
-AppName::AppName(Wt::WContainerWidget* parent)
-: Wt::WContainerWidget(parent)
+AppName::AppName()
+: Wt::WContainerWidget()
 {
-	m_layout = new Wt::WVBoxLayout();
-	m_layout->setContentsMargins(0, 0, 0, 0);
-	setLayout(m_layout);
+	auto layout = std::make_unique<Wt::WVBoxLayout>();
+	layout->setContentsMargins(0, 0, 0, 0);
+	setLayout(std::move(layout));
 
-	Wt::WText* appname_text = new Wt::WText(Wt::WString::tr("AppName"));
+	auto appname_text = std::make_unique<Wt::WText>(Wt::WString::tr("AppName"));
 	appname_text->setStyleClass("mesh-appname");
-	m_layout->addWidget(appname_text);
+	layout->addWidget(std::move(appname_text));
 }
 
 AppName::~AppName()

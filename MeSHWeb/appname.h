@@ -1,18 +1,14 @@
 #ifndef _APPNAME_H_
 #define _APPNAME_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WVBoxLayout>
+#include <Wt/WContainerWidget.h>
 
 
 class AppName : public Wt::WContainerWidget
 {
 public:
-	AppName(Wt::WContainerWidget* parent = 0);
+	AppName();
 	~AppName();
-
-private:
-   Wt::WVBoxLayout* m_layout;
 };
 
 #endif // _APPNAME_H_

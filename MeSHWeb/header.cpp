@@ -1,19 +1,21 @@
 #include "header.h"
 
-#include <Wt/WImage>
+#include <Wt/WHBoxLayout.h>
+
+#include "appname.h"
 
 
-Header::Header(Wt::WContainerWidget* parent)
-: Wt::WContainerWidget(parent)
+Header::Header()
+: Wt::WContainerWidget()
 {
 	setStyleClass("mesh-header");
 
-	m_layout = new Wt::WHBoxLayout();
-	m_layout->setContentsMargins(0, 0, 0, 0);
-	setLayout(m_layout);
+	auto layout = std::make_unique<Wt::WHBoxLayout>();
+	layout->setContentsMargins(0, 0, 0, 0);
+	setLayout(std::move(layout));
 
-	m_app_name = new AppName();
-	m_layout->addWidget(m_app_name, 0, Wt::AlignCenter);
+	auto app_name = std::make_unique<AppName>();
+	layout->addWidget(std::move(app_name), 0, Wt::AlignmentFlag::Center);
 }
 
 Header::~Header()

@@ -1,13 +1,11 @@
 #ifndef _SEARCH_H_
 #define _SEARCH_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WStandardItem>
-#include <Wt/WStandardItemModel>
-#include <Wt/WSuggestionPopup>
-#include <Wt/WVBoxLayout>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WStandardItem.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WSuggestionPopup.h>
 
 #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
@@ -20,7 +18,7 @@ class MeSHApplication;
 class Search : public Wt::WContainerWidget
 {
 public:
-	Search(MeSHApplication* mesh_application, Wt::WContainerWidget* parent = 0);
+	Search(MeSHApplication* mesh_application);
 	~Search();
 
 public:
@@ -37,7 +35,7 @@ protected:
 	void FilterSuggestion(const Wt::WString& filter);
 	
 private:
-	Wt::WSuggestionPopup* CreateSuggestionPopup(Wt::WContainerWidget* parent);
+	Wt::WSuggestionPopup* CreateSuggestionPopup();
 
 public:
 	static void CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str);
@@ -53,13 +51,10 @@ private:
 
 private:
 	MeSHApplication* m_mesh_application;
-	Wt::WVBoxLayout* m_layout;
 
 	Wt::WLineEdit* m_search_edit;
 	Wt::WSuggestionPopup* m_search_suggestion;
-	Wt::WStandardItemModel* m_search_suggestion_model;
-
-	Wt::WPushButton* m_search_button;
+	std::shared_ptr<Wt::WStandardItemModel> m_search_suggestion_model;
 
 	MeshResultList* m_mesh_resultlist;
 	MeshResult* m_mesh_result;

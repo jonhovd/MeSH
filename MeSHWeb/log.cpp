@@ -1,6 +1,6 @@
 #include "log.h"
 
-#include <Wt/WDate>
+#include <Wt/WDate.h>
 
 #include "application.h"
 

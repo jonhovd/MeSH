@@ -1,21 +1,15 @@
 #ifndef _HEADER_H_
 #define _HEADER_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WHBoxLayout>
-
-#include "appname.h"
+#include <Wt/WContainerWidget.h>
 
 
 class Header : public Wt::WContainerWidget
 {
 public:
-	Header(Wt::WContainerWidget* parent = 0);
+	Header();
 	~Header();
 
-private:
-	Wt::WHBoxLayout* m_layout;
-	AppName* m_app_name;
 };
 
 #endif // _HEADER_H_

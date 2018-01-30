@@ -1,54 +1,56 @@
 #include "search.h"
 
 #include <boost/algorithm/string/split.hpp>
+#include <boost/any.hpp>
 #include <boost/locale/conversion.hpp>
-#include <Wt/Utils>
-#include <Wt/WHBoxLayout>
-#include <Wt/WStringListModel>
+#include <Wt/Utils.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WStringListModel.h>
 
 #include "application.h"
 #include "log.h"
 
 
-Search::Search(MeSHApplication* mesh_application, Wt::WContainerWidget* parent)
-: Wt::WContainerWidget(parent),
+Search::Search(MeSHApplication* mesh_application)
+: Wt::WContainerWidget(),
   m_mesh_application(mesh_application)
 {
-    m_layout = new Wt::WVBoxLayout();
-    m_layout->setContentsMargins(0, 0, 0, 0);
-    setLayout(m_layout);
+    auto layout = std::make_unique<Wt::WVBoxLayout>();
+    layout->setContentsMargins(0, 0, 0, 0);
+    setLayout(std::move(layout));
 
-    Wt::WContainerWidget* searchform_container = new Wt::WContainerWidget();
+    auto searchform_container = std::make_unique<Wt::WContainerWidget>();
 	searchform_container->setStyleClass("search-box");
-    Wt::WHBoxLayout*  searchform_hbox = new Wt::WHBoxLayout();
-    searchform_container->setLayout(searchform_hbox);
+    auto searchform_hbox = std::make_unique<Wt::WHBoxLayout>();
+    searchform_container->setLayout(std::move(searchform_hbox));
 
-	m_search_edit = new Wt::WLineEdit();
-	m_search_edit->setToolTip(Wt::WString::tr("SearchTooltip"));
-    m_search_edit->focussed().connect(this, &Search::OnSearchEditFocussed);
-    m_search_suggestion = CreateSuggestionPopup(this);
-    m_search_suggestion->forEdit(m_search_edit);
-    m_search_suggestion_model = new Wt::WStandardItemModel(m_layout);
+	auto search_edit = std::make_unique<Wt::WLineEdit>();
+	search_edit->setToolTip(Wt::WString::tr("SearchTooltip"));
+    search_edit->focussed().connect(this, &Search::OnSearchEditFocussed);
+    m_search_suggestion = CreateSuggestionPopup();
+    m_search_suggestion->forEdit(search_edit.get());
+    m_search_suggestion_model = std::make_shared<Wt::WStandardItemModel>();
     m_search_suggestion->setModel(m_search_suggestion_model);
     m_search_suggestion->setFilterLength(2);
     m_search_suggestion->filterModel().connect(this, &Search::FilterSuggestion);
     m_search_suggestion_model->itemChanged().connect(this, &Search::SuggestionChanged);
-    searchform_hbox->addWidget(m_search_edit, 1, Wt::AlignJustify);
+    m_search_edit = searchform_hbox->addWidget(std::move(search_edit), 1, Wt::AlignmentFlag::Justify);
 
-	m_search_button = new Wt::WPushButton(Wt::WString::tr("SearchButton"));
-	m_search_button->setToolTip(Wt::WString::tr("SearchbuttonTooltip"));
-	m_search_button->clicked().connect(this, &Search::SearchButtonClicked);
-	searchform_hbox->addWidget(m_search_button, 0, Wt::AlignLeft);
+	auto search_button = std::make_unique<Wt::WPushButton>(Wt::WString::tr("SearchButton"));
+	search_button->setToolTip(Wt::WString::tr("SearchbuttonTooltip"));
+	search_button->clicked().connect(this, &Search::SearchButtonClicked);
+	searchform_hbox->addWidget(std::move(search_button), 0, Wt::AlignmentFlag::Left);
 
-	m_layout->addWidget(searchform_container);
+	layout->addWidget(std::move(searchform_container));
 
-	m_mesh_resultlist = new MeshResultList(mesh_application);
-    m_layout->addWidget(m_mesh_resultlist);
+	auto mesh_resultlist = std::make_unique<MeshResultList>(mesh_application);
+    m_mesh_resultlist = layout->addWidget(std::move(mesh_resultlist));
 
-	m_mesh_result = new MeshResult(mesh_application);
-    m_layout->addWidget(m_mesh_result);
+	auto mesh_result = std::make_unique<MeshResult>(mesh_application);
+    m_mesh_result = layout->addWidget(std::move(mesh_result));
 
-	m_layout->addStretch(1);
+	layout->addStretch(1);
 }
 
 Search::~Search()
@@ -116,9 +118,9 @@ void Search::FilterSuggestion(const Wt::WString& filter)
     int row = 0;
     if (0 == result_size)
     {
-            Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("NoHits"));
+            auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::tr("NoHits"));
             item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
-            m_search_suggestion_model->setItem(row++, 0, item);
+            m_search_suggestion_model->setItem(row++, 0, std::move(item));
     }
     else
     {
@@ -140,7 +142,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
 
             const std::string lowercase_name_value_str = boost::locale::to_lower(name_value.getString());
             std::string indirect_hit_str;
-            Wt::WStandardItem* item;
+            std::unique_ptr<Wt::WStandardItem> item;
             if (std::string::npos == lowercase_name_value_str.find(lowercase_filter_str))
             {
                 FindIndirectHit(source_object, cleaned_filter_str, indirect_hit_str);
@@ -148,14 +150,14 @@ void Search::FilterSuggestion(const Wt::WString& filter)
             
             if (!indirect_hit_str.empty())
             {
-                item = new Wt::WStandardItem(Wt::WString::tr("IndirectHit").arg(name_value.getString()).arg(indirect_hit_str));
+                item = std::make_unique<Wt::WStandardItem>(Wt::WString::tr("IndirectHit").arg(name_value.getString()).arg(indirect_hit_str));
             }
             else
             {
-                item = new Wt::WStandardItem(Wt::WString::fromUTF8(name_value.getString()));
+                item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(name_value.getString()));
             }
             item->setData(boost::any(id_value.getString()), SUGGESTIONLIST_ITEM_ID_ROLE);
-            m_search_suggestion_model->setItem(row, 0, item);
+            m_search_suggestion_model->setItem(row, 0, std::move(item));
 
             ++iterator;
         }
@@ -164,16 +166,16 @@ void Search::FilterSuggestion(const Wt::WString& filter)
 
         if (hits_array.size() > SUGGESTION_COUNT)
         {
-            Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::tr("MoreHits").arg(SUGGESTION_COUNT));
+            auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::tr("MoreHits").arg(SUGGESTION_COUNT));
             item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
-            m_search_suggestion_model->setItem(row++, 0, item);
+            m_search_suggestion_model->setItem(row++, 0, std::move(item));
         }
     }
 
-    m_search_suggestion_model->setData(--row, 0, std::string("Wt-more-data"), Wt::StyleClassRole);
+    m_search_suggestion_model->setData(--row, 0, std::string("Wt-more-data"), Wt::ItemDataRole::StyleClass);
 }
 
-Wt::WSuggestionPopup* Search::CreateSuggestionPopup(Wt::WContainerWidget* parent)
+Wt::WSuggestionPopup* Search::CreateSuggestionPopup()
 {
     std::string matcherJS = INLINE_JAVASCRIPT(
         function (edit) {
@@ -210,7 +212,7 @@ Wt::WSuggestionPopup* Search::CreateSuggestionPopup(Wt::WContainerWidget* parent
         }
      );
 
-    Wt::WSuggestionPopup* popup = new Wt::WSuggestionPopup(matcherJS, replacerJS, parent);
+    Wt::WSuggestionPopup* popup = new Wt::WSuggestionPopup(matcherJS, replacerJS);
 	popup->setJavaScriptMember("wtNoReparent", "true");
     return popup;
 }
@@ -247,14 +249,14 @@ void Search::FindIndirectHit(const Json::Object& source_object, const std::strin
         {
             const Json::Value description_value = concept_object.getValue("description");
             std::string description_str = description_value.getString();
-            boost::replace_all(description_str, "\\n", "\n");
+            boost::algorithm::replace_all(description_str, "\\n", "\n");
             FindIndirectHit(description_str, cleaned_filter_str, best_hit_factor, indirect_hit_str);
         }
         if (concept_object.member("english_description"))
         {
             const Json::Value description_value = concept_object.getValue("english_description");
             std::string description_str = description_value.getString();
-            boost::replace_all(description_str, "\\n", "\n");
+            boost::algorithm::replace_all(description_str, "\\n", "\n");
             FindIndirectHit(description_str, cleaned_filter_str, best_hit_factor, indirect_hit_str);
         }
 #endif

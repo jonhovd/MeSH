@@ -1,15 +1,15 @@
 #ifndef _STATISTICS_H_
 #define _STATISTICS_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WGridLayout>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WGridLayout.h>
 
 
 class MeSHApplication;
 class Statistics : public Wt::WContainerWidget
 {
 public:
-	Statistics(const MeSHApplication* mesh_application, Wt::WContainerWidget* parent = 0);
+	Statistics(const MeSHApplication* mesh_application);
 	~Statistics();
 
 public:

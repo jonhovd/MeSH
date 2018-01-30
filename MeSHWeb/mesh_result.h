@@ -1,12 +1,12 @@
 #ifndef _MESH_RESULT_H_
 #define _MESH_RESULT_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WPanel>
-#include <Wt/WStandardItemModel>
-#include <Wt/WText>
-#include <Wt/WTreeView>
-#include <Wt/WVBoxLayout>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WPanel.h>
+#include <Wt/WStandardItemModel.h>
+#include <Wt/WText.h>
+#include <Wt/WTreeView.h>
+#include <Wt/WVBoxLayout.h>
 
 #include "elasticsearchutil.h"
 #include "links.h"
@@ -16,7 +16,7 @@ class MeSHApplication;
 class MeshResult : public Wt::WContainerWidget
 {
 public:
-	MeshResult(MeSHApplication* mesh_application, Wt::WContainerWidget* parent = 0);
+	MeshResult(MeSHApplication* mesh_application);
 	~MeshResult();
 
 public:
@@ -30,20 +30,21 @@ private:
 
 private:
 	MeSHApplication* m_mesh_application;
-	Wt::WVBoxLayout* m_layout;
 
 	Wt::WPanel* m_nor_term_panel;
+	Wt::WContainerWidget* m_nor_term_container;
 	Wt::WVBoxLayout* m_nor_term_panel_layout;
 	Wt::WText* m_nor_description_label;
 	Wt::WText* m_nor_description_text;
 
 	Wt::WPanel* m_eng_term_panel;
+	Wt::WContainerWidget* m_eng_term_container;
 	Wt::WVBoxLayout* m_eng_term_panel_layout;
 	Wt::WText* m_eng_description_label;
 	Wt::WText* m_eng_description_text;
 
 	Wt::WTreeView* m_hierarchy_tree_view;
-	Wt::WStandardItemModel* m_hierarchy_model;
+	std::shared_ptr<Wt::WStandardItemModel> m_hierarchy_model;
 
 	Wt::WText* m_see_related_text;
 	Wt::WContainerWidget* m_see_related_container;

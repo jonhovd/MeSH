@@ -14,7 +14,7 @@ DEPS = $(OBJECTS:.o=.dep)
 
 ######## compiler- and linker settings #########
 CXX = g++
-CXXFLAGS = -I/usr/local/include -I/usr/include -Icpp-elasticsearch/src -W -Wall -Werror -pipe -std=c++11
+CXXFLAGS = -I/usr/local/include -I/usr/include -Icpp-elasticsearch/src -W -Wall -Werror -pipe -std=c++17
 ifdef DEBUG_INFO
  CXXFLAGS += -g
  LIBSFLAGS = -L/usr/lib/debug/usr/lib

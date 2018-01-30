@@ -1,32 +1,33 @@
 #include "hierarchy.h"
 
+#include <boost/any.hpp>
+
 #include "application.h"
 
 
-Hierarchy::Hierarchy(MeSHApplication* mesh_application, Wt::WContainerWidget* parent)
-: Wt::WContainerWidget(parent),
+Hierarchy::Hierarchy(MeSHApplication* mesh_application)
+: Wt::WContainerWidget(),
   m_mesh_application(mesh_application),
-  m_has_populated_hierarchy_model(false),
-  m_hierarchy_popup_menu(NULL)
+  m_hierarchy_tree_view(nullptr),
+  m_has_populated_hierarchy_model(false)
 {
-	m_layout = new Wt::WVBoxLayout();
-	m_layout->setContentsMargins(0, 9, 0, 0);
-	setLayout(m_layout);
+	auto layout = std::make_unique<Wt::WVBoxLayout>();
+	layout->setContentsMargins(0, 9, 0, 0);
+	setLayout(std::move(layout));
 
-	m_hierarchy_model = new Wt::WStandardItemModel(m_layout);
+	m_hierarchy_model = std::make_shared<Wt::WStandardItemModel>();
 	m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
-	m_hierarchy_tree_view = new Wt::WTreeView();
-	m_hierarchy_tree_view->setModel(m_hierarchy_model);
-	m_hierarchy_tree_view->setSelectionMode(Wt::SingleSelection);
+	auto hierarchy_tree_view = std::make_unique<Wt::WTreeView>();
+	hierarchy_tree_view->setModel(m_hierarchy_model);
+	hierarchy_tree_view->setSelectionMode(Wt::SelectionMode::Single);
 
-	m_layout->addWidget(m_hierarchy_tree_view);
-	m_hierarchy_tree_view->expanded().connect(this, &Hierarchy::TreeItemExpanded);
-	m_hierarchy_tree_view->clicked().connect(this, &Hierarchy::TreeItemClicked);
+	m_hierarchy_tree_view = layout->addWidget(std::move(hierarchy_tree_view));
+	hierarchy_tree_view->expanded().connect(this, &Hierarchy::TreeItemExpanded);
+	hierarchy_tree_view->clicked().connect(this, &Hierarchy::TreeItemClicked);
 }
 
 Hierarchy::~Hierarchy()
 {
-	delete m_hierarchy_popup_menu;
 }
 
 void Hierarchy::PopulateHierarchy()
@@ -88,11 +89,11 @@ void Hierarchy::PopulateHierarchy()
                     node_text << " [" << tree_number_value_string << "]";
                 }
 
-                Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
+                auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
                 AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
                 item->setData(boost::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
                 item->setData(boost::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
-                m_hierarchy_model->setItem(row++, 0, item);
+                m_hierarchy_model->setItem(row++, 0, std::move(item));
             }
         }
     }
@@ -152,7 +153,7 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
         return;
     }
 
-    Wt::WStandardItem* possible_placeholder = standard_item->child(0, 0);
+    auto possible_placeholder = standard_item->child(0, 0);
     if (!possible_placeholder || //We don't have a children placeholder. This item should not be populated by children 
         !possible_placeholder->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE).empty()) //This is a real child, not a placeholder. No need to populate children one more time.
     {
@@ -160,8 +161,7 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
     }
 
     //Remove placeholder
-    possible_placeholder = standard_item->takeChild(0, 0);
-    delete possible_placeholder;
+    standard_item->takeChild(0, 0);
 
     std::string parent_tree_number_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE));
     //Fetch all children from ElasticSearch
@@ -216,11 +216,11 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
                     node_text << " [" << tree_number_value_string << "]";
                 }
 
-                Wt::WStandardItem* item = new Wt::WStandardItem(Wt::WString::fromUTF8(node_text.str()));
+                auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
                 AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
                 item->setData(boost::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
                 item->setData(boost::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
-                standard_item->setChild(row++, 0, item);
+                standard_item->setChild(row++, 0, std::move(item));
                 added_items = true;
             }
         }
@@ -245,12 +245,7 @@ void Hierarchy::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEv
         return;
     }
     
-    if (m_hierarchy_popup_menu)
-    {
-        delete m_hierarchy_popup_menu;
-    }
-
-    m_hierarchy_popup_menu = new Wt::WPopupMenu;
+    m_hierarchy_popup_menu = std::make_unique<Wt::WPopupMenu>();
     m_hierarchy_popup_menu->setAutoHide(true, 1000);
 
     m_popup_menu_id_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_ID_ROLE));
@@ -319,7 +314,7 @@ bool Hierarchy::FindChildModelIndex(const std::string& tree_number_string, bool 
     }
 }
 
-bool Hierarchy::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, Wt::WStandardItem* current_item)
+bool Hierarchy::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, std::unique_ptr<Wt::WStandardItem>& current_item)
 {
     bool added_placeholder = false;
     //Check if we have a matching child in the child_tree_numbers array
@@ -336,8 +331,8 @@ bool Hierarchy::AddChildPlaceholderIfNeeded(const Json::Object& source_object, c
             GetParentTreeNumber(child_tree_number_value.getString(), possible_parent_tree_number_string);
             if (EQUAL == current_tree_number_string.compare(possible_parent_tree_number_string))
             {
-                Wt::WStandardItem* child_item = new Wt::WStandardItem(Wt::WString("")); //Placeholder, adds the [+]-icon
-                current_item->setChild(0, 0, child_item);
+                auto child_item = std::make_unique<Wt::WStandardItem>(Wt::WString("")); //Placeholder, adds the [+]-icon
+                current_item->setChild(0, 0, std::move(child_item));
                 added_placeholder = true;
             }
         }

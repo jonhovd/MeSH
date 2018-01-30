@@ -1,10 +1,10 @@
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
-#include <Wt/WMessageBox>
-#include <Wt/WTabWidget>
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WTabWidget.h>
 
 #include "elasticsearchutil.h"
 #include "header.h"
@@ -19,9 +19,9 @@
 
 #define EQUAL                           (0)
 
-#define SUGGESTIONLIST_ITEM_ID_ROLE     (Wt::UserRole)
-#define HIERARCHY_ITEM_TREE_NUMBER_ROLE (Wt::UserRole+1)
-#define HIERARCHY_ITEM_ID_ROLE          (Wt::UserRole+2)
+#define SUGGESTIONLIST_ITEM_ID_ROLE     (Wt::ItemDataRole::User)
+#define HIERARCHY_ITEM_TREE_NUMBER_ROLE (Wt::ItemDataRole::User+1)
+#define HIERARCHY_ITEM_ID_ROLE          (Wt::ItemDataRole::User+2)
 
 
 class MeSHApplication : public Wt::WApplication
@@ -57,25 +57,18 @@ public:
 	Hierarchy* GetHierarchy() const {return m_hierarchy;}
 
 private:
-	Wt::WContainerWidget* CreateHeaderWidget();
-	Wt::WContainerWidget* CreateContentWidget();
-	Wt::WContainerWidget* CreateFooterWidget();
+	std::unique_ptr<Wt::WContainerWidget> InitializeContentWidget();
 
 private:
 	Wt::JSignal<Wt::WString> m_search_signal;
 
 	bool m_layout_is_cleared;
 
-	Wt::WContainerWidget* m_tabs_container;
 	Wt::WTabWidget* m_tab_widget;
 	Statistics* m_statistics;
 
-	Header* m_header;
 	Search* m_search;
 	Hierarchy* m_hierarchy;
-	Footer* m_footer;
-
-	Wt::WGridLayout* m_statistics_layout;
 
 	ElasticSearchUtil* m_es_util;
 };

@@ -1,19 +1,21 @@
 #include "footer.h"
 
-#include <Wt/WImage>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WImage.h>
+
+#include "info.h"
 
 
-Footer::Footer(Wt::WContainerWidget* parent)
-: Wt::WContainerWidget(parent)
+Footer::Footer()
+: Wt::WContainerWidget()
 {
 	setStyleClass("mesh-footer");
 
-	m_layout = new Wt::WHBoxLayout();
-	m_layout->setContentsMargins(0, 0, 0, 0);
-	setLayout(m_layout);
+	auto layout = std::make_unique<Wt::WHBoxLayout>();
+	layout->setContentsMargins(0, 0, 0, 0);
+	setLayout(std::move(layout));
 
-	m_info = new Info();
-	m_layout->addWidget(m_info, 0, Wt::AlignRight);
+	layout->addWidget(std::make_unique<Info>(), 0, Wt::AlignmentFlag::Right);
 }
 
 Footer::~Footer()

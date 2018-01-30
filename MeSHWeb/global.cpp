@@ -2,7 +2,7 @@
 
 #include "application.h"
 #include <boost/locale.hpp>
-#include <Wt/WString>
+#include <Wt/WString.h>
 
 
 Wt::WLogger g_logger;
@@ -17,15 +17,15 @@ void Log(const std::string& UNUSED(type), const std::string& UNUSED(msg))
 }
 #endif
 
-Wt::WApplication* createApplication(const Wt::WEnvironment& env)
+std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
 {
-    return new MeSHApplication(env);
+    return std::make_unique<MeSHApplication>(env);
 }
 
 int main(int argc, char** argv)
 {
     g_logger.addField("message", true);
-    Wt::WString::setDefaultEncoding(Wt::UTF8);
+    Wt::WString::setDefaultEncoding(Wt::CharEncoding::UTF8);
     
     // Create system default locale
     boost::locale::generator gen;

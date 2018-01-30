@@ -1,18 +1,21 @@
 #include "mesh_resultlist.h"
 
 #include <boost/locale/conversion.hpp>
+#include <boost/algorithm/string/replace.hpp>
+
+#include <Wt/WAnchor.h>
 
 #include "application.h"
 #include "search.h"
 
 
-MeshResultList::MeshResultList(MeSHApplication* mesh_application, Wt::WContainerWidget* parent)
-: Wt::WContainerWidget(parent),
+MeshResultList::MeshResultList(MeSHApplication* mesh_application)
+: Wt::WContainerWidget(),
   m_mesh_application(mesh_application)
 {
-	m_layout = new Wt::WVBoxLayout();
-	m_layout->setContentsMargins(0, 0, 0, 0);
-	setLayout(m_layout);
+	auto layout = std::make_unique<Wt::WVBoxLayout>();
+	layout->setContentsMargins(0, 0, 0, 0);
+	m_layout = setLayout(std::move(layout));
 }
 
 MeshResultList::~MeshResultList()
@@ -26,7 +29,9 @@ void MeshResultList::ClearLayout()
 
 void MeshResultList::OnSearch(const Wt::WString& filter)
 {
-	m_layout->clear();
+	auto layout = std::make_unique<Wt::WVBoxLayout>();
+	layout->setContentsMargins(0, 0, 0, 0);
+	m_layout = setLayout(std::move(layout));
 
 	m_mesh_application->ClearLayout();
     
@@ -102,7 +107,7 @@ void MeshResultList::OnSearch(const Wt::WString& filter)
 							continue;
 						}
 						description = description_value.getString();
-						boost::replace_all(description, "\\n", "\n");
+						boost::algorithm::replace_all(description, "\\n", "\n");
 					}
 				}
 			}
@@ -123,20 +128,20 @@ void MeshResultList::OnSearch(const Wt::WString& filter)
 
 void MeshResultList::AppendHit(const std::string& mesh_id, const std::string& title, const std::string description)
 {
-	Wt::WContainerWidget* result_container = new Wt::WContainerWidget();
+	auto result_container = std::make_unique<Wt::WContainerWidget>();
 	result_container->setStyleClass("result");
-	Wt::WVBoxLayout* result_vbox = new Wt::WVBoxLayout();
+	auto result_vbox = std::make_unique<Wt::WVBoxLayout>();
     result_vbox->setContentsMargins(0, 0, 0, 0);
-	result_container->setLayout(result_vbox);
+	result_container->setLayout(std::move(result_vbox));
 
 	std::string url = (Wt::WString::tr("MeshIdInternalPath")+"&"+Wt::WString::tr("MeshIdInternalPathParam").arg(mesh_id)).toUTF8();
-	Wt::WAnchor* title_anchor = new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, url), Wt::WString::fromUTF8(title));
+	auto title_anchor = std::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath, url), Wt::WString::fromUTF8(title));
 	title_anchor->setStyleClass("mesh-link");
-	result_vbox->addWidget(title_anchor);
+	result_vbox->addWidget(std::move(title_anchor));
 
-	Wt::WText* description_text = new Wt::WText(Wt::WString::fromUTF8(description));
+	auto description_text = std::make_unique<Wt::WText>(Wt::WString::fromUTF8(description));
 	description_text->setStyleClass("result-description");
-	result_vbox->addWidget(description_text);
+	result_vbox->addWidget(std::move(description_text));
 	
-	m_layout->addWidget(result_container);
+	m_layout->addWidget(std::move(result_container));
 }
