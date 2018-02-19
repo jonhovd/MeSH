@@ -10,11 +10,11 @@ Header::Header()
 {
 	setStyleClass("mesh-header");
 
-	auto layout = std::make_unique<Wt::WHBoxLayout>();
+	auto layout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
 	layout->setContentsMargins(0, 0, 0, 0);
 	setLayout(std::move(layout));
 
-	auto app_name = std::make_unique<AppName>();
+	auto app_name = Wt::cpp14::make_unique<AppName>();
 	layout->addWidget(std::move(app_name), 0, Wt::AlignmentFlag::Center);
 }
 

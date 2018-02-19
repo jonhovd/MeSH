@@ -19,7 +19,7 @@ void Log(const std::string& UNUSED(type), const std::string& UNUSED(msg))
 
 std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
 {
-    return std::make_unique<MeSHApplication>(env);
+    return Wt::cpp14::make_unique<MeSHApplication>(env);
 }
 
 int main(int argc, char** argv)

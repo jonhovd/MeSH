@@ -16,16 +16,16 @@ Search::Search(MeSHApplication* mesh_application)
 : Wt::WContainerWidget(),
   m_mesh_application(mesh_application)
 {
-    auto layout = std::make_unique<Wt::WVBoxLayout>();
+    auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(std::move(layout));
 
-    auto searchform_container = std::make_unique<Wt::WContainerWidget>();
+    auto searchform_container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 	searchform_container->setStyleClass("search-box");
-    auto searchform_hbox = std::make_unique<Wt::WHBoxLayout>();
+    auto searchform_hbox = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
     searchform_container->setLayout(std::move(searchform_hbox));
 
-	auto search_edit = std::make_unique<Wt::WLineEdit>();
+	auto search_edit = Wt::cpp14::make_unique<Wt::WLineEdit>();
 	search_edit->setToolTip(Wt::WString::tr("SearchTooltip"));
     search_edit->focussed().connect(this, &Search::OnSearchEditFocussed);
     m_search_suggestion = CreateSuggestionPopup();
@@ -37,17 +37,17 @@ Search::Search(MeSHApplication* mesh_application)
     m_search_suggestion_model->itemChanged().connect(this, &Search::SuggestionChanged);
     m_search_edit = searchform_hbox->addWidget(std::move(search_edit), 1, Wt::AlignmentFlag::Justify);
 
-	auto search_button = std::make_unique<Wt::WPushButton>(Wt::WString::tr("SearchButton"));
+	auto search_button = Wt::cpp14::make_unique<Wt::WPushButton>(Wt::WString::tr("SearchButton"));
 	search_button->setToolTip(Wt::WString::tr("SearchbuttonTooltip"));
 	search_button->clicked().connect(this, &Search::SearchButtonClicked);
 	searchform_hbox->addWidget(std::move(search_button), 0, Wt::AlignmentFlag::Left);
 
 	layout->addWidget(std::move(searchform_container));
 
-	auto mesh_resultlist = std::make_unique<MeshResultList>(mesh_application);
+	auto mesh_resultlist = Wt::cpp14::make_unique<MeshResultList>(mesh_application);
     m_mesh_resultlist = layout->addWidget(std::move(mesh_resultlist));
 
-	auto mesh_result = std::make_unique<MeshResult>(mesh_application);
+	auto mesh_result = Wt::cpp14::make_unique<MeshResult>(mesh_application);
     m_mesh_result = layout->addWidget(std::move(mesh_result));
 
 	layout->addStretch(1);
@@ -118,7 +118,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
     int row = 0;
     if (0 == result_size)
     {
-            auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::tr("NoHits"));
+            auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("NoHits"));
             item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row++, 0, std::move(item));
     }
@@ -150,11 +150,11 @@ void Search::FilterSuggestion(const Wt::WString& filter)
             
             if (!indirect_hit_str.empty())
             {
-                item = std::make_unique<Wt::WStandardItem>(Wt::WString::tr("IndirectHit").arg(name_value.getString()).arg(indirect_hit_str));
+                item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("IndirectHit").arg(name_value.getString()).arg(indirect_hit_str));
             }
             else
             {
-                item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(name_value.getString()));
+                item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(name_value.getString()));
             }
             item->setData(boost::any(id_value.getString()), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row, 0, std::move(item));
@@ -166,7 +166,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
 
         if (hits_array.size() > SUGGESTION_COUNT)
         {
-            auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::tr("MoreHits").arg(SUGGESTION_COUNT));
+            auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("MoreHits").arg(SUGGESTION_COUNT));
             item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row++, 0, std::move(item));
         }

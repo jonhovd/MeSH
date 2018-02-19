@@ -11,13 +11,13 @@ Hierarchy::Hierarchy(MeSHApplication* mesh_application)
   m_hierarchy_tree_view(nullptr),
   m_has_populated_hierarchy_model(false)
 {
-	auto layout = std::make_unique<Wt::WVBoxLayout>();
+	auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
 	layout->setContentsMargins(0, 9, 0, 0);
 	setLayout(std::move(layout));
 
 	m_hierarchy_model = std::make_shared<Wt::WStandardItemModel>();
 	m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
-	auto hierarchy_tree_view = std::make_unique<Wt::WTreeView>();
+	auto hierarchy_tree_view = Wt::cpp14::make_unique<Wt::WTreeView>();
 	hierarchy_tree_view->setModel(m_hierarchy_model);
 	hierarchy_tree_view->setSelectionMode(Wt::SelectionMode::Single);
 
@@ -89,7 +89,7 @@ void Hierarchy::PopulateHierarchy()
                     node_text << " [" << tree_number_value_string << "]";
                 }
 
-                auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
+                auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
                 AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
                 item->setData(boost::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
                 item->setData(boost::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
@@ -216,7 +216,7 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
                     node_text << " [" << tree_number_value_string << "]";
                 }
 
-                auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
+                auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
                 AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
                 item->setData(boost::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
                 item->setData(boost::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
@@ -245,7 +245,7 @@ void Hierarchy::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEv
         return;
     }
     
-    m_hierarchy_popup_menu = std::make_unique<Wt::WPopupMenu>();
+    m_hierarchy_popup_menu = Wt::cpp14::make_unique<Wt::WPopupMenu>();
     m_hierarchy_popup_menu->setAutoHide(true, 1000);
 
     m_popup_menu_id_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_ID_ROLE));
@@ -331,7 +331,7 @@ bool Hierarchy::AddChildPlaceholderIfNeeded(const Json::Object& source_object, c
             GetParentTreeNumber(child_tree_number_value.getString(), possible_parent_tree_number_string);
             if (EQUAL == current_tree_number_string.compare(possible_parent_tree_number_string))
             {
-                auto child_item = std::make_unique<Wt::WStandardItem>(Wt::WString("")); //Placeholder, adds the [+]-icon
+                auto child_item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString("")); //Placeholder, adds the [+]-icon
                 current_item->setChild(0, 0, std::move(child_item));
                 added_placeholder = true;
             }

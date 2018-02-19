@@ -22,7 +22,7 @@ void Statistics::clear()
 {
 	if (m_layout)
 	{
-		m_layout = setLayout(std::make_unique<Wt::WGridLayout>());
+		m_layout = setLayout(Wt::cpp14::make_unique<Wt::WGridLayout>());
 	}
 	Wt::WContainerWidget::clear();
 }
@@ -31,7 +31,7 @@ void Statistics::populate()
 {
 	clear();
 
-	auto layout = std::make_unique<Wt::WGridLayout>();
+	auto layout = Wt::cpp14::make_unique<Wt::WGridLayout>();
     layout->setContentsMargins(0, 9, 0, 0);
     m_layout = setLayout(std::move(layout));
 
@@ -43,7 +43,7 @@ void Statistics::populate()
     for (i=0; i<=8; i+=4)
     {
         m_layout->setColumnStretch(i, 1);
-        m_layout->addWidget(std::make_unique<Wt::WText>(""), 0, i);
+        m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(""), 0, i);
     }
 
     PopulateDayStatistics();
@@ -52,7 +52,7 @@ void Statistics::populate()
 
 void Statistics::PopulateDayStatistics()
 {
-    m_layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("StatisticsPerDay")), 0, 1);
+    m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("StatisticsPerDay")), 0, 1);
 
     Wt::WString query = Wt::WString::tr("StatisticsDay");
 
@@ -84,15 +84,15 @@ void Statistics::PopulateDayStatistics()
         const Json::Value count_value = source_object.getValue("count");
         int count_value_int = count_value.getInt();
 
-        m_layout->addWidget(std::make_unique<Wt::WText>(day_value_string), row, 2);
-        m_layout->addWidget(std::make_unique<Wt::WText>(Wt::WString("{1}").arg(count_value_int)), row, 3);
+        m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(day_value_string), row, 2);
+        m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString("{1}").arg(count_value_int)), row, 3);
         row++;
     }
 }
 
 void Statistics::PopulateTextStatistics()
 {
-    m_layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("StatisticsPerMeSH")), 0, 5);
+    m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("StatisticsPerMeSH")), 0, 5);
 
     Wt::WString query = Wt::WString::tr("StatisticsText");
 
@@ -126,8 +126,8 @@ void Statistics::PopulateTextStatistics()
 
         std::string name;
         Search::MeSHToName(es_util, mesh_value_string, name);
-        m_layout->addWidget(std::make_unique<Wt::WText>(name), row, 6);
-        m_layout->addWidget(std::make_unique<Wt::WText>(Wt::WString("{1}").arg(count_value_int)), row, 7);
+        m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(name), row, 6);
+        m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString("{1}").arg(count_value_int)), row, 7);
         row++;
     }
 }
