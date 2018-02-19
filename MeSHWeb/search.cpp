@@ -18,12 +18,10 @@ Search::Search(MeSHApplication* mesh_application)
 {
     auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
     layout->setContentsMargins(0, 0, 0, 0);
-    setLayout(std::move(layout));
 
     auto searchform_container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 	searchform_container->setStyleClass("search-box");
     auto searchform_hbox = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
-    searchform_container->setLayout(std::move(searchform_hbox));
 
 	auto search_edit = Wt::cpp14::make_unique<Wt::WLineEdit>();
 	search_edit->setToolTip(Wt::WString::tr("SearchTooltip"));
@@ -42,15 +40,16 @@ Search::Search(MeSHApplication* mesh_application)
 	search_button->clicked().connect(this, &Search::SearchButtonClicked);
 	searchform_hbox->addWidget(std::move(search_button), 0, Wt::AlignmentFlag::Left);
 
+    searchform_container->setLayout(std::move(searchform_hbox));
 	layout->addWidget(std::move(searchform_container));
 
-	auto mesh_resultlist = Wt::cpp14::make_unique<MeshResultList>(mesh_application);
-    m_mesh_resultlist = layout->addWidget(std::move(mesh_resultlist));
+    m_mesh_resultlist = layout->addWidget(Wt::cpp14::make_unique<MeshResultList>(mesh_application));
 
-	auto mesh_result = Wt::cpp14::make_unique<MeshResult>(mesh_application);
-    m_mesh_result = layout->addWidget(std::move(mesh_result));
+    m_mesh_result = layout->addWidget(Wt::cpp14::make_unique<MeshResult>(mesh_application));
 
 	layout->addStretch(1);
+
+    setLayout(std::move(layout));
 }
 
 Search::~Search()

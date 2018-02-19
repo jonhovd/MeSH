@@ -34,7 +34,6 @@ MeshResult::MeshResult(MeSHApplication* mesh_application)
 	setStyleClass("search-result");
 	auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
 	layout->setContentsMargins(0, 0, 0, 0);
-	setLayout(std::move(layout));
 
 	auto nor_term_panel = Wt::cpp14::make_unique<Wt::WPanel>();
 	nor_term_panel->setCollapsible(true);
@@ -45,9 +44,9 @@ MeshResult::MeshResult(MeSHApplication* mesh_application)
 	m_nor_term_container = nor_term_panel->setCentralWidget(std::move(nor_term_container));
 
 	auto nor_flag = Wt::cpp14::make_unique<Wt::WImage>("images/nor.png");
-	nor_term_panel->titleBarWidget()->insertWidget(0, std::move(nor_flag));
 	nor_flag->setHeight(Wt::WLength(1.0, Wt::LengthUnit::FontEm));
 	nor_flag->setMargin(Wt::WLength(3.0, Wt::LengthUnit::Pixel));
+	nor_term_panel->titleBarWidget()->insertWidget(0, std::move(nor_flag));
 
 	layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("PreferredNorwegianTerm")));
 	m_nor_term_panel = layout->addWidget(std::move(nor_term_panel));
@@ -68,9 +67,9 @@ MeshResult::MeshResult(MeSHApplication* mesh_application)
 	m_eng_term_container = eng_term_panel->setCentralWidget(std::move(eng_term_container));
 
 	auto eng_flag = Wt::cpp14::make_unique<Wt::WImage>("images/eng.png");
-	eng_term_panel->titleBarWidget()->insertWidget(0, std::move(eng_flag));
 	eng_flag->setHeight(Wt::WLength(1.0, Wt::LengthUnit::FontEm));
 	eng_flag->setMargin(Wt::WLength(3.0, Wt::LengthUnit::Pixel));
+	eng_term_panel->titleBarWidget()->insertWidget(0, std::move(eng_flag));
 
 	layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("PreferredEnglishTerm")));
 	m_eng_term_panel = layout->addWidget(std::move(eng_term_panel));
@@ -82,18 +81,15 @@ MeshResult::MeshResult(MeSHApplication* mesh_application)
 	eng_description_text->setStyleClass("scope-note scope-class");
 	m_eng_description_text = layout->addWidget(std::move(eng_description_text));
 
-	auto see_related_text = Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("SeeRelated"));
-	m_see_related_text = layout->addWidget(std::move(see_related_text));
-	auto see_related_container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
-	m_see_related_container = layout->addWidget(std::move(see_related_container));
+	m_see_related_text = layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("SeeRelated")));
+	m_see_related_container = layout->addWidget(Wt::cpp14::make_unique<Wt::WContainerWidget>());
 
 	layout->addSpacing(Wt::WLength(1.0, Wt::LengthUnit::FontEm));
 
 #if 0
 	layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("Links")));
 #endif
-	auto links = Wt::cpp14::make_unique<Links>();
-	m_links = layout->addWidget(std::move(links));
+	m_links = layout->addWidget(Wt::cpp14::make_unique<Links>());
 
 	layout->addSpacing(Wt::WLength(2.0, Wt::LengthUnit::FontEm));
 	
@@ -103,6 +99,8 @@ MeshResult::MeshResult(MeSHApplication* mesh_application)
 	hierarchy_tree_view->setModel(m_hierarchy_model);
 	hierarchy_tree_view->setSelectionMode(Wt::SelectionMode::Single);
 	m_hierarchy_tree_view = layout->addWidget(std::move(hierarchy_tree_view));
+
+    setLayout(std::move(layout));
 }
 
 MeshResult::~MeshResult()
@@ -113,16 +111,14 @@ void MeshResult::ClearLayout()
 {
     m_nor_term_panel->setTitle("");
     m_nor_term_panel->expand();
-    auto nor_term_panel_layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-	m_nor_term_panel_layout = m_nor_term_container->setLayout(std::move(nor_term_panel_layout));
+	m_nor_term_panel_layout = m_nor_term_container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
     
     m_nor_description_text->setText("");
     m_nor_description_text->hide();
 
     m_eng_term_panel->setTitle("");
     m_eng_term_panel->collapse();
-    auto eng_term_panel_layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-	m_eng_term_panel_layout = m_eng_term_container->setLayout(std::move(eng_term_panel_layout));
+	m_eng_term_panel_layout = m_eng_term_container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
 
     m_eng_description_text->setText("");
     m_eng_description_text->hide();
@@ -142,10 +138,8 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 	std::string preferred_term;
     Wt::WString preferred_eng_term;
 
-    auto nor_term_panel_layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-	m_nor_term_panel_layout = m_nor_term_container->setLayout(std::move(nor_term_panel_layout));
-    auto eng_term_panel_layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-	m_eng_term_panel_layout = m_eng_term_container->setLayout(std::move(nor_term_panel_layout));
+	m_nor_term_panel_layout = m_nor_term_container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+	m_eng_term_panel_layout = m_eng_term_container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
 
     m_hierarchy_model->clear();
 	m_see_related_text->hide();
@@ -290,9 +284,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
         std::vector<Wt::WString>::const_iterator non_preferred_term_iterator = non_preferred_term_list->begin();
         for ( ; non_preferred_term_iterator!=non_preferred_term_list->end(); ++non_preferred_term_iterator)
         {
-            Wt::WString non_preferred_term_string = *non_preferred_term_iterator;
-            auto non_preferred_term_text = Wt::cpp14::make_unique<Wt::WText>(non_preferred_term_string, Wt::TextFormat::Plain);
-            non_preferred_term_layout->addWidget(std::move(non_preferred_term_text));
+            non_preferred_term_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(*non_preferred_term_iterator, Wt::TextFormat::Plain));
         }
     }
 
@@ -380,6 +372,7 @@ void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row,
 		node_text << " [" << tree_number << "]";
 	}
     auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
+    auto item_ptr = item.get();
 	item->setData(boost::any(tree_number), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
 	item->setData(boost::any(mesh_id), HIERARCHY_ITEM_ID_ROLE);
 
@@ -400,7 +393,7 @@ void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row,
 		item->setStyleClass("marked_item");
 	}
 
-	node_map[tree_number] = item.get();
+	node_map[tree_number] = item_ptr;
 }
 
 void MeshResult::PopulateHierarchy(ElasticSearchUtil* es_util, const Json::Object& source_object)

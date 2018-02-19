@@ -132,7 +132,6 @@ void MeshResultList::AppendHit(const std::string& mesh_id, const std::string& ti
 	result_container->setStyleClass("result");
 	auto result_vbox = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
     result_vbox->setContentsMargins(0, 0, 0, 0);
-	result_container->setLayout(std::move(result_vbox));
 
 	std::string url = (Wt::WString::tr("MeshIdInternalPath")+"&"+Wt::WString::tr("MeshIdInternalPathParam").arg(mesh_id)).toUTF8();
 	auto title_anchor = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath, url), Wt::WString::fromUTF8(title));
@@ -143,5 +142,6 @@ void MeshResultList::AppendHit(const std::string& mesh_id, const std::string& ti
 	description_text->setStyleClass("result-description");
 	result_vbox->addWidget(std::move(description_text));
 	
+	result_container->setLayout(std::move(result_vbox));
 	m_layout->addWidget(std::move(result_container));
 }

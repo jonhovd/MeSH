@@ -12,10 +12,10 @@ Header::Header()
 
 	auto layout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
 	layout->setContentsMargins(0, 0, 0, 0);
-	setLayout(std::move(layout));
 
-	auto app_name = Wt::cpp14::make_unique<AppName>();
-	layout->addWidget(std::move(app_name), 0, Wt::AlignmentFlag::Center);
+	layout->addWidget(Wt::cpp14::make_unique<AppName>(), 0, Wt::AlignmentFlag::Center);
+
+    setLayout(std::move(layout));
 }
 
 Header::~Header()

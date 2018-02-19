@@ -28,7 +28,6 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 
 	auto root_vbox = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
 	root_vbox->setContentsMargins(0, 0, 0, 0);
-	root()->setLayout(std::move(root_vbox));
 
 	auto page_template = Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("PageTemplate"));
 	page_template->bindWidget("HeaderWidget", Wt::cpp14::make_unique<Header>());
@@ -36,7 +35,9 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	page_template->bindWidget("FooterWidget", Wt::cpp14::make_unique<Footer>());
 	root_vbox->addWidget(std::move(page_template));
 
-	ClearLayout();
+	root()->setLayout(std::move(root_vbox));
+
+    ClearLayout();
 
 	onTabChanged(TAB_INDEX_SEARCH);
 }
@@ -123,7 +124,6 @@ std::unique_ptr<Wt::WContainerWidget> MeSHApplication::InitializeContentWidget()
     tabs_container->setStyleClass("mesh-content");
     auto tabs_hbox = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
     tabs_hbox->setContentsMargins(0, 0, 0, 0);
-    tabs_container->setLayout(std::move(tabs_hbox));
 
     auto tab_widget = Wt::cpp14::make_unique<Wt::WTabWidget>();
     tab_widget->setStyleClass("mesh-tabs");
@@ -153,5 +153,8 @@ std::unique_ptr<Wt::WContainerWidget> MeSHApplication::InitializeContentWidget()
     tabs_hbox->addStretch(1); //Add left margin
     tabs_hbox->addWidget(std::move(tmp_tab_container));
     tabs_hbox->addStretch(1); //Add right margin
+
+    tabs_container->setLayout(std::move(tabs_hbox));
+
     return std::move(tabs_container);
 }

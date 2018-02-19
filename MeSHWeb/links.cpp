@@ -33,10 +33,9 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_te
 
 	auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
 	layout->setContentsMargins(0, 0, 0, 0);
-	m_layout = setLayout(std::move(layout));
 	setStyleClass("mesh-links");
 
-    m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("LinkLabel").arg(preferred_term)));
+    layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("LinkLabel").arg(preferred_term)));
 
 	int link_category_index = 0;
 	int link_index;
@@ -50,7 +49,7 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_te
 
 		if (!link_category_text.trim().empty())
 		{
-			m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(link_category_text));
+			layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(link_category_text));
 		}
 
 		auto links_container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
@@ -74,6 +73,8 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_te
 			anchor->setStyleClass("mesh-link");
 			links_container->addWidget(std::move(anchor));
 		}
-		m_layout->addWidget(std::move(links_container));
+		layout->addWidget(std::move(links_container));
 	}
+
+	m_layout = setLayout(std::move(layout));
 }

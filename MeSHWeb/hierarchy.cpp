@@ -13,7 +13,6 @@ Hierarchy::Hierarchy(MeSHApplication* mesh_application)
 {
 	auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
 	layout->setContentsMargins(0, 9, 0, 0);
-	setLayout(std::move(layout));
 
 	m_hierarchy_model = std::make_shared<Wt::WStandardItemModel>();
 	m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
@@ -21,9 +20,11 @@ Hierarchy::Hierarchy(MeSHApplication* mesh_application)
 	hierarchy_tree_view->setModel(m_hierarchy_model);
 	hierarchy_tree_view->setSelectionMode(Wt::SelectionMode::Single);
 
-	m_hierarchy_tree_view = layout->addWidget(std::move(hierarchy_tree_view));
 	hierarchy_tree_view->expanded().connect(this, &Hierarchy::TreeItemExpanded);
 	hierarchy_tree_view->clicked().connect(this, &Hierarchy::TreeItemClicked);
+	m_hierarchy_tree_view = layout->addWidget(std::move(hierarchy_tree_view));
+
+    setLayout(std::move(layout));
 }
 
 Hierarchy::~Hierarchy()
@@ -331,8 +332,7 @@ bool Hierarchy::AddChildPlaceholderIfNeeded(const Json::Object& source_object, c
             GetParentTreeNumber(child_tree_number_value.getString(), possible_parent_tree_number_string);
             if (EQUAL == current_tree_number_string.compare(possible_parent_tree_number_string))
             {
-                auto child_item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString("")); //Placeholder, adds the [+]-icon
-                current_item->setChild(0, 0, std::move(child_item));
+                current_item->setChild(0, 0, Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString(""))); //Placeholder, adds the [+]-icon
                 added_placeholder = true;
             }
         }

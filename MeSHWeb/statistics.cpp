@@ -33,18 +33,19 @@ void Statistics::populate()
 
 	auto layout = Wt::cpp14::make_unique<Wt::WGridLayout>();
     layout->setContentsMargins(0, 9, 0, 0);
-    m_layout = setLayout(std::move(layout));
 
     int i;
     for (i=0; i<8; i++)
     {
-        m_layout->setColumnStretch(i, 0);
+        layout->setColumnStretch(i, 0);
     }
     for (i=0; i<=8; i+=4)
     {
-        m_layout->setColumnStretch(i, 1);
-        m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(""), 0, i);
+        layout->setColumnStretch(i, 1);
+        layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(""), 0, i);
     }
+
+    m_layout = setLayout(std::move(layout));
 
     PopulateDayStatistics();
     PopulateTextStatistics();
