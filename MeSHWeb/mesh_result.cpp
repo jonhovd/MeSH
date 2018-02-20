@@ -62,7 +62,7 @@ MeshResult::MeshResult(MeSHApplication* mesh_application)
 	eng_term_panel->setCollapsible(true);
 	auto eng_term_container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
 	auto eng_term_panel_layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-	m_eng_term_panel_layout->setContentsMargins(0, 0, 0, 0);
+	eng_term_panel_layout->setContentsMargins(0, 0, 0, 0);
 	m_eng_term_panel_layout = eng_term_container->setLayout(std::move(eng_term_panel_layout));
 	m_eng_term_container = eng_term_panel->setCentralWidget(std::move(eng_term_container));
 
