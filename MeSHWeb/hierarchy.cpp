@@ -1,7 +1,5 @@
 #include "hierarchy.h"
 
-#include <boost/any.hpp>
-
 #include "application.h"
 
 
@@ -92,8 +90,8 @@ void Hierarchy::PopulateHierarchy()
 
                 auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
                 AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
-                item->setData(boost::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
-                item->setData(boost::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
+                item->setData(Wt::cpp17::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
+                item->setData(Wt::cpp17::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
                 m_hierarchy_model->setItem(row++, 0, std::move(item));
             }
         }
@@ -164,7 +162,7 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
     //Remove placeholder
     standard_item->takeChild(0, 0);
 
-    std::string parent_tree_number_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE));
+    std::string parent_tree_number_string = Wt::cpp17::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE));
     //Fetch all children from ElasticSearch
     Wt::WString query = Wt::WString::tr("HierarchyChildrenQuery").arg(parent_tree_number_string);
 
@@ -219,8 +217,8 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
 
                 auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
                 AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
-                item->setData(boost::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
-                item->setData(boost::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
+                item->setData(Wt::cpp17::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
+                item->setData(Wt::cpp17::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
                 standard_item->setChild(row++, 0, std::move(item));
                 added_items = true;
             }
@@ -249,7 +247,7 @@ void Hierarchy::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEv
     m_hierarchy_popup_menu = Wt::cpp14::make_unique<Wt::WPopupMenu>();
     m_hierarchy_popup_menu->setAutoHide(true, 1000);
 
-    m_popup_menu_id_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_ID_ROLE));
+    m_popup_menu_id_string = Wt::cpp17::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_ID_ROLE));
 
     Wt::WString soek = Wt::WString::tr("SearchFromHierarchy").arg(standard_item->text().toUTF8());
     m_hierarchy_popup_menu->addItem(soek)->triggered().connect(this, &Hierarchy::PopupMenuTriggered);
@@ -304,7 +302,7 @@ bool Hierarchy::FindChildModelIndex(const std::string& tree_number_string, bool 
             return false;
         }
 
-        item_tree_number_string = boost::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE));
+        item_tree_number_string = Wt::cpp17::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_TREE_NUMBER_ROLE));
         if (EQUAL == tree_number_string.compare(item_tree_number_string))
         {
             index = child_index;

@@ -1,7 +1,6 @@
 #include "search.h"
 
 #include <boost/algorithm/string/split.hpp>
-#include <boost/any.hpp>
 #include <boost/locale/conversion.hpp>
 #include <Wt/Utils.h>
 #include <Wt/WHBoxLayout.h>
@@ -118,7 +117,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
     if (0 == result_size)
     {
             auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("NoHits"));
-            item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
+            item->setData(Wt::cpp17::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row++, 0, std::move(item));
     }
     else
@@ -155,7 +154,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
             {
                 item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(name_value.getString()));
             }
-            item->setData(boost::any(id_value.getString()), SUGGESTIONLIST_ITEM_ID_ROLE);
+            item->setData(Wt::cpp17::any(id_value.getString()), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row, 0, std::move(item));
 
             ++iterator;
@@ -166,7 +165,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
         if (hits_array.size() > SUGGESTION_COUNT)
         {
             auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("MoreHits").arg(SUGGESTION_COUNT));
-            item->setData(boost::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
+            item->setData(Wt::cpp17::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
             m_search_suggestion_model->setItem(row++, 0, std::move(item));
         }
     }

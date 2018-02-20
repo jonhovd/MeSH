@@ -1,7 +1,6 @@
 #include "mesh_result.h"
 
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/any.hpp>
 
 #include <Wt/WAnchor.h>
 #include <Wt/WHBoxLayout.h>
@@ -373,8 +372,8 @@ void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row,
 	}
     auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
     auto item_ptr = item.get();
-	item->setData(boost::any(tree_number), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
-	item->setData(boost::any(mesh_id), HIERARCHY_ITEM_ID_ROLE);
+	item->setData(Wt::cpp17::any(tree_number), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
+	item->setData(Wt::cpp17::any(mesh_id), HIERARCHY_ITEM_ID_ROLE);
 
 	std::map<std::string,Wt::WStandardItem*>::iterator iter = node_map.find(parent_tree_number);
 	if (node_map.end() == iter) //No parent -> top-node
