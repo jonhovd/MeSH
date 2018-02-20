@@ -375,6 +375,11 @@ void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row,
 	item->setData(Wt::cpp17::any(tree_number), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
 	item->setData(Wt::cpp17::any(mesh_id), HIERARCHY_ITEM_ID_ROLE);
 
+	if (mark_item)
+	{
+		item->setStyleClass("marked_item");
+	}
+
 	std::map<std::string,Wt::WStandardItem*>::iterator iter = node_map.find(parent_tree_number);
 	if (node_map.end() == iter) //No parent -> top-node
 	{
@@ -385,11 +390,6 @@ void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row,
 		Wt::WStandardItem* parent_item = iter->second;
 		parent_item->setChild(parent_item->rowCount(), 0, std::move(item));
 		m_hierarchy_tree_view->expand(parent_item->index());
-	}
-
-	if (mark_item)
-	{
-		item->setStyleClass("marked_item");
 	}
 
 	node_map[tree_number] = item_ptr;
