@@ -25,8 +25,8 @@ public:
 	void OnSearch(const Wt::WString& mesh_id, const std::string& search_text);
 
 private:
-	void RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row, std::map<std::string,Wt::WStandardItem*>& node_map, const std::string& tree_number, bool mark_item);
-	void PopulateHierarchy(ElasticSearchUtil* es_util, const Json::Object& source_object);
+	void RecursiveAddHierarchyItem(std::shared_ptr<ElasticSearchUtil> es_util, int& row, std::map<std::string,Wt::WStandardItem*>& node_map, const std::string& tree_number, bool mark_item);
+	void PopulateHierarchy(std::shared_ptr<ElasticSearchUtil> es_util, const Json::Object& source_object);
 
 private:
 	MeSHApplication* m_mesh_application;

@@ -58,7 +58,7 @@ void Statistics::PopulateDayStatistics()
     Wt::WString query = Wt::WString::tr("StatisticsDay");
 
     Json::Object search_result;
-	ElasticSearchUtil* es_util = m_mesh_application->GetElasticSearchUtil();
+	auto es_util = m_mesh_application->GetElasticSearchUtil();
     long result_size = es_util->search("statistics", "day", query.toUTF8(), search_result);
     if (0 == result_size)
     {
@@ -98,7 +98,7 @@ void Statistics::PopulateTextStatistics()
     Wt::WString query = Wt::WString::tr("StatisticsText");
 
     Json::Object search_result;
-	ElasticSearchUtil* es_util = m_mesh_application->GetElasticSearchUtil();
+	auto es_util = m_mesh_application->GetElasticSearchUtil();
     long result_size = es_util->search("statistics", "text", query.toUTF8(), search_result);
     if (0 == result_size)
     {

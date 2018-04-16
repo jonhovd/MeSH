@@ -110,7 +110,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
     Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 to see if we got more than SUGGESTION_COUNT hits */).arg(filter).arg(wildcard_filter_str);
 
     Json::Object search_result;
-	ElasticSearchUtil* es_util = m_mesh_application->GetElasticSearchUtil();
+	auto es_util = m_mesh_application->GetElasticSearchUtil();
     long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
 
     int row = 0;
@@ -342,7 +342,7 @@ void Search::AddWildcard(const std::string filter_str, std::string& wildcard_fil
     }
 }
 
-void Search::MeSHToName(ElasticSearchUtil* es_util, const std::string& mesh_id, std::string& name)
+void Search::MeSHToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& mesh_id, std::string& name)
 {
 	name = mesh_id;
 
@@ -357,7 +357,7 @@ void Search::MeSHToName(ElasticSearchUtil* es_util, const std::string& mesh_id, 
 	InfoFromSearchResult(search_result, name);
 }
 
-void Search::TreeNumberToName(ElasticSearchUtil* es_util, const std::string& tree_number, std::string& name, std::string* mesh_id)
+void Search::TreeNumberToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& tree_number, std::string& name, std::string* mesh_id)
 {
 	name = tree_number;
 

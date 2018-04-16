@@ -45,7 +45,7 @@ void MeshResultList::OnSearch(const Wt::WString& filter)
     Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(RESULTLIST_COUNT).arg(filter).arg(wildcard_filter_str);
 
     Json::Object search_result;
-	ElasticSearchUtil* es_util = m_mesh_application->GetElasticSearchUtil();
+	auto es_util = m_mesh_application->GetElasticSearchUtil();
     long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
 
     int row = 0;

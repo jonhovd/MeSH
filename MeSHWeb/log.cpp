@@ -19,7 +19,7 @@ void Log::LogSearch(const std::string& search_string)
     //Update search text statistics
     int count = 0;
     Json::Object text_search_result;
-	ElasticSearchUtil* es_util = m_mesh_application->GetElasticSearchUtil();
+	auto es_util = m_mesh_application->GetElasticSearchUtil();
     if (es_util->getDocument("statistics", "text", search_string.c_str(), text_search_result))
     {
         const Json::Value source_value = text_search_result.getValue("_source");

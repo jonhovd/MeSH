@@ -44,8 +44,8 @@ public:
 
 public:
 	static void AddWildcard(const std::string filter_str, std::string& wildcard_filter_str);
-	static void MeSHToName(ElasticSearchUtil* es_util, const std::string& mesh_id, std::string& name);
-	static void TreeNumberToName(ElasticSearchUtil* es_util, const std::string& tree_number, std::string& name, std::string* mesh_id=nullptr);
+	static void MeSHToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& mesh_id, std::string& name);
+	static void TreeNumberToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& tree_number, std::string& name, std::string* mesh_id=nullptr);
 private:
 	static void InfoFromSearchResult(const Json::Object& search_result, std::string& name, std::string* mesh_id=nullptr);
 

@@ -39,7 +39,7 @@ void Hierarchy::PopulateHierarchy()
     Wt::WString query = Wt::WString::tr("HierarchyTopNodesQuery");
 
     Json::Object search_result;
-	ElasticSearchUtil* es_util = m_mesh_application->GetElasticSearchUtil();
+	auto es_util = m_mesh_application->GetElasticSearchUtil();
     long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
@@ -167,7 +167,7 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
     Wt::WString query = Wt::WString::tr("HierarchyChildrenQuery").arg(parent_tree_number_string);
 
     Json::Object search_result;
-	ElasticSearchUtil* es_util = m_mesh_application->GetElasticSearchUtil();
+	auto es_util = m_mesh_application->GetElasticSearchUtil();
     long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {

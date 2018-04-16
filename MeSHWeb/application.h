@@ -1,6 +1,8 @@
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
+#include <memory>
+
 #include <Wt/WApplication.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WMessageBox.h>
@@ -53,7 +55,7 @@ public:
 	void SearchMesh(const Wt::WString& mesh_id);
 
 public:
-	ElasticSearchUtil* GetElasticSearchUtil() const {return m_es_util;}
+	std::shared_ptr<ElasticSearchUtil> GetElasticSearchUtil() const {return m_es_util;}
 	Hierarchy* GetHierarchy() const {return m_hierarchy;}
 
 private:
@@ -70,7 +72,7 @@ private:
 	Search* m_search;
 	Hierarchy* m_hierarchy;
 
-	ElasticSearchUtil* m_es_util;
+	std::shared_ptr<ElasticSearchUtil> m_es_util;
 };
 
 #endif // _APPLICATION_H_

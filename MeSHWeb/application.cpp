@@ -20,7 +20,7 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	messageResourceBundle().use(appRoot() + "strings");
 	useStyleSheet(Wt::WLink("MeSH.css"));
 
-	m_es_util = new ElasticSearchUtil();
+	m_es_util = std::make_shared<ElasticSearchUtil>();
 
 	setTitle(Wt::WString::tr("AppName"));
 
@@ -40,11 +40,12 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
     ClearLayout();
 
 	onTabChanged(TAB_INDEX_SEARCH);
+
+    //onInternalPathChange(environment.internalPath());
 }
 
 MeSHApplication::~MeSHApplication()
 {
-	delete m_es_util;
 }
 
 void MeSHApplication::handleJavaScriptError(const std::string& UNUSED(errorText))

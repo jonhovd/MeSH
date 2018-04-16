@@ -152,7 +152,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 	Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id.toUTF8());
 
     Json::Object search_result;
-	ElasticSearchUtil* es_util = m_mesh_application->GetElasticSearchUtil();
+	auto es_util = m_mesh_application->GetElasticSearchUtil();
     long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
     if (0 == result_size)
     {
@@ -349,7 +349,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 	}
 }
 
-void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row, std::map<std::string, Wt::WStandardItem*>& node_map, const std::string& tree_number, bool mark_item) {
+void MeshResult::RecursiveAddHierarchyItem(std::shared_ptr<ElasticSearchUtil> es_util, int& row, std::map<std::string, Wt::WStandardItem*>& node_map, const std::string& tree_number, bool mark_item) {
 	if (tree_number.empty() || //parent of top-node
 		0<node_map.count(tree_number)) //Already added?
 	{
@@ -395,7 +395,7 @@ void MeshResult::RecursiveAddHierarchyItem(ElasticSearchUtil* es_util, int& row,
 	node_map[tree_number] = item_ptr;
 }
 
-void MeshResult::PopulateHierarchy(ElasticSearchUtil* es_util, const Json::Object& source_object)
+void MeshResult::PopulateHierarchy(std::shared_ptr<ElasticSearchUtil> es_util, const Json::Object& source_object)
 {
 	m_hierarchy_model->clear();
 	int row = 0;
