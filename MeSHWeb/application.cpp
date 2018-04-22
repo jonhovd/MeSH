@@ -12,6 +12,7 @@
 MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
   m_search_signal(this, "search"),
+  m_layout_is_cleared(true),
   m_statistics(nullptr),
   m_search(nullptr),
   m_hierarchy(nullptr)
@@ -41,7 +42,7 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 
 	onTabChanged(TAB_INDEX_SEARCH);
 
-    //onInternalPathChange(environment.internalPath());
+    onInternalPathChange(environment.internalPath());
 }
 
 MeSHApplication::~MeSHApplication()
@@ -86,7 +87,7 @@ void MeSHApplication::SearchMesh(const Wt::WString& mesh_id)
 
 void MeSHApplication::onInternalPathChange(const std::string& url)
 {
-    WApplication::instance()->setInternalPath("/");
+    //WApplication::instance()->setInternalPath("/");
 
 	std::string meshIdInternalPath = Wt::WString::tr("MeshIdInternalPath").toUTF8();
     if (EQUAL == url.compare(Wt::WString::tr("AppStatisticsInternalPath").toUTF8()))

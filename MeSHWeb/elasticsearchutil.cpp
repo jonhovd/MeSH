@@ -14,6 +14,7 @@ long ElasticSearchUtil::search(const std::string& index, const std::string& type
 {
 	try
 	{
+        errno = 0;
 		return m_es->search(index, type, query, search_result);
 	}
     catch(...)
@@ -26,6 +27,7 @@ bool ElasticSearchUtil::getDocument(const char* index, const char* type, const c
 {
 	try
 	{
+        errno = 0;
 		return m_es->getDocument(index, type, id, msg);
 	}
     catch(...)
@@ -38,6 +40,7 @@ bool ElasticSearchUtil::upsert(const std::string& index, const std::string& type
 {
 	try
 	{
+        errno = 0;
 		return m_es->upsert(index, type, id, jData);
 	}
     catch(...)
