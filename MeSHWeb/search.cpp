@@ -23,6 +23,7 @@ Search::Search(MeSHApplication* mesh_application)
     auto searchform_hbox = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
 
 	auto search_edit = Wt::cpp14::make_unique<Wt::WLineEdit>();
+    search_edit->setTextSize(20); //HTML default value
 	search_edit->setToolTip(Wt::WString::tr("SearchTooltip"));
     search_edit->focussed().connect(this, &Search::OnSearchEditFocussed);
     m_search_suggestion = CreateSuggestionPopup();
@@ -32,12 +33,13 @@ Search::Search(MeSHApplication* mesh_application)
     m_search_suggestion->setFilterLength(2);
     m_search_suggestion->filterModel().connect(this, &Search::FilterSuggestion);
     m_search_suggestion_model->itemChanged().connect(this, &Search::SuggestionChanged);
-    m_search_edit = searchform_hbox->addWidget(std::move(search_edit), 1, Wt::AlignmentFlag::Justify);
+    m_search_edit = searchform_hbox->addWidget(std::move(search_edit), 0, Wt::AlignmentFlag::Left);
 
 	auto search_button = Wt::cpp14::make_unique<Wt::WPushButton>(Wt::WString::tr("SearchButton"));
 	search_button->setToolTip(Wt::WString::tr("SearchbuttonTooltip"));
 	search_button->clicked().connect(this, &Search::SearchButtonClicked);
 	searchform_hbox->addWidget(std::move(search_button), 0, Wt::AlignmentFlag::Left);
+	searchform_hbox->addStretch(1);
 
     searchform_container->setLayout(std::move(searchform_hbox));
 	layout->addWidget(std::move(searchform_container));
