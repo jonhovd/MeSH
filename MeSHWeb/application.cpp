@@ -152,9 +152,7 @@ std::unique_ptr<Wt::WContainerWidget> MeSHApplication::InitializeContentWidget()
     auto tmp_tab_container = Wt::cpp14::make_unique<Wt::WContainerWidget>(); //stretch and tabwidget doesn't mix very well. Wrap tabwidget in a containerwidget
     m_tab_widget = tmp_tab_container->addWidget(std::move(tab_widget));
 
-    tabs_hbox->addStretch(1); //Add left margin
     tabs_hbox->addWidget(std::move(tmp_tab_container));
-    tabs_hbox->addStretch(1); //Add right margin
 
     tabs_container->setLayout(std::move(tabs_hbox));
 

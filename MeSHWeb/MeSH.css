@@ -37,15 +37,7 @@ body {
   padding: 8px 0;
   color: #ffffff;
   background-color: #535353;
-  background-image: url("images/helsebiblioteket_transparent.png");
-  background-repeat: no-repeat;
-  background-position: 10px;
   border-bottom: 2px solid #ffffff;
-}
-
-#mesh-content {
-  padding-top: 8px;
-  padding-bottom: 142px; /* Height of mesh-footer plus padding and whitespace */
 }
 
 #mesh-footer {
@@ -62,13 +54,39 @@ body {
 }
 
 .mesh-appname {
-  font-size: 20pt !important;
+  font-size: 10px;
 }
 
-.mesh-tabs {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 800px;
+#mesh-content {
+  margin: auto;
+  padding-top: 8px;
+  padding-bottom: 142px; /* Height of mesh-footer plus padding and whitespace */
+  width: 95%;
+}
+
+@media (min-width: 320px) {
+  .mesh-appname {
+    font-size: calc(10px + 14 * (100vw - 320px) / 1046); /* 320px:10px, 1366px:24px */
+  }
+
+  #mesh-content {
+    width: calc(304px + 720 * (100vw - 320px) / 1046); /* 320px:304px, 1366px:1024px */
+  }
+}
+
+@media (min-width: 1366px) {
+  .mesh-appname {
+    font-size: 24px;
+  }
+
+  #mesh-content {
+    width: 75%;
+  }
+}
+
+.Wt-tabs {
+  padding-top: 0 !important;
+  background: inherit;
 }
 
 .Wt-tabs li {
@@ -93,11 +111,6 @@ body {
   background-position: 0% 0%;
   background: #89abcd;
   margin: 0 1px;
-}
-
-.Wt-tabs {
-  padding-top: 0;
-  background: inherit;
 }
 
 .Wt-stack {
@@ -151,7 +164,6 @@ body {
 
 .scope {
   font-weight: bold;
-  
 }
 
 .dialog-layout {
@@ -162,10 +174,6 @@ body {
   background:#A8CCD8;
   border-bottom: 1px solid grey;
   color:black !important;
-}
-
-.Wt-tabs {
-  padding-top: 0 !important;
 }
 
 .Wt-treeview ul {
