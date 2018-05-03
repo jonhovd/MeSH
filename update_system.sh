@@ -16,11 +16,11 @@ sudo apt-get install elasticsearch g++ git libxml2-dev libboost-all-dev make &&
 
 # Last ned og kompiler Wt
 cd .. &&
-wget https://github.com/emweb/wt/archive/3.3.7.tar.gz &&
-gunzip 3.3.7.tar.gz &&
-tar xf 3.3.7.tar &&
-rm 3.3.7.tar &&
-ln -s wt-3.3.7 wt &&
+wget https://github.com/emweb/wt/archive/4.0.3.tar.gz &&
+gunzip 4.0.3.tar.gz &&
+tar xf 4.0.3.tar &&
+rm 4.0.3.tar &&
+ln -s wt-4.0.3 wt &&
 cd wt &&
 mkdir build &&
 cd build &&
