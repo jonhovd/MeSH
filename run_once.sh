@@ -1,19 +1,47 @@
 #!/bin/sh
-wget -qO - https://packages.elasticsearch.org/GPG-KEY-elasticsearch | sudo apt-key add - &&
-echo "deb http://packages.elasticsearch.org/elasticsearch/1.3/debian stable main" > /tmp/elasticsearch.list &&
-sudo cp /tmp/elasticsearch.list /etc/apt/sources.list.d/ &&
+git checkout wt4 &&
+
+# Installer elasticsearch 2.x
+wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add - &&
+echo "deb https://packages.elastic.co/elasticsearch/2.x/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list &&
+sudo apt-get install apt-transport-https &&
 sudo apt-get update &&
+sudo apt-get -y install elasticsearch default-jdk g++ git libxml2-dev libboost-all-dev cmake make &&
 sudo apt-get dist-upgrade &&
-sudo apt-get install default-jdk elasticsearch g++ git libwthttp-dev libxml2-dev libboost-signals-dev libboost-locale-dev make  &&
+
+# Kopier til init.d
 sudo cp ./MeSHWeb/etc_initd_MeSHWeb.sh /etc/init.d/MeSHWeb.sh &&
-echo "*  *    * * *   root    sh /etc/init.d/MeSHWeb.sh" >> /etc/crontab &&
-ln -s /usr/share/Wt/resources ./MeSHWeb/resources &&
+
+# Last ned og kompiler Wt
+cd .. &&
+wget https://github.com/emweb/wt/archive/4.0.3.tar.gz &&
+gunzip 4.0.3.tar.gz &&
+tar xf 4.0.3.tar &&
+rm 4.0.3.tar &&
+ln -s wt-4.0.3 wt &&
+cd wt &&
+mkdir build &&
+cd build &&
+cmake ../ -DWT_CPP_11_MODE:STRING="-std=c++11" &&
+make -j2 &&
+sudo make install &&
+sudo ldconfig &&
+
+# Oppdater med ny Wt-lokasjon
+cd ../../MeSH/ &&
+ln -s /usr/local/share/Wt/resources ./MeSHWeb/resources &&
+
+# Last ned cpp-elasticsearch
 cd ./MeSHImport/ &&
 git clone https://github.com/QHedgeTech/cpp-elasticsearch.git &&
-make &&
+
+# Kompiler MeSH
+make -j2 &&
 cd ../MeSHWeb/ &&
 ln -s ../MeSHImport/cpp-elasticsearch &&
-make &&
+make -j2 &&
 cd ../ParseTreeStructure/ &&
 ln -s ../MeSHImport/cpp-elasticsearch &&
-make
+make -j2 &&
+cd .. &&
+echo "Ferdig."
