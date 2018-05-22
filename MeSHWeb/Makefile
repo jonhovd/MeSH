@@ -45,4 +45,4 @@ clean:
 	-rm -f $(PROGRAM) $(OBJECTS) $(DEPS)
 
 install:
-	strip -s $(PROGRAM) && cp $(PROGRAM) /usr/local/bin/
+	sudo cp strings.xml /opt/Helsebib/MeSHWeb/ && sudo cp wt_config.xml /opt/Helsebib/MeSHWeb/ && sudo cp MeSH.css /opt/Helsebib/MeSHWeb/ && sudo rm -rf /opt/Helsebib/MeSHWeb/images && sudo cp -ar images /opt/Helsebib/MeSHWeb/ && sudo cp MeSHWeb.sh /opt/Helsebib/MeSHWeb/ && strip -s $(PROGRAM) && sudo cp $(PROGRAM) /opt/Helsebib/MeSHWeb/

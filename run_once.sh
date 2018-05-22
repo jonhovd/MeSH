@@ -1,5 +1,4 @@
 #!/bin/sh
-git checkout wt4 &&
 
 # Installer elasticsearch 2.x
 wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add - &&
@@ -8,9 +7,6 @@ sudo apt-get install apt-transport-https &&
 sudo apt-get update &&
 sudo apt-get -y install elasticsearch default-jdk g++ git libxml2-dev libboost-all-dev cmake make &&
 sudo apt-get dist-upgrade &&
-
-# Kopier til init.d
-sudo cp ./MeSHWeb/etc_initd_MeSHWeb.sh /etc/init.d/MeSHWeb.sh &&
 
 # Last ned og kompiler Wt
 cd .. &&
@@ -29,19 +25,20 @@ sudo ldconfig &&
 
 # Oppdater med ny Wt-lokasjon
 cd ../../MeSH/ &&
-ln -s /usr/local/share/Wt/resources ./MeSHWeb/resources &&
+ln -sf /usr/local/share/Wt/resources ./MeSHWeb/ &&
 
 # Last ned cpp-elasticsearch
 cd ./MeSHImport/ &&
 git clone https://github.com/QHedgeTech/cpp-elasticsearch.git &&
 
-# Kompiler MeSH
-make -j2 &&
 cd ../MeSHWeb/ &&
-ln -s ../MeSHImport/cpp-elasticsearch &&
-make -j2 &&
+ln -sf ../MeSHImport/cpp-elasticsearch &&
 cd ../ParseTreeStructure/ &&
-ln -s ../MeSHImport/cpp-elasticsearch &&
-make -j2 &&
-cd .. &&
+ln -sf ../MeSHImport/cpp-elasticsearch &&
+
+sudo mkdir -p /opt/Helsebib/MeSHWeb/ &&
+sudo ln -sf /usr/local/share/Wt/resources /opt/Helsebib/MeSHWeb/ &&
+
+./update_system.sh &&
+
 echo "Ferdig."

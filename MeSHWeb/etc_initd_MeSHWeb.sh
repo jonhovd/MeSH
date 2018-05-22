@@ -10,5 +10,22 @@
 # Description:       Starts MeSHWeb using start-stop-daemon
 ### END INIT INFO
 
-cd /opt/Helsebib/MeSHWeb/
-./MeSHWeb.sh 80 &
+
+case "$1" in
+  start)
+    cd /opt/Helsebib/MeSHWeb/
+    while true
+    do
+      ./MeSHWeb.sh 80
+    done
+    ;;
+  stop)
+    pkill -u root MeSH
+    ;;
+  *)
+    echo "Usage: /etc/init.d/MeSHWeb.sh {start|stop}"
+    exit 2
+    ;;
+esac
+
+exit 0
