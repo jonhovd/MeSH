@@ -39,6 +39,6 @@ ln -sf ../MeSHImport/cpp-elasticsearch &&
 sudo mkdir -p /opt/Helsebib/MeSHWeb/ &&
 sudo ln -sf /usr/local/share/Wt/resources /opt/Helsebib/MeSHWeb/ &&
 
-./update_system.sh &&
+sh ./update_system.sh &&
 
 echo "Ferdig."
