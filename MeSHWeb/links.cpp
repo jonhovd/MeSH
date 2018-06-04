@@ -3,7 +3,6 @@
 #include <boost/algorithm/string/replace.hpp>
 
 #include <Wt/WAnchor.h>
-#include <Wt/WHBoxLayout.h>
 #include <Wt/WLink.h>
 #include <Wt/WText.h>
 
