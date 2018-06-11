@@ -9,12 +9,14 @@
 Footer::Footer()
 : Wt::WContainerWidget()
 {
-	setStyleClass("mesh-footer");
-
 	auto layout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
 	layout->setContentsMargins(0, 0, 0, 0);
 
-	layout->addWidget(Wt::cpp14::make_unique<Info>(), 0, Wt::AlignmentFlag::Right);
+	auto logo = Wt::cpp14::make_unique<Wt::WImage>("images/logo.png");
+    logo->setStyleClass("mesh-footer-logo");
+	layout->addWidget(std::move(logo), 1, Wt::AlignmentFlag::Left);
+    
+    layout->addWidget(Wt::cpp14::make_unique<Info>(), 1, Wt::AlignmentFlag::Right);
 
     setLayout(std::move(layout));
 }

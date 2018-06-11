@@ -47,10 +47,14 @@ body {
   padding-top: 8px;
   height: 122px; /* Height of the footer image (112px) plus vertical border and padding */
   background-color: white;
-  background-image: url("images/logo.png");
-  background-repeat: no-repeat;
-  background-position: 8px;
   border-top: 2px solid #535353;
+}
+
+.mesh-footer-logo {
+  max-width: 231px;
+  max-height: 112px;
+  width: 100%;
+  height: auto;
 }
 
 .mesh-appname {
