@@ -13,7 +13,6 @@
 #include "hierarchy.h"
 #include "search.h"
 #include "statistics.h"
-#include "footer.h"
 
 #define SUGGESTION_COUNT    (20)
 #define RESULTLIST_COUNT    (10)

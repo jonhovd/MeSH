@@ -8,6 +8,8 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WTable.h>
 
+#include "info.h"
+
 
 MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
@@ -33,8 +35,10 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 	auto page_template = Wt::cpp14::make_unique<Wt::WTemplate>(Wt::WString::tr("PageTemplate"));
 	page_template->bindWidget("HeaderWidget", Wt::cpp14::make_unique<Header>());
 	page_template->bindWidget("ContentWidget", InitializeContentWidget());
-	page_template->bindWidget("FooterWidget", Wt::cpp14::make_unique<Footer>());
-	root_vbox->addWidget(std::move(page_template));
+    
+	page_template->bindWidget("InfoWidget", Wt::cpp14::make_unique<Info>());
+
+    root_vbox->addWidget(std::move(page_template));
 
 	root()->setLayout(std::move(root_vbox));
 
