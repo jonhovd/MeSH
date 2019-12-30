@@ -1,74 +1,17 @@
-@media print {
-  * {
-    font-size: 14pt !important;  
-  }
-}
-
-.marked_item {
-  color: white !important;
-  background-color: black !important;
-}
-
 body {
-  margin: 0;
   padding: 0;
-  height: 100%;
   width: 100%;
-  font-family: 'Lato', sans-serif !important;
+  margin: auto !important; /* Center page on wide screens */
+  xfont-family: 'Lato', sans-serif !important;
   background-color: #eeeeee;
-  overflow: auto !important;
+  overflow: scroll !important;
 }
 
-#page {
-  min-height: 100%;
-  position:relative;
-}
-
-#mesh-header {
-  width: 100%;
+.mesh-header {
   padding: 8px 0;
-  color: #ffffff;
+  color: #ffffff !important;
   background-color: #535353;
   border-bottom: 2px solid #ffffff;
-}
-
-#mesh-footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding-top: 8px;
-  height: 122px; /* Height of the footer image (112px) plus vertical border and padding */
-  background-color: white;
-  border-top: 2px solid #535353;
-  display: table;
-}
-
-#footerLeft {
-  display: table-cell;
-  width: 50%;
-  height: 100%;
-  vertical-align: middle;
-}
-
-#footerLogo {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-#footerRight {
-  display: table-cell;
-  width: 50%;
-  height: 100%;
-  vertical-align: middle;
-}
-
-.info-box a, .mesh-link {
-  color: black;
-  background-color: #eeeeee;
-  text-align: center;
-  text-decoration: underline;
-  font-size: 9px;
-  padding: 5px;
 }
 
 .mesh-appname {
@@ -78,8 +21,37 @@ body {
 #mesh-content {
   margin: auto;
   padding-top: 8px;
-  padding-bottom: 142px; /* Height of mesh-footer plus padding and whitespace */
   width: 95%;
+  background: green !important;
+}
+
+.search-box {
+  padding: 1.5em;
+  background: #abcdef;
+}
+
+.result {
+  background: white;
+  padding: 0;
+  margin: 0 5px;
+}
+
+.result-description {
+  background: white;
+  margin-bottom: 2.5em;
+}
+
+.mesh-links {
+}
+
+.mesh-link {
+  display: inline-block;
+  margin: 5px 1em;
+}
+
+.marked_item {
+  color: white !important;
+  background-color: black !important;
 }
 
 @media (min-width: 320px) {
@@ -87,11 +59,11 @@ body {
     font-size: calc(10px + 14 * (100vw - 320px) / 1046); /* 320px:10px, 1366px:24px */
   }
 
-  #mesh-content {
-    width: calc(304px + 720 * (100vw - 320px) / 1046); /* 320px:304px, 1366px:1024px */
+  body {
+    width: calc(304px + 720 * (100vw - 320px) / 1046) !important; /* 320px:304px, 1366px:1024px */
   }
   
-  .info-box a {
+  .xinfo-box a {
     font-size: calc(9px + 7 * (100vw - 320px) / 1046); /* 320px:9px, 1366px:16px */
   }
 }
@@ -101,14 +73,73 @@ body {
     font-size: 24px;
   }
 
-  #mesh-content {
+  body {
     width: 75%;
   }
 
-  .info-box a {
+  .xinfo-box a {
       font-size: 16px;
   }
 }
+
+@media print {
+  * {
+    font-size: 14pt !important;  
+  }
+}
+
+.Wt-domRoot {
+  height: auto !important;
+}
+
+/*
+#page {
+  min-height: 100%;
+  xposition:relative;
+}
+
+
+#xmesh-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding-top: 8px;
+  height: 122px; // Height of the footer image (112px) plus vertical border and padding
+  background-color: white;
+  border-top: 2px solid #535353;
+  display: table;
+}
+
+#xfooterLeft {
+  display: table-cell;
+  width: 50%;
+  height: 100%;
+  vertical-align: middle;
+}
+
+#xfooterLogo {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+#xfooterRight {
+  display: table-cell;
+  width: 50%;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.xinfo-box a, .mesh-link {
+  color: black;
+  background-color: #eeeeee;
+  text-align: center;
+  text-decoration: underline;
+  font-size: 9px;
+  padding: 5px;
+}
+
+
+
 
 .Wt-tabs {
   padding-top: 0 !important;
@@ -143,34 +174,12 @@ body {
   background: white;
 }
 
-.search-box {
-  padding: 1.5em;
-  background: #abcdef;
-}
-
-.result {
-  background: white;
-  padding: 0;
-  margin: 0 5px;
-}
-
-.result-description {
-  background: white;
-  margin-bottom: 2.5em;
-}
 
 .Wt-suggest {
   background-color: #eeeeee;
   color: black;
 }
 
-.mesh-links {
-}
-
-.mesh-link {
-  display: inline-block;
-  margin: 5px 1em;
-}
 
 .Wt-panel {
   border: none !important;
@@ -207,7 +216,7 @@ body {
   font-size: 14px;
   
 }
-
+*/
 /*
 .marked_item::after {
   content: url('images/star.png') !important;

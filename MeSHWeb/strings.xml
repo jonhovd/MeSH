@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
     <message id="AppName">MeSH på norsk - begreper innen medisin og helsefag</message>
+
+    <message id="AppStatisticsInternalPath">/statistics</message>
+    <message id="MeshIdInternalPath">/mesh</message>
+    <message id="MeshIdInternalPathParam">id={1}</message>
+
+    <message id="ContactInfo">Om oss</message>
+    <message id="Search">Tekst-søk</message>
+    <message id="Hierarchy">Hierarki-søk</message>
+    <message id="Statistics">Statistikk</message>
+    <message id="PreviousPrefix">&laquo;&nbsp;</message>
+    <message id="NextPostfix">&nbsp;&raquo;</message>
+
+    <!--
     <message id="AppAbout">Om søk, innhold og prosjekt</message>
     <message id="AppAboutUrl">http://www.helsebiblioteket.no/om-oss/artikkelarkiv/mesh-medical-subject-headings-pa-norsk-og-engelsk</message>
     <message id="AppSendQuestion">Spørsmål om MeSH?</message>
     <message id="AppSendQuestionUrl">mailto:SigrunEspelien.Aasen@fhi.no?subject=Spørsmål om MeSH</message>
     <message id="AppStatistics">Statistikk</message>
+    -->
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope-Note:</message>
     <message id="IndirectHit">{1} ({2})</message>
     <message id="NotTranslated">(Ikke oversatt)</message>
-
-    <message id="Hierarchy">Hierarki-søk</message>
-    <message id="Search">Tekst-søk</message>
-    <message id="Statistics">Statistikk</message>
-
-    <message id="AppStatisticsInternalPath">/statistics</message>
-    <message id="MeshIdInternalPath">/mesh</message>
-    <message id="MeshIdInternalPathParam">id={1}</message>
 
     <message id="LinkLabel">Søk på {1} i databasene under:</message>
 
@@ -50,8 +56,9 @@
     <message id="LinkUrl3.2">https://mesh.kib.ki.se/term/{1}</message>
     <message id="LinkText3.3">HeTOP</message>
     <message id="LinkUrl3.3">https://hetop.eu/hetop/?la=no&amp;tab=0&amp;q={2}</message>
-
+<!--
     <message id="Links">Lenker:</message>
+-->
     <message id="SeeRelated">Se også:</message>
     <message id="MoreHits">(viser maksimalt {1} treff)</message>
     <message id="NoHits">(...ingen treff)</message>
@@ -59,14 +66,15 @@
     <message id="NonPreferredEnglishTerms">Alternative engelske termer:</message>
     <message id="PreferredNorwegianTerm"></message>
     <message id="PreferredEnglishTerm"></message>
+
     <message id="SearchButton">SØK</message>
     <message id="SearchFromHierarchy">Søk etter "{1}"</message>
+
     <message id="StatisticsPerDay">Søk pr dag:</message>
     <message id="StatisticsPerMeSH">Søk pr MeSH:</message>
 
     <message id="SearchTooltip">MeSH på norsk - søk på begreper innen medisin og helsefag</message>
     <message id="SearchbuttonTooltip">Søk og vis treff i listeform</message>
-	
     <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}], "query": {"bool": {"should": [{"match": {"name": {"query": "{3}", "boost": 3} } }, {"term": {"id^2": "{3}"} }, {"simple_query_string": {"query": "{4}", "fields": ["name","id"], "default_operator": "AND"} }, {"nested": {"path": "concepts", "query": {"bool": {"should": [{ "nested": {"path": "concepts.terms", "query": {"bool": {"should": [{"multi_match": {"query": "{3}", "fields": ["concepts.name^2","concepts.terms.text^2"]} }, {"simple_query_string": {"query": "{4}", "fields": ["concepts.name","concepts.terms.text"], "default_operator": "AND"} }]} } } }]} } } }]} } }</message>
     <message id="SearchFilterQuery">{"from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
     <message id="HierarchyTopNodesQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"top_node": "yes"} } } } } } }</message>
@@ -74,13 +82,5 @@
     <message id="HierarchyChildrenQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"bool": {"must": {"term": {"parent_tree_numbers": "{1}"} } } } }</message>
     <message id="StatisticsDay">{"from": 0, "size": 50, "sort": {"_uid": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
     <message id="StatisticsText">{"from": 0, "size": 50, "sort": {"count": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
-
-	<message id="PageTemplate">
-           <div id="page">
-            <div id="mesh-header">${HeaderWidget}</div>
-            <div id="mesh-content">${ContentWidget}</div>
-            <section id="mesh-footer"><div id="footerLeft"><img id="footerLogo" src="images/logo.png"/></div><div id="footerRight">${InfoWidget}</div></section>
-           </div>
-    </message>
 
 </messages>

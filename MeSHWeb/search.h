@@ -3,6 +3,7 @@
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WLineEdit.h>
+#include <Wt/WStackedWidget.h>
 #include <Wt/WStandardItem.h>
 #include <Wt/WStandardItemModel.h>
 #include <Wt/WSuggestionPopup.h>
@@ -18,14 +19,20 @@ class MeSHApplication;
 class Search : public Wt::WContainerWidget
 {
 public:
-	Search(MeSHApplication* mesh_application);
+enum TabId {
+	TAB_INDEX_RESULT=0,
+	TAB_INDEX_RESULTLIST=1
+};
+
+public:
+  Search(MeSHApplication* mesh_application);
 	~Search();
 
 public:
 	void ClearLayout();
 
 	void FocusSearchEdit();
-	void OnSearch(const Wt::WString& mesh_id);
+  void OnSearch(const Wt::WString& mesh_id);
 	
 protected:
 	void SearchButtonClicked();
@@ -40,7 +47,7 @@ private:
 public:
 	static void CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str);
 	static void FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str);
-	static void FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str);
+ 	static void FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str);
 
 public:
 	static void AddWildcard(const std::string filter_str, std::string& wildcard_filter_str);
@@ -52,11 +59,13 @@ private:
 private:
 	MeSHApplication* m_mesh_application;
 
-	Wt::WLineEdit* m_search_edit;
-	Wt::WSuggestionPopup* m_search_suggestion;
-	std::shared_ptr<Wt::WStandardItemModel> m_search_suggestion_model;
+  Wt::WLineEdit* m_search_edit;
+  Wt::WSuggestionPopup* m_search_suggestion;
+  std::shared_ptr<Wt::WStandardItemModel> m_search_suggestion_model;
 
-	MeshResultList* m_mesh_resultlist;
+	Wt::WStackedWidget* m_stacked_widget;
+
+  MeshResultList* m_mesh_resultlist;
 	MeshResult* m_mesh_result;
 };
 

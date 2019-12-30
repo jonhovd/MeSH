@@ -9,6 +9,7 @@
 #include <Wt/WVBoxLayout.h>
 
 #include "elasticsearchutil.h"
+
 #include "links.h"
 
 
@@ -48,7 +49,6 @@ private:
 
 	Wt::WText* m_see_related_text;
 	Wt::WContainerWidget* m_see_related_container;
-	
 	Links* m_links;
 };
 

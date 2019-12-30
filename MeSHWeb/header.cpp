@@ -8,14 +8,14 @@
 Header::Header()
 : Wt::WContainerWidget()
 {
-	setStyleClass("mesh-header");
+  setStyleClass("mesh-header");
 
-	auto layout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
-	layout->setContentsMargins(0, 0, 0, 0);
+  auto layout = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
+  layout->setContentsMargins(0, 0, 0, 0);
 
-	layout->addWidget(Wt::cpp14::make_unique<AppName>(), 0, Wt::AlignmentFlag::Center);
+  layout->addWidget(Wt::cpp14::make_unique<AppName>(), 0, Wt::AlignmentFlag::Center);
 
-    setLayout(std::move(layout));
+  setLayout(std::move(layout));
 }
 
 Header::~Header()
