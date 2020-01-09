@@ -18,11 +18,17 @@ body {
   font-size: 10px;
 }
 
-#mesh-content {
+.mesh-content {
   margin: auto;
   padding-top: 8px;
-  width: 95%;
+  xwidth: 95%;
+  xheight: 100% !important;
   background: green !important;
+}
+
+.stacked-content {
+  xheight: 100px !important;
+  background: red !important;
 }
 
 .search-box {

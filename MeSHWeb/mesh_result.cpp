@@ -328,7 +328,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
   delete non_preferred_eng_terms;
 
   //Mark search-result in hierarchy search tab
-  Hierarchy* hierarchy = m_mesh_application->GetHierarchy();
+  Hierarchy* hierarchy = m_mesh_application->GetContent()->GetHierarchy();
   hierarchy->ClearMarkedItems();
   hierarchy->Collapse();
   if (source_object.member("tree_numbers"))
