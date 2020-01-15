@@ -14,7 +14,8 @@
 MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 : Wt::WApplication(environment),
   m_layout_is_cleared(true),
-  m_content(nullptr)
+  m_content(nullptr),
+  m_search_signal(this, "search")
 {
   messageResourceBundle().use(appRoot() + "strings");
 
@@ -53,6 +54,8 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
 
     OnInternalPathChange(environment.internalPath());
 #endif
+
+  m_search_signal.connect(this, &MeSHApplication::OnSearch);
 }
 
 MeSHApplication::~MeSHApplication()

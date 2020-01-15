@@ -264,7 +264,7 @@ void Hierarchy::PopupMenuTriggered(Wt::WMenuItem* item)
   {
     m_mesh_application->ClearLayout();
     m_mesh_application->GetContent()->SetActiveStackedWidget(Content::TAB_INDEX_SEARCH);
-    m_mesh_application->GetContent()->SearchMesh(m_popup_menu_id_string);
+    m_mesh_application->GetContent()->GetSearch()->OnSearch(m_popup_menu_id_string);
   }
 }
 

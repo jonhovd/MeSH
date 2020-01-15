@@ -40,10 +40,10 @@ public:
   void ClearLayout();
   void SetActiveStackedWidget(TabId index);
   void SetStatisticsPageIasHidden(bool hidden);
-  void SearchMesh(const Wt::WString& mesh_id);
 
 public:
   Hierarchy* GetHierarchy() const {return m_hierarchy;}
+  Search* GetSearch() const {return m_search;}
 
 private:
   std::unique_ptr<Wt::WContainerWidget> CreateSearchWidget(MeSHApplication* mesh_application);
@@ -59,7 +59,6 @@ private:
   Wt::WPushButton* m_next_tab_button;
 
   Search* m_search;
-  Wt::JSignal<Wt::WString> m_search_signal;
 
   Hierarchy* m_hierarchy;
 	Statistics* m_statistics;

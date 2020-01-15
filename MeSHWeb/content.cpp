@@ -13,7 +13,6 @@ Content::Content(MeSHApplication* mesh_application)
   m_previous_tab_button(nullptr),
   m_next_tab_button(nullptr),
   m_search(nullptr),
-  m_search_signal(this, "search"),
   m_hierarchy(nullptr),
   m_statistics(nullptr)
 {
@@ -58,9 +57,7 @@ Content::Content(MeSHApplication* mesh_application)
 
   m_statistics = m_stacked_widget->addWidget(Wt::cpp14::make_unique<Statistics>(mesh_application)); //TAB_INDEX_STATISTICS
 
-  layout->addWidget(std::move(stack_widget), 1);
-
-  layout->addStretch(1);
+  layout->addWidget(std::move(stack_widget));
 
   setLayout(std::move(layout));
 }
@@ -94,11 +91,6 @@ void Content::SetActiveStackedWidget(TabId index)
   {
     m_statistics->populate();
   }
-}
-
-void Content::SearchMesh(const Wt::WString& mesh_id)
-{
-	m_search->OnSearch(mesh_id);
 }
 
 void Content::OnPreviousButtonClicked()
@@ -144,6 +136,5 @@ std::unique_ptr<Wt::WContainerWidget> Content::CreateSearchWidget(MeSHApplicatio
 {
   auto search = Wt::cpp14::make_unique<Search>(mesh_application);
   m_search = search.get();
-  m_search_signal.connect(this, &Content::SearchMesh);
   return std::move(std::move(search));
 }

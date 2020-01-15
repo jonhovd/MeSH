@@ -30,6 +30,7 @@ public:
 
 protected: //From Wt::WApplication
 	virtual void handleJavaScriptError(const std::string& errorText);
+  void OnSearch(const Wt::WString& mesh_id) {GetContent()->GetSearch()->OnSearch(mesh_id);}
 
 protected:
   void OnInternalPathChange(const std::string& url);
@@ -48,6 +49,8 @@ private:
   bool m_layout_is_cleared;
 
   Content* m_content;
+
+  Wt::JSignal<Wt::WString> m_search_signal;
 
   std::shared_ptr<ElasticSearchUtil> m_es_util;
 };
