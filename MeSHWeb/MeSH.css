@@ -2,7 +2,6 @@ body {
   padding: 0;
   width: 100%;
   margin: auto !important; /* Center page on wide screens */
-  xfont-family: 'Lato', sans-serif !important;
   background-color: #eeeeee;
   overflow: scroll !important;
 }
@@ -23,12 +22,9 @@ body {
   padding-top: 8px;
   xwidth: 95%;
   xheight: 100% !important;
-  background: green !important;
 }
 
 .stacked-content {
-  xheight: 100px !important;
-  background: red !important;
 }
 
 .search-box {
