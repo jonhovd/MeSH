@@ -49,11 +49,11 @@ void printUpdateChildNumbers(int count, int updated_count)
     fflush(stdout);
 }
 
-long ESSearch(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
+long ESSearch(const std::string& index, const std::string& query, Json::Object& search_result)
 {
     try
     {
-        return g_es->search(index, type, query, search_result);
+        return g_es->search(index, query, search_result);
     }
     catch(...)
     {
@@ -92,10 +92,27 @@ void CleanDatabase()
 
     g_es->createIndex("mesh", mapping.str().c_str());
 
-    g_es->deleteIndex("statistics");
-    mapping << "{\"mappings\": {\"day\": {\"properties\": {\"count\": {\"type\": \"integer\"} } }, "
-                            << "\"text\": {\"properties\": {\"count\": {\"type\": \"integer\"} } } } }";
-    g_es->createIndex("statistics", mapping.str().c_str());
+    g_es->deleteIndex("day_statistics");
+	mapping << "{"
+            << " \"mappings\": {"
+            << "  \"properties\": {"
+            << "   \"day\": {\"type\": \"keyword\"},"
+            << "   \"count\": {\"type\": \"integer\"}"
+            << "  }"
+            << " }"
+            << "}";
+    g_es->createIndex("day_statistics", mapping.str().c_str());
+
+    g_es->deleteIndex("text_statistics");
+	mapping << "{"
+            << " \"mappings\": {"
+            << "  \"properties\": {"
+            << "   \"text\": {\"type\": \"keyword\"},"
+            << "   \"count\": {\"type\": \"integer\"}"
+            << "  }"
+            << " }"
+            << "}";
+    g_es->createIndex("text_statistics", mapping.str().c_str());
 }
 
 bool GetThesaurusLanguage(const xmlChar* thesaurus_id, std::string& language)
@@ -548,7 +565,7 @@ void PopulateChildrenTreeNumberList(Json::Array& children_tree_number_array, con
     query << "{\"from\": 0, \"size\": 100, \"query\": {\"bool\": {\"must\": {\"term\": {\"parent_tree_numbers\": \"" << tree_number << "\"} } } } }";
 
     Json::Object search_result;
-    if (0 == ESSearch("mesh", CONST_CHAR(g_language_code), query.str(), search_result))
+    if (0 == ESSearch("mesh", query.str(), search_result))
         return;
     
     const Json::Value value = search_result.getValue("hits");
@@ -632,7 +649,7 @@ void UpdateChildTreeNumbers()
 
                     Json::Object updated_value_object;
                     updated_value_object.addMemberByKey("child_tree_numbers", children_tree_number_array);
-                    g_es->update("mesh", CONST_CHAR(g_language_code), id_value_str, updated_value_object);
+                    g_es->update("mesh", "_doc", id_value_str, updated_value_object);
                 }
 
                 printUpdateChildNumbers(count, updated_count);
