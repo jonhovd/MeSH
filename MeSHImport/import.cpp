@@ -547,7 +547,7 @@ bool ProcessDescriptorRecord(xmlNodePtr descriptor_record_ptr)
 	if (id)
 	{
         json.addMemberByKey("language_file", CONST_CHAR(g_language_code));
-		g_es->index("mesh", "_doc", CONST_CHAR(id), json);
+		g_es->index("mesh", CONST_CHAR(id), json);
 	}
 
     g_total_descriptor_count++;
@@ -649,7 +649,7 @@ void UpdateChildTreeNumbers()
 
                     Json::Object updated_value_object;
                     updated_value_object.addMemberByKey("child_tree_numbers", children_tree_number_array);
-                    g_es->update("mesh", "_doc", id_value_str, updated_value_object);
+                    g_es->update("mesh", id_value_str, updated_value_object);
                 }
 
                 printUpdateChildNumbers(count, updated_count);
