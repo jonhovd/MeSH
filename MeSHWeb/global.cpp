@@ -19,11 +19,6 @@ void Log(const std::string& UNUSED(type), const std::string& UNUSED(msg))
 }
 #endif
 
-std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env)
-{
-  return Wt::cpp14::make_unique<MeSHApplication>(env);
-}
-
 int main(int argc, char** argv)
 {
   g_logger.addField("message", true);
@@ -34,5 +29,5 @@ int main(int argc, char** argv)
   std::locale loc = gen(""); 
   std::locale::global(loc);
 
-  return Wt::WRun(argc, argv, &createApplication);
+  return Wt::WRun(argc, argv, [](const Wt::WEnvironment& env) {return std::make_unique<MeSHApplication>(env);});
 }

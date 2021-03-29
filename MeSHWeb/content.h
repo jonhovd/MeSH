@@ -4,7 +4,7 @@
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WPushButton.h>
-#include <Wt/WStackedWidget>
+#include <Wt/WStackedWidget.h>
 
 #include "hierarchy.h"
 #include "search.h"

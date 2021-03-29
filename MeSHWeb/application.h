@@ -6,7 +6,7 @@
 #include <Wt/WApplication.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WMessageBox.h>
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 #include "content.h"
 #include "elasticsearchutil.h"
