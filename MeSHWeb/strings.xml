@@ -75,12 +75,12 @@
 
     <message id="SearchTooltip">MeSH på norsk - søk på begreper innen medisin og helsefag</message>
     <message id="SearchbuttonTooltip">Søk og vis treff i listeform</message>
-    <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}], "query": {"bool": {"should": [{"match": {"name": {"query": "{3}", "boost": 3} } }, {"term": {"id^2": "{3}"} }, {"simple_query_string": {"query": "{4}", "fields": ["name","id"], "default_operator": "AND"} }, {"nested": {"path": "concepts", "query": {"bool": {"should": [{ "nested": {"path": "concepts.terms", "query": {"bool": {"should": [{"multi_match": {"query": "{3}", "fields": ["concepts.name^2","concepts.terms.text^2"]} }, {"simple_query_string": {"query": "{4}", "fields": ["concepts.name","concepts.terms.text"], "default_operator": "AND"} }]} } } }]} } } }]} } }</message>
-    <message id="SearchFilterQuery">{"from": 0, "size": 1, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"id": "{1}"} } } } } } }</message>
-    <message id="HierarchyTopNodesQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"filtered": {"filter": {"bool": {"must": {"term": {"top_node": "yes"} } } } } } }</message>
+    <message id="SuggestionFilterQuery">{"from": {1}, "size": {2}, "sort": [{"_score": {"order": "desc"}}], "query": {"multi_match": {"query": "{3}", "fuzziness": 0, "operator": "AND", "type": "most_fields", "fields": ["id^150", "other_ids^120", "nor_name^100", "nor_preferred_term_text^80", "nor_description^80", "eng_name^70", "eng_preferred_term_text^60", "eng_description^60", "nor_other_term_texts^10", "eng_other_term_texts^8", "see_related^5", "tree_numbers^3", "parent_tree_numbers^2", "child_tree_numbers"]} } } </message>
+    <message id="SearchFilterQuery">{"from": 0, "size": 1, "query": {"bool": {"must": {"term": {"id": "{1}"} } } } }</message>
+    <message id="HierarchyTopNodesQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"bool": {"must": {"term": {"top_node": "yes"} } } } }</message>
     <message id="HierarchyTreeNodeQuery">{"from": 0, "size": 1, "query": {"bool": {"must": {"term": {"tree_numbers": "{1}"} } } } }</message>
     <message id="HierarchyChildrenQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"bool": {"must": {"term": {"parent_tree_numbers": "{1}"} } } } }</message>
-    <message id="StatisticsDay">{"from": 0, "size": 50, "sort": {"_uid": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
+    <message id="StatisticsDay">{"from": 0, "size": 50, "sort": {"_id": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
     <message id="StatisticsText">{"from": 0, "size": 50, "sort": {"count": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
 
 </messages>

@@ -148,7 +148,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 
   Json::Object search_result;
   auto es_util = m_mesh_application->GetElasticSearchUtil();
-  long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
+  long result_size = es_util->search("mesh", query.toUTF8(), search_result);
   if (0 == result_size)
   {
     return;

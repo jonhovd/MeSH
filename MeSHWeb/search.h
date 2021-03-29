@@ -50,7 +50,6 @@ public:
  	static void FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str);
 
 public:
-	static void AddWildcard(const std::string filter_str, std::string& wildcard_filter_str);
 	static void MeSHToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& mesh_id, std::string& name);
 	static void TreeNumberToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& tree_number, std::string& name, std::string* mesh_id=nullptr);
 private:

@@ -104,17 +104,20 @@ void Search::FilterSuggestion(const Wt::WString& filter)
   m_search_suggestion_model->clear();
 
   std::string filter_str = filter.toUTF8();
+  if (filter_str.empty())
+  {
+    return;
+  }
+  
   const std::string lowercase_filter_str = boost::locale::to_lower(filter_str);
   std::string cleaned_filter_str;
   CleanFilterString(filter_str, cleaned_filter_str);
-  std::string wildcard_filter_str;
-  AddWildcard(cleaned_filter_str, wildcard_filter_str);
 
-  Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 is to see if we got more than SUGGESTION_COUNT hits */).arg(filter).arg(wildcard_filter_str);
+  Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(SUGGESTION_COUNT+1 /* +1 is to see if we got more than SUGGESTION_COUNT hits */).arg(filter);
 
   Json::Object search_result;
 	auto es_util = m_mesh_application->GetElasticSearchUtil();
-  long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
+  long result_size = es_util->search("mesh", query.toUTF8(), search_result);
 
   int row = 0;
   if (0 == result_size)
@@ -139,7 +142,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
       const Json::Object source_object = source_value.getObject();
 
       const Json::Value id_value = source_object.getValue("id");
-      const Json::Value name_value = source_object.getValue("name");
+      const Json::Value name_value = (source_object.member("nor_name")) ? source_object.getValue("nor_name") : source_object.getValue("eng_name");
 
       const std::string lowercase_name_value_str = boost::locale::to_lower(name_value.getString());
       std::string indirect_hit_str;
@@ -237,40 +240,27 @@ void Search::FindIndirectHit(const Json::Object& source_object, const std::strin
   indirect_hit_str.clear();
   double best_hit_factor = 0.0;
 
-  const Json::Value concepts_value = source_object.getValue("concepts");
-  const Json::Array concepts_array = concepts_value.getArray();
+  const std::string search_fields[] = {"id", "other_ids", "nor_name", "nor_preferred_term_text", "nor_description", "eng_name", "eng_preferred_term_text", "eng_description",
+                                       "nor_other_term_texts", "eng_other_term_texts", "see_related", "tree_numbers", "parent_tree_numbers", "child_tree_numbers"};
 
-  Json::Array::const_iterator concept_iterator = concepts_array.begin();
-  for (; concept_iterator!=concepts_array.end(); ++concept_iterator)
+  for (size_t i=0; i<sizeof(search_fields)/sizeof(search_fields[0]); i++)
   {
-    const Json::Value concept_value = *concept_iterator;
-    const Json::Object concept_object = concept_value.getObject();
-#if 0
-    if (concept_object.member("description"))
+    if (!source_object.member(search_fields[i]))
+      continue;
+    
+    const Json::Value search_value = source_object.getValue(search_fields[i]);
+    if (search_value.isArray())
     {
-      const Json::Value description_value = concept_object.getValue("description");
-      std::string description_str = description_value.getString();
-      boost::algorithm::replace_all(description_str, "\\n", "\n");
-      FindIndirectHit(description_str, cleaned_filter_str, best_hit_factor, indirect_hit_str);
+      Json::Array search_values = search_value.getArray();
+      Json::Array::const_iterator search_value_iterator = search_values.begin();
+      for (; search_value_iterator!=search_values.end(); ++search_value_iterator)
+      {
+        FindIndirectHit((*search_value_iterator).getString(), cleaned_filter_str, best_hit_factor, indirect_hit_str);
+      }
     }
-    if (concept_object.member("english_description"))
+    else
     {
-      const Json::Value description_value = concept_object.getValue("english_description");
-      std::string description_str = description_value.getString();
-      boost::algorithm::replace_all(description_str, "\\n", "\n");
-      FindIndirectHit(description_str, cleaned_filter_str, best_hit_factor, indirect_hit_str);
-    }
-#endif
-    const Json::Value terms_value = concept_object.getValue("terms");
-    const Json::Array terms_array = terms_value.getArray();
-    Json::Array::const_iterator term_iterator = terms_array.begin();
-    for (; term_iterator!=terms_array.end(); ++term_iterator)
-    {
-      const Json::Value term_value = *term_iterator;
-      const Json::Object term_object = term_value.getObject();
-      
-      const Json::Value term_text_value = term_object.getValue("text");
-      FindIndirectHit(term_text_value.getString(), cleaned_filter_str, best_hit_factor, indirect_hit_str);
+      FindIndirectHit(search_value.getString(), cleaned_filter_str, best_hit_factor, indirect_hit_str);
     }
   }
 }
@@ -335,23 +325,13 @@ void Search::FindIndirectHit(const std::string& haystack, const std::string& nee
   }
 }
 
-void Search::AddWildcard(const std::string filter_str, std::string& wildcard_filter_str)
-{
-  wildcard_filter_str = filter_str;
-  size_t filter_length = wildcard_filter_str.length();
-  if (0<filter_length && ' '!=wildcard_filter_str[filter_length-1])
-  {
-    wildcard_filter_str.append("*");
-  }
-}
-
 void Search::MeSHToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& mesh_id, std::string& name)
 {
   name = mesh_id;
 
   Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id);
   Json::Object search_result;
-  long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
+  long result_size = es_util->search("mesh", query.toUTF8(), search_result);
   if (0 == result_size)
   {
     return;
@@ -366,7 +346,7 @@ void Search::TreeNumberToName(std::shared_ptr<ElasticSearchUtil> es_util, const 
 
 	Wt::WString query = Wt::WString::tr("HierarchyTreeNodeQuery").arg(tree_number);
 	Json::Object search_result;
-	long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
+	long result_size = es_util->search("mesh", query.toUTF8(), search_result);
 	if (0 == result_size)
 	{
 		return;

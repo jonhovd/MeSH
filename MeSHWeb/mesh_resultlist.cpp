@@ -37,14 +37,12 @@ void MeshResultList::OnSearch(const Wt::WString& filter)
   const std::string lowercase_filter_str = boost::locale::to_lower(filter_str);
   std::string cleaned_filter_str;
   Search::CleanFilterString(filter_str, cleaned_filter_str);
-  std::string wildcard_filter_str;
-  Search::AddWildcard(cleaned_filter_str, wildcard_filter_str);
 
-  Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(RESULTLIST_COUNT).arg(filter).arg(wildcard_filter_str);
+  Wt::WString query = Wt::WString::tr("SuggestionFilterQuery").arg(0).arg(RESULTLIST_COUNT).arg(filter);
 
   Json::Object search_result;
   auto es_util = m_mesh_application->GetElasticSearchUtil();
-  long result_size = es_util->search("mesh", LANGUAGE, query.toUTF8(), search_result);
+  long result_size = es_util->search("mesh", query.toUTF8(), search_result);
 
   int row = 0;
   if (0 == result_size)
@@ -67,7 +65,7 @@ void MeshResultList::OnSearch(const Wt::WString& filter)
       const Json::Object source_object = source_value.getObject();
 
       const Json::Value id_value = source_object.getValue("id");
-      const Json::Value name_value = source_object.getValue("name");
+      const Json::Value name_value = (source_object.member("nor_name")) ? source_object.getValue("nor_name") : source_object.getValue("eng_name");
 
       const std::string lowercase_name_value_str = boost::locale::to_lower(name_value.getString());
       std::string indirect_hit_str;

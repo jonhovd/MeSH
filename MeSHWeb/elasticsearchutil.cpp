@@ -10,12 +10,12 @@ ElasticSearchUtil::~ElasticSearchUtil()
 {
 }
 
-long ElasticSearchUtil::search(const std::string& index, const std::string& type, const std::string& query, Json::Object& search_result)
+long ElasticSearchUtil::search(const std::string& index, const std::string& query, Json::Object& search_result)
 {
 	try
 	{
         errno = 0;
-		return m_es->search(index, type, query, search_result);
+		return m_es->search(index, query, search_result);
 	}
     catch(...)
 	{
@@ -23,12 +23,12 @@ long ElasticSearchUtil::search(const std::string& index, const std::string& type
     }
 }
 
-bool ElasticSearchUtil::getDocument(const char* index, const char* type, const char* id, Json::Object& msg)
+bool ElasticSearchUtil::getDocument(const char* index, const char* id, Json::Object& msg)
 {
 	try
 	{
         errno = 0;
-		return m_es->getDocument(index, type, id, msg);
+		return m_es->getDocument(index, id, msg);
 	}
     catch(...)
 	{
@@ -36,12 +36,12 @@ bool ElasticSearchUtil::getDocument(const char* index, const char* type, const c
     }
 }
 
-bool ElasticSearchUtil::upsert(const std::string& index, const std::string& type, const std::string& id, const Json::Object& jData)
+bool ElasticSearchUtil::upsert(const std::string& index, const std::string& id, const Json::Object& jData)
 {
 	try
 	{
         errno = 0;
-		return m_es->upsert(index, type, id, jData);
+		return m_es->upsert(index, id, jData);
 	}
     catch(...)
 	{

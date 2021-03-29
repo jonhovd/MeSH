@@ -59,7 +59,7 @@ void Statistics::PopulateDayStatistics()
 
   Json::Object search_result;
   auto es_util = m_mesh_application->GetElasticSearchUtil();
-  long result_size = es_util->search("statistics", "day", query.toUTF8(), search_result);
+  long result_size = es_util->search("day_statistics", query.toUTF8(), search_result);
   if (0 == result_size)
   {
     return;
@@ -99,7 +99,7 @@ void Statistics::PopulateTextStatistics()
 
   Json::Object search_result;
   auto es_util = m_mesh_application->GetElasticSearchUtil();
-  long result_size = es_util->search("statistics", "text", query.toUTF8(), search_result);
+  long result_size = es_util->search("text_statistics", query.toUTF8(), search_result);
   if (0 == result_size)
   {
     return;
