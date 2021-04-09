@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
     <message id="AppName">MeSH på norsk - begreper innen medisin og helsefag</message>
-    <message id="AppAbout">Om søk, innhold og prosjekt</message>
-    <message id="AppAboutUrl">http://www.helsebiblioteket.no/om-oss/artikkelarkiv/mesh-medical-subject-headings-pa-norsk-og-engelsk</message>
+    <message id="AppAbout">Om prosjektet MeSH på norsk</message>
+    <message id="AppAboutUrl">https://app.cristin.no/projects/show.jsf?id=273760</message>
     <message id="AppSendQuestion">Spørsmål om MeSH?</message>
     <message id="AppSendQuestionUrl">mailto:sigrunespelien@gmail.com?subject=Spørsmål om MeSH</message>
     <message id="AppStatistics">Statistikk</message>
