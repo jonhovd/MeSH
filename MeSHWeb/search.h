@@ -26,7 +26,6 @@ enum TabId {
 
 public:
   Search(MeSHApplication* mesh_application);
-	~Search();
 
 public:
 	void ClearLayout();
@@ -52,7 +51,7 @@ public:
 public:
 	static void MeSHToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& mesh_id, std::string& name);
 	static void TreeNumberToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& tree_number, std::string& name, std::string* mesh_id=nullptr);
-private:
+  static void InfoFromSourceObject(const Json::Object& source_object, std::string& name, std::string* mesh_id=nullptr);
 	static void InfoFromSearchResult(const Json::Object& search_result, std::string& name, std::string* mesh_id=nullptr);
 
 private:

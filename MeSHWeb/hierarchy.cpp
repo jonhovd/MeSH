@@ -3,6 +3,7 @@
 #include <Wt/WVBoxLayout.h>
 
 #include "application.h"
+#include "search.h"
 
 
 Hierarchy::Hierarchy(MeSHApplication* mesh_application)
@@ -25,10 +26,6 @@ Hierarchy::Hierarchy(MeSHApplication* mesh_application)
   m_hierarchy_tree_view = layout->addWidget(std::move(hierarchy_tree_view));
 
   setLayout(std::move(layout));
-}
-
-Hierarchy::~Hierarchy()
-{
 }
 
 void Hierarchy::PopulateHierarchy()
@@ -81,10 +78,15 @@ void Hierarchy::PopulateHierarchy()
           continue; //skip child tree_numbers for meshes that also have top-level tree_numbers
             
         //We have a top-level tree_number!
-        const Json::Value name_value = source_object.getValue("name");
+        std::string name_str;
+        Search::InfoFromSourceObject(source_object, name_str);
+        if (name_str.empty())
+        {
+          continue;
+        }
         
         std::stringstream node_text;
-        node_text << name_value.getString();
+        node_text << name_str;
         if (!tree_number_value_string.empty())
         {
           node_text << " [" << tree_number_value_string << "]";
@@ -209,10 +211,11 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
       GetParentTreeNumber(tree_number_value_string, possible_parent_tree_number_string);
       if (EQUAL == parent_tree_number_string.compare(possible_parent_tree_number_string)) //This three_number matches the parent, add it as a child
       {
-        const Json::Value name_value = source_object.getValue("name");
+        std::string name_str;
+        Search::InfoFromSourceObject(source_object, name_str);
         
         std::stringstream node_text;
-        node_text << name_value.getString();
+        node_text << name_str;
         if (!tree_number_value_string.empty())
         {
           node_text << " [" << tree_number_value_string << "]";

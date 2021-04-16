@@ -13,7 +13,6 @@
 
 #define SUGGESTION_COUNT    (20)
 #define RESULTLIST_COUNT    (10)
-#define LANGUAGE            "nor"
 
 #define EQUAL                           (0)
 
@@ -26,7 +25,6 @@ class MeSHApplication : public Wt::WApplication
 {
 public:
   MeSHApplication(const Wt::WEnvironment& environment);
-  ~MeSHApplication();
 
 protected: //From Wt::WApplication
 	virtual void handleJavaScriptError(const std::string& errorText);

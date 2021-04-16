@@ -43,6 +43,7 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
   m_content = root_vbox->addWidget(Wt::cpp14::make_unique<Content>(this)/*, 1, Wt::AlignmentFlag::Top*/);
 
   root()->setOverflow(Wt::Overflow::Auto);
+  
 	root()->setLayout(std::move(root_vbox));
 
   GetContent()->SetActiveStackedWidget(Content::TAB_INDEX_SEARCH);
@@ -58,10 +59,6 @@ MeSHApplication::MeSHApplication(const Wt::WEnvironment& environment)
   m_search_signal.connect(this, &MeSHApplication::OnSearch);
 }
 
-MeSHApplication::~MeSHApplication()
-{
-}
-
 void MeSHApplication::handleJavaScriptError(const std::string& UNUSED(errorText))
 {
 }
@@ -71,7 +68,7 @@ void MeSHApplication::OnInternalPathChange(const std::string& url)
   std::string meshIdInternalPath = Wt::WString::tr("MeshIdInternalPath").toUTF8();
   if (EQUAL == url.compare(Wt::WString::tr("AppStatisticsInternalPath").toUTF8()))
   {
-    m_content->SetStatisticsPageIasHidden(false);
+    m_content->SetStatisticsPageIsHidden(false);
   }
   else if (EQUAL == url.compare(0, meshIdInternalPath.length(), meshIdInternalPath))
   {

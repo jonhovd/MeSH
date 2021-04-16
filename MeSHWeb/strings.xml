@@ -6,7 +6,6 @@
     <message id="MeshIdInternalPath">/mesh</message>
     <message id="MeshIdInternalPathParam">id={1}</message>
 
-    <message id="ContactInfo">Om oss</message>
     <message id="Search">Tekst-søk</message>
     <message id="Hierarchy">Hierarki-søk</message>
     <message id="Statistics">Statistikk</message>

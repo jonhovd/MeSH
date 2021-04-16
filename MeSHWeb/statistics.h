@@ -10,10 +10,8 @@ class Statistics : public Wt::WContainerWidget
 {
 public:
 	Statistics(const MeSHApplication* mesh_application);
-	~Statistics();
 
 public:
-  virtual void clear();
   virtual void populate();
 
 private:

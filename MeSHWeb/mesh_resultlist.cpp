@@ -17,10 +17,6 @@ MeshResultList::MeshResultList(MeSHApplication* mesh_application)
   m_layout = setLayout(std::move(layout));
 }
 
-MeshResultList::~MeshResultList()
-{
-}
-
 void MeshResultList::ClearLayout()
 {
 }
@@ -64,57 +60,40 @@ void MeshResultList::OnSearch(const Wt::WString& filter)
       const Json::Value source_value = hit_value_object.getValue("_source");
       const Json::Object source_object = source_value.getObject();
 
-      const Json::Value id_value = source_object.getValue("id");
-      const Json::Value name_value = (source_object.member("nor_name")) ? source_object.getValue("nor_name") : source_object.getValue("eng_name");
+      std::string name_str, id_str;
+      Search::InfoFromSourceObject(source_object, name_str, &id_str);
 
-      const std::string lowercase_name_value_str = boost::locale::to_lower(name_value.getString());
+      const std::string lowercase_name_str = boost::locale::to_lower(name_str);
       std::string indirect_hit_str;
-      if (std::string::npos == lowercase_name_value_str.find(lowercase_filter_str))
+      if (std::string::npos == lowercase_name_str.find(lowercase_filter_str))
       {
         Search::FindIndirectHit(source_object, cleaned_filter_str, indirect_hit_str);
       }
 
-      std::string description;
-			if (source_object.member("concepts"))
-			{
-        const Json::Value concepts_value = source_object.getValue("concepts");
-        const Json::Array concepts_array = concepts_value.getArray();
-
-        Json::Array::const_iterator concept_iterator = concepts_array.begin();
-        for (; concept_iterator!=concepts_array.end(); ++concept_iterator)
-        {
-          const Json::Value concept_value = *concept_iterator;
-          const Json::Object concept_object = concept_value.getObject();
-          const Json::Value preferred_concept_value = concept_object.getValue("preferred");
-          bool preferred_concept = (EQUAL == preferred_concept_value.getString().compare("yes"));
-          if (preferred_concept)
-          {
-            Json::Value description_value;
-            if (concept_object.member("description"))
-            {
-              description_value = concept_object.getValue("description");
-            }
-            else if (concept_object.member("english_description"))
-            {
-              description_value = concept_object.getValue("english_description");
-            }
-            else
-            {
-              continue;
-            }
-            description = description_value.getString();
-            boost::algorithm::replace_all(description, "\\n", "\n");
-          }
-        }
-			}
-
-      if (!indirect_hit_str.empty())
+      std::string description_str;
+      if (source_object.member("nor_description"))
       {
-        AppendHit(id_value.getString(), Wt::WString::tr("IndirectHit").arg(name_value.getString()).arg(indirect_hit_str).toUTF8(), description);
+        description_str = source_object.getValue("nor_description").getString();
+      }
+      else if (source_object.member("eng_description"))
+      {
+        description_str = source_object.getValue("eng_description").getString();
       }
       else
       {
-        AppendHit(id_value.getString(), name_value.getString(), description);
+        description_str = name_str;
+      }
+      
+      boost::algorithm::replace_all(description_str, "\\n", "\n");
+
+      if (!indirect_hit_str.empty())
+      {
+        boost::algorithm::replace_all(indirect_hit_str, "\\n", "");
+        AppendHit(id_str, Wt::WString::tr("IndirectHit").arg(name_str).arg(indirect_hit_str).toUTF8(), description_str);
+      }
+      else
+      {
+        AppendHit(id_str, name_str, description_str);
       }
 
       ++iterator;

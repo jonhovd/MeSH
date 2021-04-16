@@ -9,7 +9,6 @@ class Log
 {
 public:
 	Log(const MeSHApplication* mesh_application);
-	~Log();
 
 public:
 	void LogSearch(const std::string& search_string);

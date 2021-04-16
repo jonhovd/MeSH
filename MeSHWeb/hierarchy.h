@@ -16,7 +16,6 @@ class Hierarchy : public Wt::WContainerWidget
 {
 public:
 	Hierarchy(MeSHApplication* mesh_application);
-	~Hierarchy();
 
 public:
 	void PopulateHierarchy();

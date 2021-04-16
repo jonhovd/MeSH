@@ -16,7 +16,6 @@ Content::Content(MeSHApplication* mesh_application)
   m_hierarchy(nullptr),
   m_statistics(nullptr)
 {
-  m_stacked_widget_titles[TAB_INDEX_CONTACTINFO] = Wt::WString::tr("ContactInfo");
   m_stacked_widget_titles[TAB_INDEX_SEARCH] = Wt::WString::tr("Search");
   m_stacked_widget_titles[TAB_INDEX_HIERARCHY] = Wt::WString::tr("Hierarchy");
   m_stacked_widget_titles[TAB_INDEX_STATISTICS] = Wt::WString::tr("Statistics");
@@ -33,12 +32,15 @@ Content::Content(MeSHApplication* mesh_application)
   auto previous_tab_button = Wt::cpp14::make_unique<Wt::WPushButton>(Wt::WString("Placeholder"));
   previous_tab_button->clicked().connect(this, &Content::OnPreviousButtonClicked);
   m_previous_tab_button = selector_hbox->addWidget(std::move(previous_tab_button), 0, Wt::AlignmentFlag::Left);
+  m_previous_tab_button->hide();
 
   m_stacked_widget_title = selector_hbox->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString("Placeholder")), 1 /*stretch*/, Wt::AlignmentFlag::Center|Wt::AlignmentFlag::Middle);
 
   auto next_tab_button = Wt::cpp14::make_unique<Wt::WPushButton>(Wt::WString("Placeholder"));
   next_tab_button->clicked().connect(this, &Content::OnNextButtonClicked);
   m_next_tab_button = selector_hbox->addWidget(std::move(next_tab_button), 0, Wt::AlignmentFlag::Right);
+  m_next_tab_button->hide();
+  
   selector_container->setLayout(std::move(selector_hbox));
   layout->addWidget(std::move(selector_container));
 
@@ -49,8 +51,6 @@ Content::Content(MeSHApplication* mesh_application)
   stack_widget->setTransitionAnimation(animation, true);
   m_stacked_widget = stack_widget.get();
 
-  m_stacked_widget->addWidget(Wt::cpp14::make_unique<Wt::WContainerWidget>()); //TAB_INDEX_CONTACTINFO
-
   m_stacked_widget->addWidget(CreateSearchWidget(mesh_application));
 
   m_hierarchy = m_stacked_widget->addWidget(Wt::cpp14::make_unique<Hierarchy>(mesh_application)); //TAB_INDEX_HIERARCHY
@@ -60,10 +60,6 @@ Content::Content(MeSHApplication* mesh_application)
   layout->addWidget(std::move(stack_widget));
 
   setLayout(std::move(layout));
-}
-
-Content::~Content()
-{
 }
 
 void Content::ClearLayout()
@@ -81,14 +77,20 @@ void Content::SetActiveStackedWidget(TabId index)
 
   if (index == TAB_INDEX_SEARCH)
   {
+    m_previous_tab_button->setHidden(m_statistics_page_is_hidden);
+    m_next_tab_button->show();
     m_search->FocusSearchEdit();
   }
   else if (index == TAB_INDEX_HIERARCHY)
   {
+    m_previous_tab_button->show();
+    m_next_tab_button->setHidden(m_statistics_page_is_hidden);
     m_hierarchy->PopulateHierarchy();
   }
   else if (index == TAB_INDEX_STATISTICS)
   {
+    m_previous_tab_button->show();
+    m_next_tab_button->show();
     m_statistics->populate();
   }
 }
@@ -106,8 +108,7 @@ void Content::OnNextButtonClicked()
 Content::TabId Content::GetPreviousStackedWidgetIndex() const
 {
   switch(m_visible_stacked_widget) {
-    case TAB_INDEX_CONTACTINFO: return m_statistics_page_is_hidden ? TAB_INDEX_HIERARCHY : TAB_INDEX_STATISTICS;
-    case TAB_INDEX_SEARCH: return TAB_INDEX_CONTACTINFO;
+    case TAB_INDEX_SEARCH: return m_statistics_page_is_hidden ? TAB_INDEX_HIERARCHY : TAB_INDEX_STATISTICS;
     case TAB_INDEX_HIERARCHY: return TAB_INDEX_SEARCH;
     default: return TAB_INDEX_HIERARCHY;
   }
@@ -116,14 +117,13 @@ Content::TabId Content::GetPreviousStackedWidgetIndex() const
 Content::TabId Content::GetNextStackedWidgetIndex() const
 {
   switch(m_visible_stacked_widget) {
-    case TAB_INDEX_CONTACTINFO: return TAB_INDEX_SEARCH;
     case TAB_INDEX_SEARCH: return TAB_INDEX_HIERARCHY;
-    case TAB_INDEX_HIERARCHY: return m_statistics_page_is_hidden ? TAB_INDEX_CONTACTINFO : TAB_INDEX_STATISTICS;
-    default: return TAB_INDEX_CONTACTINFO;
+    case TAB_INDEX_HIERARCHY: return m_statistics_page_is_hidden ? TAB_INDEX_SEARCH : TAB_INDEX_STATISTICS;
+    default: return TAB_INDEX_SEARCH;
   }
 }
 
-void Content::SetStatisticsPageIasHidden(bool hidden)
+void Content::SetStatisticsPageIsHidden(bool hidden)
 {
   m_statistics_page_is_hidden = hidden;
   if (TAB_INDEX_STATISTICS == m_visible_stacked_widget)

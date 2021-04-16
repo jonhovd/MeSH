@@ -6,10 +6,6 @@ ElasticSearchUtil::ElasticSearchUtil()
 	m_es = std::make_unique<ElasticSearch>("localhost:9200");
 }
 
-ElasticSearchUtil::~ElasticSearchUtil()
-{
-}
-
 long ElasticSearchUtil::search(const std::string& index, const std::string& query, Json::Object& search_result)
 {
 	try

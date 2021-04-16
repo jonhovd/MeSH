@@ -17,16 +17,14 @@ class Content : public Wt::WContainerWidget
 {
 public:
 enum TabId {
-  TAB_INDEX_CONTACTINFO=0,
-  TAB_INDEX_SEARCH=1,
-  TAB_INDEX_HIERARCHY=2,
-  TAB_INDEX_STATISTICS=3
+  TAB_INDEX_SEARCH=0,
+  TAB_INDEX_HIERARCHY=1,
+  TAB_INDEX_STATISTICS=2
 };
-static const int TAB_PAGE_COUNT = 4;
+static const int TAB_PAGE_COUNT = 3;
 
 public:
 	Content(MeSHApplication* mesh_application);
-	~Content();
 
 protected:
   void OnPreviousButtonClicked();
@@ -39,7 +37,7 @@ private:
 public:
   void ClearLayout();
   void SetActiveStackedWidget(TabId index);
-  void SetStatisticsPageIasHidden(bool hidden);
+  void SetStatisticsPageIsHidden(bool hidden);
 
 public:
   Hierarchy* GetHierarchy() const {return m_hierarchy;}

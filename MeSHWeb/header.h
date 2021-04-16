@@ -8,7 +8,6 @@ class Header : public Wt::WContainerWidget
 {
 public:
 	Header();
-	~Header();
 
 };
 

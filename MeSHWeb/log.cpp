@@ -10,10 +10,6 @@ Log::Log(const MeSHApplication* mesh_application)
 {
 }
 
-Log::~Log()
-{
-}
-
 void Log::LogSearch(const std::string& search_string)
 {
     //Update search text statistics

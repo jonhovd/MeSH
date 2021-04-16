@@ -99,10 +99,6 @@ MeshResult::MeshResult(MeSHApplication* mesh_application)
   setLayout(std::move(layout));
 }
 
-MeshResult::~MeshResult()
-{
-}
-
 void MeshResult::ClearLayout()
 {
   m_nor_term_panel->setTitle("");
@@ -157,10 +153,6 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
   Log log(m_mesh_application);
   log.LogSearch(mesh_id.toUTF8());
 
-  Wt::WStringListModel* non_preferred_nor_terms = new Wt::WStringListModel();
-  Wt::WStringListModel* non_preferred_eng_terms = new Wt::WStringListModel();
-  bool found_norwegian_preferred_term = false;
-
   const Json::Value value = search_result.getValue("hits");
   const Json::Object value_object = value.getObject();
   const Json::Value hits_value = value_object.getValue("hits");
@@ -169,121 +161,10 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
   const Json::Object hit_value_object = hit_value.getObject();
   const Json::Value source_value = hit_value_object.getValue("_source");
   const Json::Object source_object = source_value.getObject();
-  if (!source_object.member("concepts")) //Probably a top-node
-    return;
 
-  const Json::Value concepts_value = source_object.getValue("concepts");
-  const Json::Array concepts_array = concepts_value.getArray();
-
-  Json::Array::const_iterator concept_iterator = concepts_array.begin();
-  for (; concept_iterator!=concepts_array.end(); ++concept_iterator)
+  if (source_object.member("nor_preferred_term_text"))
   {
-    const Json::Value concept_value = *concept_iterator;
-    const Json::Object concept_object = concept_value.getObject();
-    const Json::Value preferred_concept_value = concept_object.getValue("preferred");
-    bool is_preferred_concept = (EQUAL == preferred_concept_value.getString().compare("yes"));
-    if (is_preferred_concept && concept_object.member("description"))
-    {
-      const Json::Value description_value = concept_object.getValue("description");
-      std::string description_str = description_value.getString();
-      boost::algorithm::replace_all(description_str, "\\n", "\n");
-
-      m_nor_description_label->show();
-      m_nor_description_text->setTextFormat(Wt::TextFormat::Plain);
-      m_nor_description_text->setText(Wt::WString::fromUTF8(description_str));
-      m_nor_description_text->show();
-    }
-    if (is_preferred_concept && concept_object.member("english_description"))
-    {
-      const Json::Value description_value = concept_object.getValue("english_description");
-      std::string description_str = description_value.getString();
-      boost::algorithm::replace_all(description_str, "\\n", "\n");
-
-      m_eng_description_label->show();
-      m_eng_description_text->setTextFormat(Wt::TextFormat::Plain);
-      m_eng_description_text->setText(Wt::WString::fromUTF8(description_str));
-      m_eng_description_text->show();
-    }
-
-    const Json::Value terms_value = concept_object.getValue("terms");
-    const Json::Array terms_array = terms_value.getArray();
-    Json::Array::const_iterator term_iterator = terms_array.begin();
-    for (; term_iterator!=terms_array.end(); ++term_iterator)
-    {
-      const Json::Value term_value = *term_iterator;
-      const Json::Object term_object = term_value.getObject();
-
-      bool is_norwegian = false;
-      if (term_object.member("language"))
-      {
-        const Json::Value language_value = term_object.getValue("language");
-        is_norwegian = (EQUAL == language_value.getString().compare("nor"));
-      }
-
-      const Json::Value term_text_value = term_object.getValue("text");
-      const Wt::WString term_text_str = Wt::WString::fromUTF8(term_text_value.getString());
-
-      const Json::Value preferred_term_value = term_object.getValue("preferred");
-      bool is_preferred_term = (EQUAL == preferred_term_value.getString().compare("yes"));
-      if (is_preferred_concept && is_preferred_term)
-      {
-        auto term_panel = (is_norwegian ? m_nor_term_panel : m_eng_term_panel);
-        term_panel->setTitle(term_text_str);
-        if (is_norwegian)
-        {
-          preferred_term = term_text_value.getString();
-        }
-        else if (!is_norwegian && preferred_eng_term.empty())
-        {
-          preferred_term = term_text_value.getString();
-          preferred_eng_term = term_text_str;
-        }
-        found_norwegian_preferred_term |= (is_norwegian!=false);
-      }
-      else
-      {
-        Wt::WStringListModel* term_list = (is_norwegian ? non_preferred_nor_terms :  non_preferred_eng_terms);
-        term_list->addString(term_text_str);
-      }
-    }
-  }
-
-  m_nor_term_panel_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("NonPreferredNorwegianTerms")));
-  m_eng_term_panel_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("NonPreferredEnglishTerms")));
-
-  int i;
-  for (i=0; i<2; i++)
-  {
-    const std::vector<Wt::WString>* non_preferred_term_list;
-    Wt::WLayout* non_preferred_term_layout = nullptr;
-
-    switch(i)
-    {
-    case 0:
-      non_preferred_term_list = &non_preferred_nor_terms->stringList();
-      non_preferred_term_layout = m_nor_term_panel_layout;
-      break;
-        
-    case 1:
-      non_preferred_term_list = &non_preferred_eng_terms->stringList();
-      non_preferred_term_layout = m_eng_term_panel_layout;
-      break;
-        
-    default: break;
-    }
-
-    if (!non_preferred_term_layout)
-      continue;
-
-    std::vector<Wt::WString>::const_iterator non_preferred_term_iterator = non_preferred_term_list->begin();
-    for ( ; non_preferred_term_iterator!=non_preferred_term_list->end(); ++non_preferred_term_iterator)
-    {
-      non_preferred_term_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(*non_preferred_term_iterator, Wt::TextFormat::Plain));
-    }
-  }
-
-  if (found_norwegian_preferred_term)
-  {
+    m_nor_term_panel->setTitle(source_object.getValue("nor_preferred_term_text").getArray().first().getString());
     m_nor_term_panel->expand();
     m_eng_term_panel->collapse();
   }
@@ -293,6 +174,37 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
     m_nor_term_panel->collapse();
     m_eng_term_panel->expand();
   }
+  
+  if (source_object.member("eng_preferred_term_text"))
+  {
+    m_eng_term_panel->setTitle(source_object.getValue("eng_preferred_term_text").getArray().first().getString());
+  }
+
+  if (source_object.member("nor_description"))
+  {
+    std::string description = source_object.getValue("nor_description").getString();
+    boost::algorithm::replace_all(description, "\\n", "\n");
+    SetAndActivateDescription(m_nor_description_label, m_nor_description_text, description);
+  }
+  
+  if (source_object.member("eng_description"))
+  {
+    std::string description = source_object.getValue("eng_description").getString();
+    boost::algorithm::replace_all(description, "\\n", "\n");
+    SetAndActivateDescription(m_eng_description_label, m_eng_description_text, description);
+  }
+  
+  if (source_object.member("nor_other_term_texts"))
+  {
+    m_nor_term_panel_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("NonPreferredNorwegianTerms")));
+    SetOtherTermTexts(m_nor_term_panel_layout, source_object.getValue("nor_other_term_texts").getArray());
+  }
+  
+  if (source_object.member("eng_other_term_texts"))
+  {
+    m_eng_term_panel_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("NonPreferredEnglishTerms")));
+    SetOtherTermTexts(m_eng_term_panel_layout, source_object.getValue("eng_other_term_texts").getArray());
+  }
 
   PopulateHierarchy(es_util, source_object);
 
@@ -301,8 +213,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
   {
     m_see_related_text->show();
 
-    const Json::Value see_related_values = source_object.getValue("see_related");
-    const Json::Array see_related_array = see_related_values.getArray();
+    const Json::Array see_related_array = source_object.getValue("see_related").getArray();
     Json::Array::const_iterator see_related_iterator = see_related_array.begin();
     for (; see_related_iterator!=see_related_array.end(); ++see_related_iterator)
     {
@@ -324,23 +235,38 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 	
 	m_links->populate(mesh_id, preferred_term, url_encoded_term, url_encoded_filtertext);
 
-  delete non_preferred_nor_terms;
-  delete non_preferred_eng_terms;
-
   //Mark search-result in hierarchy search tab
   Hierarchy* hierarchy = m_mesh_application->GetContent()->GetHierarchy();
   hierarchy->ClearMarkedItems();
   hierarchy->Collapse();
   if (source_object.member("tree_numbers"))
   {
-    const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
-    const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+    const Json::Array tree_numbers_array = source_object.getValue("tree_numbers").getArray();
     Json::Array::const_iterator tree_numbers_iterator = tree_numbers_array.begin();
     for (; tree_numbers_iterator!=tree_numbers_array.end(); ++tree_numbers_iterator)
     {
       const Json::Value tree_number_value = *tree_numbers_iterator;
       hierarchy->ExpandToTreeNumber(tree_number_value.getString());
     }
+  }
+}
+
+void MeshResult::SetAndActivateDescription(Wt::WText* label_ctrl, Wt::WText* text_ctrl, const std::string& text)
+{
+  label_ctrl->show();
+  text_ctrl->setTextFormat(Wt::TextFormat::Plain);
+  text_ctrl->setText(Wt::WString::fromUTF8(text));
+  text_ctrl->show();
+}
+
+void MeshResult::SetOtherTermTexts(Wt::WLayout* term_layout, const Json::Array& terms_array)
+{
+  Json::Array::const_iterator term_iterator = terms_array.begin();
+  for (; term_iterator!=terms_array.end(); ++term_iterator)
+  {
+    const Json::Value term_value = *term_iterator;
+    //const Wt::WString term_text_str = Wt::WString::fromUTF8(term_text_value.getString());
+    term_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::fromUTF8(term_value.getString()), Wt::TextFormat::Plain));
   }
 }
 
@@ -399,8 +325,7 @@ void MeshResult::PopulateHierarchy(std::shared_ptr<ElasticSearchUtil> es_util, c
 
   if (source_object.member("tree_numbers"))
   {
-    const Json::Value tree_numbers_value = source_object.getValue("tree_numbers");
-    const Json::Array tree_numbers_array = tree_numbers_value.getArray();
+    const Json::Array tree_numbers_array = source_object.getValue("tree_numbers").getArray();
     Json::Array::const_iterator tree_numbers_iterator = tree_numbers_array.begin();
     for (; tree_numbers_iterator!=tree_numbers_array.end(); ++tree_numbers_iterator)
     {
@@ -410,8 +335,7 @@ void MeshResult::PopulateHierarchy(std::shared_ptr<ElasticSearchUtil> es_util, c
   }
   if (source_object.member("child_tree_numbers"))
   {
-    const Json::Value child_tree_numbers_value = source_object.getValue("child_tree_numbers");
-    const Json::Array child_tree_numbers_array = child_tree_numbers_value.getArray();
+    const Json::Array child_tree_numbers_array = source_object.getValue("child_tree_numbers").getArray();
     Json::Array::const_iterator child_tree_numbers_iterator = child_tree_numbers_array.begin();
     for (; child_tree_numbers_iterator!=child_tree_numbers_array.end(); ++child_tree_numbers_iterator)
     {

@@ -13,19 +13,6 @@ Links::Links()
 {
 }
 
-Links::~Links()
-{
-}
-
-void Links::clear()
-{
-  if (m_layout)
-  {
-    m_layout = setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
-  }
-  Wt::WContainerWidget::clear();
-}
-
 void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_term, const std::string& url_encoded_term, const std::string& url_encoded_filtertext)
 {
   clear();

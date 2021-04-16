@@ -18,7 +18,3 @@ Header::Header()
 
   setLayout(std::move(layout));
 }
-
-Header::~Header()
-{
-}

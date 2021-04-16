@@ -84,9 +84,9 @@ void CleanDatabase()
           << "   },"
           << "   \"tokenizer\": {"
           << "    \"ngram_tokenizer\": {"
-          << "     \"type\": \"ngram\","
-          << "     \"min_gram\": 3,"
-          << "     \"max_gram\": 3,"
+          << "     \"type\": \"edge_ngram\","
+          << "     \"min_gram\": 2,"
+          << "     \"max_gram\": 10,"
           << "     \"token_chars\": [\"letter\",\"digit\"]"
           << "    }"
           << "   },"
@@ -515,7 +515,7 @@ void ReadConceptList(Json::Object& json, xmlNodePtr concept_list_ptr)
                     {
                         if (0==xmlStrcmp(BAD_CAST("ScopeNote"), child->name))
                         {
-                            AddText(json, "english_description", child);
+                            AddText(json, "eng_description", child);
                         }
                         else if (0==xmlStrcmp(BAD_CAST("TranslatorsScopeNote"), child->name))
                         {

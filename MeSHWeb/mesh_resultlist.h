@@ -10,7 +10,6 @@ class MeshResultList : public Wt::WContainerWidget
 {
 public:
 	MeshResultList(MeSHApplication* mesh_application);
-	~MeshResultList();
 
 public:
 	void ClearLayout();

@@ -18,7 +18,6 @@ class MeshResult : public Wt::WContainerWidget
 {
 public:
 	MeshResult(MeSHApplication* mesh_application);
-	~MeshResult();
 
 public:
 	void ClearLayout();
@@ -26,6 +25,8 @@ public:
 	void OnSearch(const Wt::WString& mesh_id, const std::string& search_text);
 
 private:
+  void SetAndActivateDescription(Wt::WText* label_ctrl, Wt::WText* text_ctrl, const std::string& text);
+  void SetOtherTermTexts(Wt::WLayout* term_layout, const Json::Array& terms_array);
 	void RecursiveAddHierarchyItem(std::shared_ptr<ElasticSearchUtil> es_util, int& row, std::map<std::string,Wt::WStandardItem*>& node_map, const std::string& tree_number, bool mark_item);
 	void PopulateHierarchy(std::shared_ptr<ElasticSearchUtil> es_util, const Json::Object& source_object);
 

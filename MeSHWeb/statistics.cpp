@@ -14,19 +14,6 @@ Statistics::Statistics(const MeSHApplication* mesh_application)
 {
 }
 
-Statistics::~Statistics()
-{
-}
-
-void Statistics::clear()
-{
-  if (m_layout)
-  {
-    m_layout = setLayout(Wt::cpp14::make_unique<Wt::WGridLayout>());
-  }
-  Wt::WContainerWidget::clear();
-}
-
 void Statistics::populate()
 {
   clear();

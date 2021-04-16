@@ -11,7 +11,6 @@ class ElasticSearchUtil
 
 public:
 	ElasticSearchUtil();
-	~ElasticSearchUtil();
 
 public:
 	long search(const std::string& index, const std::string& query, Json::Object& search_result);

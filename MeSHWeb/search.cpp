@@ -1,5 +1,6 @@
 #include "search.h"
 
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/locale/conversion.hpp>
 #include <Wt/WHBoxLayout.h>
@@ -54,10 +55,6 @@ Search::Search(MeSHApplication* mesh_application)
   layout->addStretch(1);
 
   setLayout(std::move(layout));
-}
-
-Search::~Search()
-{
 }
 
 void Search::FocusSearchEdit()
@@ -142,23 +139,25 @@ void Search::FilterSuggestion(const Wt::WString& filter)
       const Json::Object source_object = source_value.getObject();
 
       const Json::Value id_value = source_object.getValue("id");
-      const Json::Value name_value = (source_object.member("nor_name")) ? source_object.getValue("nor_name") : source_object.getValue("eng_name");
+      std::string name_str;
+      InfoFromSourceObject(source_object, name_str);
 
-      const std::string lowercase_name_value_str = boost::locale::to_lower(name_value.getString());
+      const std::string lowercase_name_str = boost::locale::to_lower(name_str);
       std::string indirect_hit_str;
       std::unique_ptr<Wt::WStandardItem> item;
-      if (std::string::npos == lowercase_name_value_str.find(lowercase_filter_str))
+      if (std::string::npos == lowercase_name_str.find(lowercase_filter_str))
       {
         FindIndirectHit(source_object, cleaned_filter_str, indirect_hit_str);
       }
 
       if (!indirect_hit_str.empty())
       {
-        item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("IndirectHit").arg(name_value.getString()).arg(indirect_hit_str));
+        boost::algorithm::replace_all(indirect_hit_str, "\\n", "");
+        item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("IndirectHit").arg(name_str).arg(indirect_hit_str.substr(0, 100))); //Trim at 100 characters
       }
       else
       {
-        item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(name_value.getString()));
+        item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(name_str));
       }
       item->setData(Wt::cpp17::any(id_value.getString()), SUGGESTIONLIST_ITEM_ID_ROLE);
       m_search_suggestion_model->setItem(row, 0, std::move(item));
@@ -355,6 +354,29 @@ void Search::TreeNumberToName(std::shared_ptr<ElasticSearchUtil> es_util, const 
 	InfoFromSearchResult(search_result, name, mesh_id);
 }
 
+void Search::InfoFromSourceObject(const Json::Object& source_object, std::string& name, std::string* mesh_id)
+{
+  if (nullptr != mesh_id)
+  {
+    *mesh_id = source_object.getValue("id").getString();
+  }
+
+  if (source_object.member("nor_name"))
+  {
+    name = source_object.getValue("nor_name").getString();
+  }
+  else if (source_object.member("eng_name"))
+  {
+    name = source_object.getValue("eng_name").getString();
+  }
+  else if (source_object.member("id"))
+  {
+    name = source_object.getValue("id").getString();
+  }
+  
+  boost::algorithm::replace_all(name, "\\n", "");
+}
+
 void Search::InfoFromSearchResult(const Json::Object& search_result, std::string& name, std::string* mesh_id)
 {
   const Json::Value value = search_result.getValue("hits");
@@ -366,62 +388,5 @@ void Search::InfoFromSearchResult(const Json::Object& search_result, std::string
   const Json::Value source_value = hit_value_object.getValue("_source");
   const Json::Object source_object = source_value.getObject();
 
-  if (nullptr != mesh_id)
-  {
-    const Json::Value id_value = source_object.getValue("id");
-    *mesh_id = id_value.getString();
-  }
-  if (!source_object.member("concepts")) //Probably a top-node
-  {
-    const Json::Value name_value = source_object.getValue("name");
-    name = name_value.getString();
-    return;
-  }
-
-  const Json::Value concepts_value = source_object.getValue("concepts");
-  const Json::Array concepts_array = concepts_value.getArray();
-
-
-  Json::Array::const_iterator concept_iterator = concepts_array.begin();
-  for (; concept_iterator!=concepts_array.end(); ++concept_iterator)
-  {
-    const Json::Value concept_value = *concept_iterator;
-    const Json::Object concept_object = concept_value.getObject();
-    const Json::Value preferred_concept_value = concept_object.getValue("preferred");
-    bool preferred_concept = (EQUAL == preferred_concept_value.getString().compare("yes"));
-    if (!preferred_concept)
-    {
-      continue;
-    }
-
-    const Json::Value terms_value = concept_object.getValue("terms");
-    const Json::Array terms_array = terms_value.getArray();
-    Json::Array::const_iterator term_iterator = terms_array.begin();
-    for (; term_iterator!=terms_array.end(); ++term_iterator)
-    {
-      const Json::Value term_value = *term_iterator;
-      const Json::Object term_object = term_value.getObject();
-      
-      const Json::Value preferred_term_value = term_object.getValue("preferred");
-      bool preferred_term = (EQUAL == preferred_term_value.getString().compare("yes"));
-      if (!preferred_term)
-      {
-        continue;
-      }
-
-      const Json::Value term_text_value = term_object.getValue("text");
-      name = term_text_value.getString();
-      
-      bool is_norwegian = false;
-      if (term_object.member("language"))
-      {
-        const Json::Value language_value = term_object.getValue("language");
-        is_norwegian = (EQUAL == language_value.getString().compare("nor"));
-      }
-      if (is_norwegian)
-      {
-        return;
-      }
-    }
-  }
+  InfoFromSourceObject(source_object, name, mesh_id);
 }
