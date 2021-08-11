@@ -5,12 +5,12 @@
 #include "application.h"
 
 
-Log::Log(const MeSHApplication* mesh_application)
+MeshLog::MeshLog(const MeSHApplication* mesh_application)
 : m_mesh_application(mesh_application)
 {
 }
 
-void Log::LogSearch(const std::string& search_string)
+void MeshLog::LogSearch(const std::string& search_string)
 {
     //Update search text statistics
     int count = 0;

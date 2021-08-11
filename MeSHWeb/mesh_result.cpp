@@ -4,141 +4,119 @@
 
 #include <Wt/WAnchor.h>
 #include <Wt/WImage.h>
+#include <Wt/WStandardItem.h>
 #include <Wt/WStringListModel.h>
 #include <Wt/Utils.h>
 
 #include "application.h"
+#include "global.h"
 #include "log.h"
 
 
-MeshResult::MeshResult(MeSHApplication* mesh_application)
-: Wt::WContainerWidget(),
+MeshResult::MeshResult(const Wt::WString& text, MeSHApplication* mesh_application)
+: Wt::WTemplate(text),
   m_mesh_application(mesh_application),
   m_nor_term_panel(nullptr),
   m_nor_term_container(nullptr),
   m_nor_term_panel_layout(nullptr),
-  m_nor_description_label(nullptr),
   m_nor_description_text(nullptr),
   m_eng_term_panel(nullptr),
   m_eng_term_container(nullptr),
   m_eng_term_panel_layout(nullptr),
-  m_eng_description_label(nullptr),
   m_eng_description_text(nullptr),
-  m_hierarchy_tree_view(nullptr),
-  m_see_related_text(nullptr),
+  m_external_link(nullptr),
   m_see_related_container(nullptr),
-  m_links(nullptr)
+  m_links(nullptr),
+  m_hierarchy_tree_view(nullptr)
 {
-  setStyleClass("search-result");
-  auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-  layout->setContentsMargins(0, 0, 0, 0);
-
-  auto nor_term_panel = Wt::cpp14::make_unique<Wt::WPanel>();
+  auto nor_term_panel = std::make_unique<Wt::WPanel>();
   nor_term_panel->setCollapsible(true);
-  auto nor_term_container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
-  auto nor_term_panel_layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-  nor_term_panel_layout->setContentsMargins(0, 0, 0, 0);
-  m_nor_term_panel_layout = nor_term_container->setLayout(std::move(nor_term_panel_layout));
-  m_nor_term_container = nor_term_panel->setCentralWidget(std::move(nor_term_container));
+  m_nor_term_container = nor_term_panel->setCentralWidget(std::make_unique<Wt::WContainerWidget>());
 
-  auto nor_flag = Wt::cpp14::make_unique<Wt::WImage>("images/nor.png");
+  auto nor_flag = std::make_unique<Wt::WImage>("images/nor.png");
   nor_flag->setHeight(Wt::WLength(1.0, Wt::LengthUnit::FontEm));
   nor_flag->setMargin(Wt::WLength(3.0, Wt::LengthUnit::Pixel));
   nor_term_panel->titleBarWidget()->insertWidget(0, std::move(nor_flag));
 
-  layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("PreferredNorwegianTerm")));
-  m_nor_term_panel = layout->addWidget(std::move(nor_term_panel));
+  m_nor_term_panel = bindWidget("nor_panel", std::move(nor_term_panel));
 
-  auto nor_description_label = Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("NorwegianDescription"));
-  nor_description_label->setStyleClass("scope scope-class");
-  m_nor_description_label = layout->addWidget(std::move(nor_description_label));
-  auto nor_description_text = Wt::cpp14::make_unique<Wt::WText>();
-  nor_description_text->setStyleClass("scope-note scope-class");
-  m_nor_description_text = layout->addWidget(std::move(nor_description_text));
+  m_nor_description_text = bindWidget("nor_description", std::make_unique<Wt::WText>());
 
-  auto eng_term_panel = Wt::cpp14::make_unique<Wt::WPanel>();
+  auto eng_term_panel = std::make_unique<Wt::WPanel>();
   eng_term_panel->setCollapsible(true);
-  auto eng_term_container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
-  auto eng_term_panel_layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-  eng_term_panel_layout->setContentsMargins(0, 0, 0, 0);
-  m_eng_term_panel_layout = eng_term_container->setLayout(std::move(eng_term_panel_layout));
-  m_eng_term_container = eng_term_panel->setCentralWidget(std::move(eng_term_container));
+  m_eng_term_container = eng_term_panel->setCentralWidget(std::make_unique<Wt::WContainerWidget>());
 
-  auto eng_flag = Wt::cpp14::make_unique<Wt::WImage>("images/eng.png");
+  auto eng_flag = std::make_unique<Wt::WImage>("images/eng.png");
   eng_flag->setHeight(Wt::WLength(1.0, Wt::LengthUnit::FontEm));
   eng_flag->setMargin(Wt::WLength(3.0, Wt::LengthUnit::Pixel));
   eng_term_panel->titleBarWidget()->insertWidget(0, std::move(eng_flag));
 
-  layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("PreferredEnglishTerm")));
-  m_eng_term_panel = layout->addWidget(std::move(eng_term_panel));
+  m_eng_term_panel = bindWidget("eng_panel", std::move(eng_term_panel));
 
-  auto eng_description_label = Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("EnglishDescription"));
-  eng_description_label->setStyleClass("scope scope-class");
-  m_eng_description_label = layout->addWidget(std::move(eng_description_label));
-  auto eng_description_text = Wt::cpp14::make_unique<Wt::WText>();
-  eng_description_text->setStyleClass("scope-note scope-class");
-  m_eng_description_text = layout->addWidget(std::move(eng_description_text));
+  m_eng_description_text = bindWidget("eng_description", std::make_unique<Wt::WText>());
 
-  m_see_related_text = layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("SeeRelated")));
-  m_see_related_container = layout->addWidget(Wt::cpp14::make_unique<Wt::WContainerWidget>());
+  auto external_link_anchor = std::make_unique<Wt::WAnchor>();
+  external_link_anchor->setStyleClass("mesh-link");
+  m_external_link = bindWidget("external_link", std::move(external_link_anchor));
 
-  layout->addSpacing(Wt::WLength(1.0, Wt::LengthUnit::FontEm));
+  m_see_related_container = bindWidget("see_related", std::make_unique<Wt::WContainerWidget>());
 
-  m_links = layout->addWidget(Wt::cpp14::make_unique<Links>());
-
-  layout->addSpacing(Wt::WLength(2.0, Wt::LengthUnit::FontEm));
+  m_links = bindWidget("links", std::make_unique<Links>());
 
   m_hierarchy_model = std::make_shared<Wt::WStandardItemModel>();
   m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
-  auto hierarchy_tree_view = Wt::cpp14::make_unique<Wt::WTreeView>();
+  auto hierarchy_tree_view = std::make_unique<Wt::WTreeView>();
   hierarchy_tree_view->setModel(m_hierarchy_model);
   hierarchy_tree_view->setSelectionMode(Wt::SelectionMode::Single);
   hierarchy_tree_view->setColumnWidth(0, Wt::WLength::Auto);
-  m_hierarchy_tree_view = layout->addWidget(std::move(hierarchy_tree_view));
-
-  setLayout(std::move(layout));
+  hierarchy_tree_view->clicked().connect(this, &MeshResult::TreeItemClicked);
+  m_hierarchy_tree_view = bindWidget("hierarchy", std::move(hierarchy_tree_view));
 }
 
 void MeshResult::ClearLayout()
 {
   m_nor_term_panel->setTitle("");
   m_nor_term_panel->expand();
-  m_nor_term_panel_layout = m_nor_term_container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+  m_nor_term_panel_layout = m_nor_term_container->setLayout(std::make_unique<Wt::WVBoxLayout>());
 
   m_nor_description_text->setText("");
   m_nor_description_text->hide();
 
   m_eng_term_panel->setTitle("");
   m_eng_term_panel->collapse();
-  m_eng_term_panel_layout = m_eng_term_container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+  m_eng_term_panel_layout = m_eng_term_container->setLayout(std::make_unique<Wt::WVBoxLayout>());
 
   m_eng_description_text->setText("");
   m_eng_description_text->hide();
 
-  m_hierarchy_model->clear();
-
-  m_see_related_text->hide();
+  m_external_link->setText("");
+  m_external_link->hide();
+  
+  setCondition("show-related", false);
   m_see_related_container->clear();
 
   m_links->clear();
+
+  m_hierarchy_model->clear();
 }
 
 void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_text)
 {
   std::string preferred_term;
-  Wt::WString preferred_eng_term;
+  std::string preferred_eng_term;
 
-  m_nor_term_panel_layout = m_nor_term_container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
-  m_eng_term_panel_layout = m_eng_term_container->setLayout(Wt::cpp14::make_unique<Wt::WVBoxLayout>());
+  m_nor_term_panel_layout = m_nor_term_container->setLayout(std::make_unique<Wt::WVBoxLayout>());
+  m_nor_term_panel_layout->setContentsMargins(0, 0, 0, 0);
+  m_eng_term_panel_layout = m_eng_term_container->setLayout(std::make_unique<Wt::WVBoxLayout>());
+  m_eng_term_panel_layout->setContentsMargins(0, 0, 0, 0);
 
-  m_hierarchy_model->clear();
-  m_see_related_text->hide();
+  m_nor_description_text->hide();
+  m_eng_description_text->hide();
+
+  setCondition("show-related", false);
   m_see_related_container->clear();
 
-  m_nor_description_label->hide();
-  m_nor_description_text->hide();
-  m_eng_description_label->hide();
-  m_eng_description_text->hide();
+  m_hierarchy_model->clear();
 
   Wt::WString query = Wt::WString::tr("SearchFilterQuery").arg(mesh_id.toUTF8());
 
@@ -150,7 +128,7 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
     return;
   }
 
-  Log log(m_mesh_application);
+  MeshLog log(m_mesh_application);
   log.LogSearch(mesh_id.toUTF8());
 
   const Json::Value value = search_result.getValue("hits");
@@ -164,7 +142,8 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 
   if (source_object.member("nor_preferred_term_text"))
   {
-    m_nor_term_panel->setTitle(source_object.getValue("nor_preferred_term_text").getArray().first().getString());
+    preferred_term = source_object.getValue("nor_preferred_term_text").getArray().first().getString();
+    m_nor_term_panel->setTitle(preferred_term);
     m_nor_term_panel->expand();
     m_eng_term_panel->collapse();
   }
@@ -177,6 +156,11 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
   
   if (source_object.member("eng_preferred_term_text"))
   {
+    preferred_eng_term = source_object.getValue("eng_preferred_term_text").getArray().first().getString();
+    if (preferred_term.empty())
+    {
+      preferred_term = preferred_eng_term;
+    }
     m_eng_term_panel->setTitle(source_object.getValue("eng_preferred_term_text").getArray().first().getString());
   }
 
@@ -184,34 +168,37 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
   {
     std::string description = source_object.getValue("nor_description").getString();
     boost::algorithm::replace_all(description, "\\n", "\n");
-    SetAndActivateDescription(m_nor_description_label, m_nor_description_text, description);
+    SetAndActivateDescription(m_nor_description_text, description);
   }
   
   if (source_object.member("eng_description"))
   {
     std::string description = source_object.getValue("eng_description").getString();
     boost::algorithm::replace_all(description, "\\n", "\n");
-    SetAndActivateDescription(m_eng_description_label, m_eng_description_text, description);
+    SetAndActivateDescription(m_eng_description_text, description);
   }
   
   if (source_object.member("nor_other_term_texts"))
   {
-    m_nor_term_panel_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("NonPreferredNorwegianTerms")));
+    m_nor_term_panel_layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("NonPreferredNorwegianTerms")));
     SetOtherTermTexts(m_nor_term_panel_layout, source_object.getValue("nor_other_term_texts").getArray());
   }
   
   if (source_object.member("eng_other_term_texts"))
   {
-    m_eng_term_panel_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("NonPreferredEnglishTerms")));
+    m_eng_term_panel_layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("NonPreferredEnglishTerms")));
     SetOtherTermTexts(m_eng_term_panel_layout, source_object.getValue("eng_other_term_texts").getArray());
   }
 
-  PopulateHierarchy(es_util, source_object);
+  std::string url = (Wt::WString::tr("MeshIdInternalPath")+"&"+Wt::WString::tr("MeshIdInternalPathParam").arg(mesh_id)).toUTF8();
+  m_external_link->setText(m_mesh_application->makeAbsoluteUrl(url));
+  m_external_link->setLink(Wt::WLink(Wt::LinkType::InternalPath, url));
+  m_external_link->show();
 
   //See Related
   if (source_object.member("see_related"))
   {
-    m_see_related_text->show();
+    setCondition("show-related", true);
 
     const Json::Array see_related_array = source_object.getValue("see_related").getArray();
     Json::Array::const_iterator see_related_iterator = see_related_array.begin();
@@ -221,22 +208,23 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
 
       std::string see_related_id = see_related_value.getString();
       std::string title;
-      Search::MeSHToName(es_util, see_related_id, title);
+      SearchTab::MeSHToName(es_util, see_related_id, title);
       std::string url = (Wt::WString::tr("MeshIdInternalPath")+"&"+Wt::WString::tr("MeshIdInternalPathParam").arg(see_related_id)).toUTF8();
-      auto see_related_anchor = Wt::cpp14::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath, url), Wt::WString::fromUTF8(title));
+      auto see_related_anchor = std::make_unique<Wt::WAnchor>(Wt::WLink(Wt::LinkType::InternalPath, url), Wt::WString::fromUTF8(title));
       see_related_anchor->setStyleClass("mesh-link");
       m_see_related_container->addWidget(std::move(see_related_anchor));
     }
   }
 
   //Links
-  std::string url_encoded_term = Wt::Utils::urlEncode(preferred_eng_term.toUTF8());
+  std::string url_encoded_term = Wt::Utils::urlEncode(preferred_eng_term);
   std::string url_encoded_filtertext = Wt::Utils::urlEncode(search_text);
-	
 	m_links->populate(mesh_id, preferred_term, url_encoded_term, url_encoded_filtertext);
 
+  PopulateHierarchy(es_util, source_object);
+
   //Mark search-result in hierarchy search tab
-  Hierarchy* hierarchy = m_mesh_application->GetContent()->GetHierarchy();
+  HierarchyTab* hierarchy = m_mesh_application->GetHierarchy();
   hierarchy->ClearMarkedItems();
   hierarchy->Collapse();
   if (source_object.member("tree_numbers"))
@@ -251,9 +239,40 @@ void MeshResult::OnSearch(const Wt::WString& mesh_id, const std::string& search_
   }
 }
 
-void MeshResult::SetAndActivateDescription(Wt::WText* label_ctrl, Wt::WText* text_ctrl, const std::string& text)
+void MeshResult::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse)
 {
-  label_ctrl->show();
+  if (!index.isValid())
+  {
+    return;
+  }
+
+  Wt::WStandardItem* standard_item = m_hierarchy_model->itemFromIndex(index);
+  if (!standard_item)
+  {
+    return;
+  }
+
+  m_hierarchy_popup_menu = std::make_unique<Wt::WPopupMenu>();
+  m_hierarchy_popup_menu->setAutoHide(true, 1000);
+
+  m_popup_menu_id_string = Wt::cpp17::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_ID_ROLE));
+
+  Wt::WString soek = Wt::WString::tr("SearchFromHierarchy").arg(standard_item->text().toUTF8());
+  m_hierarchy_popup_menu->addItem(soek)->triggered().connect(this, &MeshResult::PopupMenuTriggered);
+
+  m_hierarchy_popup_menu->popup(mouse);
+}
+
+void MeshResult::PopupMenuTriggered(Wt::WMenuItem* item)
+{
+  if (item && !m_popup_menu_id_string.empty())
+  {
+    m_mesh_application->GetSearch()->OnSearch(m_popup_menu_id_string);
+  }
+}
+
+void MeshResult::SetAndActivateDescription(Wt::WText* text_ctrl, const std::string& text)
+{
   text_ctrl->setTextFormat(Wt::TextFormat::Plain);
   text_ctrl->setText(Wt::WString::fromUTF8(text));
   text_ctrl->show();
@@ -265,8 +284,7 @@ void MeshResult::SetOtherTermTexts(Wt::WLayout* term_layout, const Json::Array& 
   for (; term_iterator!=terms_array.end(); ++term_iterator)
   {
     const Json::Value term_value = *term_iterator;
-    //const Wt::WString term_text_str = Wt::WString::fromUTF8(term_text_value.getString());
-    term_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::fromUTF8(term_value.getString()), Wt::TextFormat::Plain));
+    term_layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::fromUTF8(term_value.getString()), Wt::TextFormat::Plain));
   }
 }
 
@@ -279,19 +297,19 @@ void MeshResult::RecursiveAddHierarchyItem(std::shared_ptr<ElasticSearchUtil> es
 
   //Make sure parent is added
   std::string parent_tree_number;
-  Hierarchy::GetParentTreeNumber(tree_number, parent_tree_number);
+  HierarchyTab::GetParentTreeNumber(tree_number, parent_tree_number);
   RecursiveAddHierarchyItem(es_util, row, node_map, parent_tree_number, false);
 
   std::string name;
   std::string mesh_id;
-  Search::TreeNumberToName(es_util, tree_number, name, &mesh_id);
+  SearchTab::TreeNumberToName(es_util, tree_number, name, &mesh_id);
   std::stringstream node_text;
   node_text << name;
   if (!tree_number.empty())
   {
     node_text << " [" << tree_number << "]";
   }
-  auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
+  auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
   auto item_ptr = item.get();
   item->setData(Wt::cpp17::any(tree_number), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
   item->setData(Wt::cpp17::any(mesh_id), HIERARCHY_ITEM_ID_ROLE);

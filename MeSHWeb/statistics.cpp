@@ -1,46 +1,51 @@
 #include "statistics.h"
 
-#include <Wt/WText.h>
+#include <Wt/WPanel.h>
 
 #include "application.h"
 #include "elasticsearchutil.h"
-#include "search.h"
 
 
-Statistics::Statistics(const MeSHApplication* mesh_application)
-: Wt::WContainerWidget(),
+Statistics::Statistics(const Wt::WString& text, MeSHApplication* mesh_application)
+: Wt::WTemplate(text),
   m_mesh_application(mesh_application),
-  m_layout(nullptr)
+  m_content_is_populated(false)
 {
+  auto content = std::make_unique<Wt::WContainerWidget>();
+  m_content = content.get();
+  
+  auto panel = std::make_unique<Wt::WPanel>();
+  panel->setTitle(Wt::WString::tr("Statistics"));
+  panel->setCentralWidget(std::move(content));
+  panel->setCollapsible(true);
+  panel->setCollapsed(true);
+  panel->expanded().connect(this, &Statistics::Populate);
+  
+  bindWidget("statistics", std::move(panel));
 }
 
-void Statistics::populate()
+void Statistics::Populate()
 {
-  clear();
-
-  auto layout = Wt::cpp14::make_unique<Wt::WGridLayout>();
+  if (m_content_is_populated)
+    return;
+  
+  auto layout = std::make_unique<Wt::WGridLayout>();
   layout->setContentsMargins(0, 9, 0, 0);
 
-  int i;
-  for (i=0; i<8; i++)
-  {
-    layout->setColumnStretch(i, 0);
-  }
-  for (i=0; i<=8; i+=4)
-  {
-    layout->setColumnStretch(i, 1);
-    layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(""), 0, i);
-  }
+  layout->setColumnStretch(0, 1);
+  layout->setColumnStretch(1, 0);
 
-  m_layout = setLayout(std::move(layout));
-
-  PopulateDayStatistics();
-  PopulateTextStatistics();
+  int row = 0;
+  PopulateDayStatistics(layout, row);
+  layout->addWidget(std::make_unique<Wt::WText>(""), row++, 0);
+  PopulateTextStatistics(layout, row);
+  m_content->setLayout(std::move(layout));
+  m_content_is_populated = true;
 }
 
-void Statistics::PopulateDayStatistics()
+void Statistics::PopulateDayStatistics(std::unique_ptr<Wt::WGridLayout>& layout, int& row)
 {
-  m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("StatisticsPerDay")), 0, 1);
+  layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("StatisticsPerDay")), row++, 0);
 
   Wt::WString query = Wt::WString::tr("StatisticsDay");
 
@@ -56,7 +61,6 @@ void Statistics::PopulateDayStatistics()
   const Json::Value hits_value = value_object.getValue("hits");
   const Json::Array hits_array = hits_value.getArray();
 
-  int row = 0;
   Json::Array::const_iterator iterator = hits_array.begin();
   for (; iterator!=hits_array.end(); ++iterator)
   {
@@ -72,15 +76,14 @@ void Statistics::PopulateDayStatistics()
     const Json::Value count_value = source_object.getValue("count");
     int count_value_int = count_value.getInt();
 
-    m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(day_value_string), row, 2);
-    m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString("{1}").arg(count_value_int)), row, 3);
-    row++;
+    layout->addWidget(std::make_unique<Wt::WText>(day_value_string), row, 0);
+    layout->addWidget(std::make_unique<Wt::WText>(Wt::WString("{1}").arg(count_value_int)), row++, 1, Wt::AlignmentFlag::Right);
   }
 }
 
-void Statistics::PopulateTextStatistics()
+void Statistics::PopulateTextStatistics(std::unique_ptr<Wt::WGridLayout>& layout, int& row)
 {
-  m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("StatisticsPerMeSH")), 0, 5);
+  layout->addWidget(std::make_unique<Wt::WText>(Wt::WString::tr("StatisticsPerMeSH")), row++, 0);
 
   Wt::WString query = Wt::WString::tr("StatisticsText");
 
@@ -96,7 +99,6 @@ void Statistics::PopulateTextStatistics()
   const Json::Value hits_value = value_object.getValue("hits");
   const Json::Array hits_array = hits_value.getArray();
 
-  int row = 0;
   Json::Array::const_iterator iterator = hits_array.begin();
   for (; iterator!=hits_array.end(); ++iterator)
   {
@@ -113,9 +115,9 @@ void Statistics::PopulateTextStatistics()
     int count_value_int = count_value.getInt();
 
     std::string name;
-    Search::MeSHToName(es_util, mesh_value_string, name);
-    m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(name), row, 6);
-    m_layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString("{1}").arg(count_value_int)), row, 7);
+    SearchTab::MeSHToName(es_util, mesh_value_string, name);
+    layout->addWidget(std::make_unique<Wt::WText>(name), row, 0);
+    layout->addWidget(std::make_unique<Wt::WText>(Wt::WString("{1}").arg(count_value_int)), row++, 1, Wt::AlignmentFlag::Right);
     row++;
   }
 }

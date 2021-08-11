@@ -17,11 +17,13 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_te
 {
   clear();
 
-  auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
+  auto layout = std::make_unique<Wt::WVBoxLayout>();
   layout->setContentsMargins(0, 0, 0, 0);
-  setStyleClass("mesh-links");
+  setStyleClass("mesh-links top-margin");
 
-  layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(Wt::WString::tr("LinkLabel").arg(preferred_term)));
+  auto link_label = std::make_unique<Wt::WText>(Wt::WString::tr("LinkLabel").arg(preferred_term));
+  link_label->setStyleClass("bold");
+  layout->addWidget(std::move(link_label));
 
   int link_category_index = 0;
   int link_index;
@@ -35,10 +37,10 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_te
 
     if (!link_category_text.trim().empty())
     {
-      layout->addWidget(Wt::cpp14::make_unique<Wt::WText>(link_category_text));
+      layout->addWidget(std::make_unique<Wt::WText>(link_category_text));
     }
 
-    auto links_container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
+    auto links_container = std::make_unique<Wt::WContainerWidget>();
 
     link_index = 0;
     while (true)
@@ -55,8 +57,8 @@ void Links::populate(const Wt::WString& mesh_id, const std::string& preferred_te
       boost::algorithm::replace_all(link_str, "&amp;", "&");
       Wt::WLink link(link_str);
       link.setTarget(Wt::LinkTarget::NewWindow);
-      auto anchor = Wt::cpp14::make_unique<Wt::WAnchor>(link, link_text);
-      anchor->setStyleClass("mesh-link");
+      auto anchor = std::make_unique<Wt::WAnchor>(link, link_text);
+      anchor->setStyleClass("mesh-link external-link");
       links_container->addWidget(std::move(anchor));
     }
     layout->addWidget(std::move(links_container));

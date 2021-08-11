@@ -8,23 +8,16 @@
 
     <message id="Search">Tekst-søk</message>
     <message id="Hierarchy">Hierarki-søk</message>
-    <message id="Statistics">Statistikk</message>
+    <message id="About">Om</message>
     <message id="PreviousPrefix">&laquo;&nbsp;</message>
     <message id="NextPostfix">&nbsp;&raquo;</message>
 
-    <!--
-    <message id="AppAbout">Om søk, innhold og prosjekt</message>
-    <message id="AppAboutUrl">http://www.helsebiblioteket.no/om-oss/artikkelarkiv/mesh-medical-subject-headings-pa-norsk-og-engelsk</message>
-    <message id="AppSendQuestion">Spørsmål om MeSH?</message>
-    <message id="AppSendQuestionUrl">mailto:SigrunEspelien.Aasen@fhi.no?subject=Spørsmål om MeSH</message>
-    <message id="AppStatistics">Statistikk</message>
-    -->
     <message id="NorwegianDescription">Definisjon:</message>
     <message id="EnglishDescription">Scope-Note:</message>
     <message id="IndirectHit">{1} ({2})</message>
     <message id="NotTranslated">(Ikke oversatt)</message>
 
-    <message id="LinkLabel">Søk på {1} i databasene under:</message>
+    <message id="LinkLabel">Søk etter {1} i andre databaser:</message>
 
     <message id="LinkCategoryFormat">LinkCategory{1}</message>
     <message id="LinkTextFormat">LinkText{1}.{2}</message>
@@ -58,7 +51,6 @@
 <!--
     <message id="Links">Lenker:</message>
 -->
-    <message id="SeeRelated">Se også:</message>
     <message id="MoreHits">(viser maksimalt {1} treff)</message>
     <message id="NoHits">(...ingen treff)</message>
     <message id="NonPreferredNorwegianTerms">Alternative termer:</message>
@@ -69,8 +61,9 @@
     <message id="SearchButton">SØK</message>
     <message id="SearchFromHierarchy">Søk etter "{1}"</message>
 
-    <message id="StatisticsPerDay">Søk pr dag:</message>
-    <message id="StatisticsPerMeSH">Søk pr MeSH:</message>
+    <message id="Statistics">Statistikk</message>
+    <message id="StatisticsPerDay"><b>Søk pr dag:</b></message>
+    <message id="StatisticsPerMeSH"><b>Søk pr MeSH:</b></message>
 
     <message id="SearchTooltip">MeSH på norsk - søk på begreper innen medisin og helsefag</message>
     <message id="SearchbuttonTooltip">Søk og vis treff i listeform</message>
@@ -81,5 +74,68 @@
     <message id="HierarchyChildrenQuery">{"from": 0, "size": 250, "sort": {"tree_numbers": {"order": "asc"}}, "query": {"bool": {"must": {"term": {"parent_tree_numbers": "{1}"} } } } }</message>
     <message id="StatisticsDay">{"from": 0, "size": 50, "sort": {"_id": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
     <message id="StatisticsText">{"from": 0, "size": 50, "sort": {"count": {"order": "desc"}}, "query": {"bool": {"must": {"match_all": {} } } } }</message>
+
+    <message id="pageTemplate">
+      <div class="mesh-page">
+       <div class="mesh-header"><div class="mesh-appname">MeSH på norsk - begreper innen medisin og helsefag</div></div>
+       <div class="mesh-content">
+         ${content}
+       </div>
+     </div>
+    </message>
+    
+    <message id="searchTabTemplate">
+      <div class="search-box"><span class="search-edit">${search_edit}</span><span class="search-button">${search_button}</span></div>
+      <div class="mesh-results">
+        ${<show-result>} ${result} ${</show-result>}
+        ${<show-resultlist>} ${resultlist} ${</show-resultlist>}
+      </div>
+    </message>
+    <message id="hierarchyTabTemplate">
+      <div>${hierarchy}</div>
+    </message>
+    <message id="aboutTabTemplate">
+      <div><p><a href="https://app.cristin.no/projects/show.jsf?id=273760" target="_blank">MeSH på Norsk</a>, i samarbeid med <a href="https://www.uia.no" target="_blank">Universitetet i Agder</a> og <a href="http://optikerforbundet.no" target="_blank">Norges Optikerforbund</a></p>
+        <p>Kontaktperson: <a href="mailto:sigrunespelien@gmail.com?subject=Spørsmål om MeSH">Sigrun Espelien</a></p></div>
+      <div>${statistics}</div>
+    </message>
+
+    <message id="resultTemplate">
+      <div class="search-result">
+        <div>${nor_panel}</div>
+        <div>
+          <div class="scope scope-class bold">Definisjon:</div>
+          <div class="scope-note scope-class">${nor_description}</div>
+        </div>
+        <div class="top-margin">${eng_panel}</div>
+        <div>
+          <div class="scope scope-class bold">Scope-Note:</div>
+          <div class="scope-note scope-class">${eng_description}</div>
+        </div>
+        <div>
+          <div class="top-margin bold">Ekstern lenke:</div>
+          <div>${external_link}</div>
+        </div>
+        <div>
+          ${<show-related>}
+            <div class="top-margin bold">Se også:</div>
+            <div>${see_related}</div>
+          ${</show-related>}
+        </div>
+        <div>${links}</div>
+        <div>${hierarchy}</div>
+      </div>
+    </message>
+
+    <message id="resultlistTemplate">
+      <div class="listitem">
+        <div class="listitem-link">${link}</div>
+        <div class="listitem-description">${description}</div>
+      </div>
+    </message>
+
+    <message id="statisticsTemplate">
+      <div>${statistics}</div>
+    </message>
 
 </messages>

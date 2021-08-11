@@ -5,10 +5,10 @@
 
 #include <Wt/WApplication.h>
 #include <Wt/WEnvironment.h>
-#include <Wt/WMessageBox.h>
-#include <Wt/WText.h>
+#include <Wt/WTabWidget.h>
 
-#include "content.h"
+#include "hierarchy_tab.h"
+#include "search_tab.h"
 #include "elasticsearchutil.h"
 
 #define SUGGESTION_COUNT    (20)
@@ -24,29 +24,43 @@
 class MeSHApplication : public Wt::WApplication
 {
 public:
+enum TabId {
+  TAB_INDEX_SEARCH=0,
+  TAB_INDEX_HIERARCHY=1,
+  TAB_INDEX_ABOUT=2
+};
+static const int TAB_PAGE_COUNT = 3;
+
+public:
   MeSHApplication(const Wt::WEnvironment& environment);
 
 protected: //From Wt::WApplication
 	virtual void handleJavaScriptError(const std::string& errorText);
-  void OnSearch(const Wt::WString& mesh_id) {GetContent()->GetSearch()->OnSearch(mesh_id);}
+
+  void OnSearch(const Wt::WString& mesh_id) {GetSearch()->OnSearch(mesh_id);}
 
 protected:
   void OnInternalPathChange(const std::string& url);
+  void OnTabChanged(int index);
  
 private:
   void ParseIdFromUrl(const std::string& url, std::string& id);
  
 public:
   void ClearLayout();
+  void SetActiveTab(const TabId& index);
 
 public:
   std::shared_ptr<ElasticSearchUtil> GetElasticSearchUtil() const {return m_es_util;}
-  Content* GetContent() const {return m_content;}
+  HierarchyTab* GetHierarchy() const {return m_hierarchy_tab;}
+  SearchTab* GetSearch() const {return m_search_tab;}
 
 private:
   bool m_layout_is_cleared;
 
-  Content* m_content;
+  Wt::WTabWidget* m_tab_widget;
+  HierarchyTab* m_hierarchy_tab;
+  SearchTab* m_search_tab;
 
   Wt::JSignal<Wt::WString> m_search_signal;
 

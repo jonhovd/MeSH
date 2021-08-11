@@ -22,6 +22,7 @@ void Log(const std::string& UNUSED(type), const std::string& UNUSED(msg))
 int main(int argc, char** argv)
 {
   g_logger.addField("message", true);
+  g_logger.setFile("/tmp/MeSH.log");
   Wt::WString::setDefaultEncoding(Wt::CharEncoding::UTF8);
 
   // Create system default locale

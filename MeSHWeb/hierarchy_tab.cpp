@@ -1,34 +1,33 @@
-#include "hierarchy.h"
+#include "hierarchy_tab.h"
 
-#include <Wt/WVBoxLayout.h>
+#include <Wt/WStandardItem.h>
 
 #include "application.h"
-#include "search.h"
 
 
-Hierarchy::Hierarchy(MeSHApplication* mesh_application)
-: Wt::WContainerWidget(),
+HierarchyTab::HierarchyTab(const Wt::WString& text, MeSHApplication* mesh_application)
+: Wt::WTemplate(text),
   m_mesh_application(mesh_application),
-  m_hierarchy_tree_view(nullptr),
   m_has_populated_hierarchy_model(false)
 {
-  auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-  layout->setContentsMargins(0, 9, 0, 0);
-
   m_hierarchy_model = std::make_shared<Wt::WStandardItemModel>();
   m_hierarchy_model->setSortRole(HIERARCHY_ITEM_TREE_NUMBER_ROLE);
-  auto hierarchy_tree_view = Wt::cpp14::make_unique<Wt::WTreeView>();
+  auto hierarchy_tree_view = std::make_unique<Wt::WTreeView>();
   hierarchy_tree_view->setModel(m_hierarchy_model);
   hierarchy_tree_view->setSelectionMode(Wt::SelectionMode::Single);
   hierarchy_tree_view->setColumnWidth(0, Wt::WLength::Auto);
-  hierarchy_tree_view->expanded().connect(this, &Hierarchy::TreeItemExpanded);
-  hierarchy_tree_view->clicked().connect(this, &Hierarchy::TreeItemClicked);
-  m_hierarchy_tree_view = layout->addWidget(std::move(hierarchy_tree_view));
+  hierarchy_tree_view->setColumnResizeEnabled(false);
+  hierarchy_tree_view->setDragEnabled(false);
+  hierarchy_tree_view->setDropsEnabled(false);
+  hierarchy_tree_view->setSortingEnabled(false);
 
-  setLayout(std::move(layout));
+  hierarchy_tree_view->expanded().connect(this, &HierarchyTab::TreeItemExpanded);
+  hierarchy_tree_view->clicked().connect(this, &HierarchyTab::TreeItemClicked);
+
+  m_hierarchy_tree_view = bindWidget("hierarchy", std::move(hierarchy_tree_view));
 }
 
-void Hierarchy::PopulateHierarchy()
+void HierarchyTab::PopulateHierarchy()
 {
   if (m_has_populated_hierarchy_model)
   {
@@ -79,7 +78,7 @@ void Hierarchy::PopulateHierarchy()
             
         //We have a top-level tree_number!
         std::string name_str;
-        Search::InfoFromSourceObject(source_object, name_str);
+        SearchTab::InfoFromSourceObject(source_object, name_str);
         if (name_str.empty())
         {
           continue;
@@ -92,7 +91,7 @@ void Hierarchy::PopulateHierarchy()
           node_text << " [" << tree_number_value_string << "]";
         }
 
-        auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
+        auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
         AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
         item->setData(Wt::cpp17::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
         item->setData(Wt::cpp17::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
@@ -104,7 +103,7 @@ void Hierarchy::PopulateHierarchy()
   m_has_populated_hierarchy_model = true;
 }
 
-void Hierarchy::ClearMarkedItems()
+void HierarchyTab::ClearMarkedItems()
 {
   std::vector<Wt::WStandardItem*>::iterator it = m_marked_hierarchy_items.begin();
   for (; it!=m_marked_hierarchy_items.end(); ++it)
@@ -114,7 +113,7 @@ void Hierarchy::ClearMarkedItems()
   m_marked_hierarchy_items.clear();
 }
 
-void Hierarchy::Collapse()
+void HierarchyTab::Collapse()
 {
   PopulateHierarchy(); //Just in case it isn't populated yet
 
@@ -131,7 +130,7 @@ void Hierarchy::Collapse()
   }
 }
 
-void Hierarchy::ExpandToTreeNumber(const std::string& tree_number_string)
+void HierarchyTab::ExpandToTreeNumber(const std::string& tree_number_string)
 {
   Wt::WModelIndex model_index;
   ExpandTreeNumberRecursive(tree_number_string, model_index);
@@ -144,7 +143,7 @@ void Hierarchy::ExpandToTreeNumber(const std::string& tree_number_string)
   }
 }
 
-void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
+void HierarchyTab::TreeItemExpanded(const Wt::WModelIndex& index)
 {
   if (!index.isValid())
   {
@@ -212,7 +211,7 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
       if (EQUAL == parent_tree_number_string.compare(possible_parent_tree_number_string)) //This three_number matches the parent, add it as a child
       {
         std::string name_str;
-        Search::InfoFromSourceObject(source_object, name_str);
+        SearchTab::InfoFromSourceObject(source_object, name_str);
         
         std::stringstream node_text;
         node_text << name_str;
@@ -221,7 +220,7 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
           node_text << " [" << tree_number_value_string << "]";
         }
 
-        auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
+        auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(node_text.str()));
         AddChildPlaceholderIfNeeded(source_object, tree_number_value_string, item);
         item->setData(Wt::cpp17::any(tree_number_value_string), HIERARCHY_ITEM_TREE_NUMBER_ROLE);
         item->setData(Wt::cpp17::any(id_value_string), HIERARCHY_ITEM_ID_ROLE);
@@ -237,7 +236,7 @@ void Hierarchy::TreeItemExpanded(const Wt::WModelIndex& index)
   }
 }
 
-void Hierarchy::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse)
+void HierarchyTab::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEvent& mouse)
 {
   if (!index.isValid())
   {
@@ -250,28 +249,28 @@ void Hierarchy::TreeItemClicked(const Wt::WModelIndex& index, const Wt::WMouseEv
     return;
   }
 
-  m_hierarchy_popup_menu = Wt::cpp14::make_unique<Wt::WPopupMenu>();
+  m_hierarchy_popup_menu = std::make_unique<Wt::WPopupMenu>();
   m_hierarchy_popup_menu->setAutoHide(true, 1000);
 
   m_popup_menu_id_string = Wt::cpp17::any_cast<std::string>(standard_item->data(HIERARCHY_ITEM_ID_ROLE));
 
   Wt::WString soek = Wt::WString::tr("SearchFromHierarchy").arg(standard_item->text().toUTF8());
-  m_hierarchy_popup_menu->addItem(soek)->triggered().connect(this, &Hierarchy::PopupMenuTriggered);
+  m_hierarchy_popup_menu->addItem(soek)->triggered().connect(this, &HierarchyTab::PopupMenuTriggered);
 
   m_hierarchy_popup_menu->popup(mouse);
 }
 
-void Hierarchy::PopupMenuTriggered(Wt::WMenuItem* item)
+void HierarchyTab::PopupMenuTriggered(Wt::WMenuItem* item)
 {
   if (item && !m_popup_menu_id_string.empty())
   {
     m_mesh_application->ClearLayout();
-    m_mesh_application->GetContent()->SetActiveStackedWidget(Content::TAB_INDEX_SEARCH);
-    m_mesh_application->GetContent()->GetSearch()->OnSearch(m_popup_menu_id_string);
+    m_mesh_application->SetActiveTab(MeSHApplication::TAB_INDEX_SEARCH);
+    m_mesh_application->GetSearch()->OnSearch(m_popup_menu_id_string);
   }
 }
 
-void Hierarchy::ExpandTreeNumberRecursive(const std::string& current_tree_number_string, Wt::WModelIndex& model_index)
+void HierarchyTab::ExpandTreeNumberRecursive(const std::string& current_tree_number_string, Wt::WModelIndex& model_index)
 {
   std::string parent_tree_number_string;
   GetParentTreeNumber(current_tree_number_string, parent_tree_number_string);
@@ -288,7 +287,7 @@ void Hierarchy::ExpandTreeNumberRecursive(const std::string& current_tree_number
   }
 }
 
-bool Hierarchy::FindChildModelIndex(const std::string& tree_number_string, bool top_level, Wt::WModelIndex& index)
+bool HierarchyTab::FindChildModelIndex(const std::string& tree_number_string, bool top_level, Wt::WModelIndex& index)
 {
   int row = 0;
   Wt::WModelIndex child_index;
@@ -319,7 +318,7 @@ bool Hierarchy::FindChildModelIndex(const std::string& tree_number_string, bool 
   }
 }
 
-bool Hierarchy::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, std::unique_ptr<Wt::WStandardItem>& current_item)
+bool HierarchyTab::AddChildPlaceholderIfNeeded(const Json::Object& source_object, const std::string& current_tree_number_string, std::unique_ptr<Wt::WStandardItem>& current_item)
 {
   bool added_placeholder = false;
   //Check if we have a matching child in the child_tree_numbers array
@@ -336,7 +335,7 @@ bool Hierarchy::AddChildPlaceholderIfNeeded(const Json::Object& source_object, c
       GetParentTreeNumber(child_tree_number_value.getString(), possible_parent_tree_number_string);
       if (EQUAL == current_tree_number_string.compare(possible_parent_tree_number_string))
       {
-        current_item->setChild(0, 0, Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString(""))); //Placeholder, adds the [+]-icon
+        current_item->setChild(0, 0, std::make_unique<Wt::WStandardItem>(Wt::WString(""))); //Placeholder, adds the [+]-icon
         added_placeholder = true;
       }
     }
@@ -344,7 +343,7 @@ bool Hierarchy::AddChildPlaceholderIfNeeded(const Json::Object& source_object, c
   return added_placeholder;
 }
 
-void Hierarchy::GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number)
+void HierarchyTab::GetParentTreeNumber(const std::string& child_tree_number, std::string& parent_tree_number)
 {
   size_t substring_length = child_tree_number.find_last_of('.');
   if (std::string::npos==substring_length && 1<child_tree_number.length()) //If length==1, we have a forced topnode. We know they do not have a parent

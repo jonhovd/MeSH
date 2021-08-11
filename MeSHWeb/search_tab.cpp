@@ -1,30 +1,24 @@
-#include "search.h"
+#include "search_tab.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/locale/conversion.hpp>
-#include <Wt/WHBoxLayout.h>
 #include <Wt/WPushButton.h>
-#include <Wt/WVBoxLayout.h>
+#include <Wt/WStandardItem.h>
 
 #include "application.h"
 
+#include "about_tab.h"
 
-Search::Search(MeSHApplication* mesh_application)
-: Wt::WContainerWidget(),
+
+SearchTab::SearchTab(const Wt::WString& text, MeSHApplication* mesh_application)
+: Wt::WTemplate(text),
   m_mesh_application(mesh_application)
 {
-  auto layout = Wt::cpp14::make_unique<Wt::WVBoxLayout>();
-  layout->setContentsMargins(0, 0, 0, 0);
-
-  auto searchform_container = Wt::cpp14::make_unique<Wt::WContainerWidget>();
-  searchform_container->setStyleClass("search-box");
-  auto searchform_hbox = Wt::cpp14::make_unique<Wt::WHBoxLayout>();
-
-  auto search_edit = Wt::cpp14::make_unique<Wt::WLineEdit>();
+  auto search_edit = std::make_unique<Wt::WLineEdit>();
   search_edit->setTextSize(20); //HTML default value
   search_edit->setToolTip(Wt::WString::tr("SearchTooltip"));
-  search_edit->focussed().connect(this, &Search::OnSearchEditFocussed);
+  search_edit->focussed().connect(this, &SearchTab::OnSearchEditFocussed);
 
   m_search_suggestion = CreateSuggestionPopup();
   m_search_suggestion->forEdit(search_edit.get());
@@ -32,69 +26,55 @@ Search::Search(MeSHApplication* mesh_application)
   m_search_suggestion->setModel(m_search_suggestion_model);
   m_search_suggestion->setFilterLength(2);
 
-  m_search_suggestion->filterModel().connect(this, &Search::FilterSuggestion);
-  m_search_suggestion_model->itemChanged().connect(this, &Search::SuggestionChanged);
+  m_search_suggestion->filterModel().connect(this, &SearchTab::FilterSuggestion);
 
-  m_search_edit = searchform_hbox->addWidget(std::move(search_edit), 0, Wt::AlignmentFlag::Left);
+  m_search_edit = bindWidget("search_edit", std::move(search_edit));
 
-  auto search_button = Wt::cpp14::make_unique<Wt::WPushButton>(Wt::WString::tr("SearchButton"));
+  auto search_button = std::make_unique<Wt::WPushButton>(Wt::WString::tr("SearchButton"));
   search_button->setToolTip(Wt::WString::tr("SearchbuttonTooltip"));
-  search_button->clicked().connect(this, &Search::SearchButtonClicked);
-  searchform_hbox->addWidget(std::move(search_button), 0, Wt::AlignmentFlag::Left);
-  searchform_hbox->addStretch(1);
+  search_button->clicked().connect(this, &SearchTab::SearchButtonClicked);
 
-  searchform_container->setLayout(std::move(searchform_hbox));
-  layout->addWidget(std::move(searchform_container));
+  bindWidget("search_button", std::move(search_button));
 
-  auto stack_widget = Wt::cpp14::make_unique<Wt::WStackedWidget>();
-  m_stacked_widget = stack_widget.get();
-  m_mesh_result = m_stacked_widget->addWidget(Wt::cpp14::make_unique<MeshResult>(mesh_application)); //TAB_INDEX_RESULT
-  m_mesh_resultlist = m_stacked_widget->addWidget(Wt::cpp14::make_unique<MeshResultList>(mesh_application)); //TAB_INDEX_RESULTLIST
-  layout->addWidget(std::move(stack_widget), 1);
-
-  layout->addStretch(1);
-
-  setLayout(std::move(layout));
+  setCondition("show-result", false);
+  setCondition("show-resultlist", false);
+  m_mesh_result = bindWidget("result", std::make_unique<MeshResult>(Wt::WString::tr("resultTemplate"), mesh_application));
+  m_mesh_resultlist = bindWidget("resultlist", std::make_unique<MeshResultList>(/*"resultlistTemplate",*/ mesh_application));
 }
 
-void Search::FocusSearchEdit()
+void SearchTab::FocusSearchEdit()
 {
   m_search_edit->setFocus(true);
 }
 
-void Search::ClearLayout()
+void SearchTab::ClearLayout()
 {
-	m_mesh_result->ClearLayout();
+  m_mesh_result->ClearLayout();
+  m_mesh_resultlist->ClearLayout();
 }
 
-void Search::OnSearch(const Wt::WString& mesh_id)
+void SearchTab::OnSearch(const Wt::WString& mesh_id)
 {
-	m_mesh_result->OnSearch(mesh_id, m_search_edit->text().toUTF8());
+  m_mesh_result->OnSearch(mesh_id, m_search_edit->text().toUTF8());
 
-  m_stacked_widget->setCurrentIndex(TAB_INDEX_RESULT);
+  setCondition("show-result", true);
+  setCondition("show-resultlist", false);
 }
 
-void Search::SearchButtonClicked()
+void SearchTab::SearchButtonClicked()
 {
 	m_mesh_resultlist->OnSearch(m_search_edit->text().toUTF8());
 
-  m_stacked_widget->setCurrentIndex(TAB_INDEX_RESULTLIST);
+  setCondition("show-result", false);
+  setCondition("show-resultlist", true);
 }
 
-void Search::OnSearchEditFocussed()
+void SearchTab::OnSearchEditFocussed()
 {
     m_search_edit->setText("");
 }
 
-void Search::SuggestionChanged(Wt::WStandardItem* item)
-{
-  if (item)
-  {
-    item = NULL;
-  }
-}
-
-void Search::FilterSuggestion(const Wt::WString& filter)
+void SearchTab::FilterSuggestion(const Wt::WString& filter)
 {
   m_mesh_application->ClearLayout();
 
@@ -119,7 +99,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
   int row = 0;
   if (0 == result_size)
   {
-    auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("NoHits"));
+    auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::tr("NoHits"));
     item->setData(Wt::cpp17::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
     m_search_suggestion_model->setItem(row++, 0, std::move(item));
   }
@@ -153,11 +133,11 @@ void Search::FilterSuggestion(const Wt::WString& filter)
       if (!indirect_hit_str.empty())
       {
         boost::algorithm::replace_all(indirect_hit_str, "\\n", "");
-        item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("IndirectHit").arg(name_str).arg(indirect_hit_str.substr(0, 100))); //Trim at 100 characters
+        item = std::make_unique<Wt::WStandardItem>(Wt::WString::tr("IndirectHit").arg(name_str).arg(indirect_hit_str.substr(0, 100))); //Trim at 100 characters
       }
       else
       {
-        item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(name_str));
+        item = std::make_unique<Wt::WStandardItem>(Wt::WString::fromUTF8(name_str));
       }
       item->setData(Wt::cpp17::any(id_value.getString()), SUGGESTIONLIST_ITEM_ID_ROLE);
       m_search_suggestion_model->setItem(row, 0, std::move(item));
@@ -169,7 +149,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
 
     if (hits_array.size() > SUGGESTION_COUNT)
     {
-      auto item = Wt::cpp14::make_unique<Wt::WStandardItem>(Wt::WString::tr("MoreHits").arg(SUGGESTION_COUNT));
+      auto item = std::make_unique<Wt::WStandardItem>(Wt::WString::tr("MoreHits").arg(SUGGESTION_COUNT));
       item->setData(Wt::cpp17::any(), SUGGESTIONLIST_ITEM_ID_ROLE);
       m_search_suggestion_model->setItem(row++, 0, std::move(item));
     }
@@ -178,7 +158,7 @@ void Search::FilterSuggestion(const Wt::WString& filter)
   m_search_suggestion_model->setData(--row, 0, std::string("Wt-more-data"), Wt::ItemDataRole::StyleClass);
 }
 
-Wt::WSuggestionPopup* Search::CreateSuggestionPopup()
+Wt::WSuggestionPopup* SearchTab::CreateSuggestionPopup()
 {
   std::string matcherJS = INLINE_JAVASCRIPT(
       function (edit) {
@@ -220,7 +200,7 @@ Wt::WSuggestionPopup* Search::CreateSuggestionPopup()
   return popup;
 }
 
-void Search::CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str)
+void SearchTab::CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str)
 {
   cleaned_filter_str = filter_str;
   size_t filter_length = cleaned_filter_str.length();
@@ -234,7 +214,7 @@ void Search::CleanFilterString(const std::string filter_str, std::string& cleane
   }
 }
 
-void Search::FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str)
+void SearchTab::FindIndirectHit(const Json::Object& source_object, const std::string& cleaned_filter_str, std::string& indirect_hit_str)
 {
   indirect_hit_str.clear();
   double best_hit_factor = 0.0;
@@ -264,7 +244,7 @@ void Search::FindIndirectHit(const Json::Object& source_object, const std::strin
   }
 }
 
-void Search::FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str)
+void SearchTab::FindIndirectHit(const std::string& haystack, const std::string& needles, double& best_hit_factor, std::string& indirect_hit_str)
 {
   const std::string lowercase_haystack = boost::locale::to_lower(haystack);
   size_t haystack_length = haystack.length();
@@ -324,7 +304,7 @@ void Search::FindIndirectHit(const std::string& haystack, const std::string& nee
   }
 }
 
-void Search::MeSHToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& mesh_id, std::string& name)
+void SearchTab::MeSHToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& mesh_id, std::string& name)
 {
   name = mesh_id;
 
@@ -339,7 +319,7 @@ void Search::MeSHToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::s
   InfoFromSearchResult(search_result, name);
 }
 
-void Search::TreeNumberToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& tree_number, std::string& name, std::string* mesh_id)
+void SearchTab::TreeNumberToName(std::shared_ptr<ElasticSearchUtil> es_util, const std::string& tree_number, std::string& name, std::string* mesh_id)
 {
 	name = tree_number;
 
@@ -354,7 +334,7 @@ void Search::TreeNumberToName(std::shared_ptr<ElasticSearchUtil> es_util, const 
 	InfoFromSearchResult(search_result, name, mesh_id);
 }
 
-void Search::InfoFromSourceObject(const Json::Object& source_object, std::string& name, std::string* mesh_id)
+void SearchTab::InfoFromSourceObject(const Json::Object& source_object, std::string& name, std::string* mesh_id)
 {
   if (nullptr != mesh_id)
   {
@@ -377,7 +357,7 @@ void Search::InfoFromSourceObject(const Json::Object& source_object, std::string
   boost::algorithm::replace_all(name, "\\n", "");
 }
 
-void Search::InfoFromSearchResult(const Json::Object& search_result, std::string& name, std::string* mesh_id)
+void SearchTab::InfoFromSearchResult(const Json::Object& search_result, std::string& name, std::string* mesh_id)
 {
   const Json::Value value = search_result.getValue("hits");
   const Json::Object value_object = value.getObject();
