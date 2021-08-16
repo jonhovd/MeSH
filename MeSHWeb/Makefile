@@ -22,7 +22,7 @@ else
  CXXFLAGS += -O3
  LIBSFLAGS = -L/usr/lib
 endif
-LIBSFLAGS += -lwt -lwthttp -lboost_system -lboost_signals -lboost_locale -lpthread
+LIBSFLAGS += -lwt -lwthttp -lboost_system -lboost_locale -lpthread
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
