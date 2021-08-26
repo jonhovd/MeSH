@@ -11,7 +11,6 @@ ln -s wt-4.5.0 wt &&
 cd wt &&
 mkdir build &&
 cd build &&
-#cmake ../ -DENABLE_MSSQLSERVER:BOOL=OFF -DENABLE_MYSQL:BOOL=OFF -DENABLE_FIREBIRD:BOOL=OFF -DENABLE_POSTGRES:BOOL=OFF -DENABLE_SQLITE:BOOL=OFF -DENABLE_LIBWTDBO:BOOL=OFF &&
 cmake ../ -DENABLE_LIBWTDBO:BOOL=OFF &&
 make -j2 &&
 sudo make install &&
