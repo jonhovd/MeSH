@@ -27,7 +27,7 @@
     <message id="LinkText1.1">Virtual Health Library</message>
     <message id="LinkUrl1.1">http://pesquisa.bvsalud.org/portal/?output=site&amp;lang=en&amp;from=0&amp;format=summary&amp;count=20&amp;page=1&amp;q=%22{2}%22&amp;index=mh</message>
     <message id="LinkText1.2">Cochrane&nbsp;library</message>
-    <message id="LinkUrl1.2">http://onlinelibrary.wiley.com/cochranelibrary/search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
+    <message id="LinkUrl1.2">https://www.cochranelibrary.com/advanced-search/mesh?searchRow.searchCriteria.meshTerm=%22{2}%22&amp;searchMesh=Lookup&amp;hiddenFields.strategySortBy=last-modified-date%3Bdesc</message>
     <message id="LinkText1.3">PubMed</message>
     <message id="LinkUrl1.3">http://www.ncbi.nlm.nih.gov/pubmed/?otool=bibsys&amp;holding=inohelslib_fft_ndi&amp;myncbishare=inohelslib&amp;term=%22{2}%22[MeSH%20Terms]&amp;cmd=DetailsSearch</message>
     <message id="LinkText1.4">SveMed+</message>
