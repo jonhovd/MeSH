@@ -95,8 +95,19 @@
       <div>${hierarchy}</div>
     </message>
     <message id="aboutTabTemplate">
-      <div><p><a href="https://app.cristin.no/projects/show.jsf?id=273760" target="_blank">MeSH på Norsk</a>, i samarbeid med <a href="https://www.uia.no" target="_blank">Universitetet i Agder</a> og <a href="http://optikerforbundet.no" target="_blank">Norges Optikerforbund</a></p>
-        <p>Kontaktperson: <a href="mailto:sigrunespelien@gmail.com?subject=Spørsmål om MeSH">Sigrun Espelien</a></p></div>
+        <div><p><b>Om Norske MeSH</b> <a href="https://app.cristin.no/projects/show.jsf?id=273760" target="_blank">Prosjekt #273760 - MeSH (Medical Subject Headings) oversatt til norsk - Cristin</a> og MSHNOR <a href="https://www.nlm.nih.gov/research/umls/sourcereleasedocs/current/MSHNOR/index.html" target="_blank">UMLS Metathesaurus - MSHNOR (MeSH Norwegian) - Synopsis (nih.gov)</a></p>
+        <p><b>Ny versjon publisert januar 2022:</b><br/>
+        <ul><li>Forbedringer i Tekst- og Hierarki-søk.</li>
+            <li>MeSH Id-nummer er nå søkbart og angitt med adressefelt.</li>
+            <li>Oppdatert til ElasticSearch 7 og libWT 4</li></ul>
+
+            Innhold som før; 62.205 norske termer, 21.675 norske MeSH, 7.460 norske begrepsforklaringer, 29.400 engelske MeSH. Nye MeSH etter 2018 er ikke inkludert. Kan bli det.</p>
+        <p><b>Kontaktperson:</b> Sigrun Espelien Aasen: <a href="mailto:sigrunespelien@gmail.com">sigrunespelien@gmail.com</a></p>
+        <p><b>Takk til:</b><br/>
+        <ul><li>Optikerutdanningen i Kongsberg. <a href="https://www.usn.no/studier/bachelor-i-optometri/" target="_blank">Bli optiker – Ta bachelor i optometri (usn.no)</a></li>
+            <li><a href="http://optikerforbundet.no/" target="_blank">Norges optikerforbund</a></li>
+            <li><a href="https://www.uia.no/om-uia/fakultet/fakultet-for-samfunnsvitenskap/institutter/institutt-for-informasjonssystemer" target="_blank">Universitetet i Agder, Institutt for informasjonssystemer</a></li>
+            <li><a href="https://computas.com/om/" target="_blank">Computas</a></li></ul></p></div>
       <div>${statistics}</div>
     </message>
 
