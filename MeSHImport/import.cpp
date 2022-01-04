@@ -457,6 +457,12 @@ bool AddOtherIds(Json::Object& json, const xmlChar* id_text)
 void ReadTermList(Json::Object& concept_json, bool preferred_concept, xmlNodePtr term_list_ptr)
 //<!ELEMENT TermList (Term+)>
 {
+    std::string nor_name = "";
+    if (concept_json.member("nor_name"))
+    {
+        nor_name = concept_json["nor_name"].getString();
+    }
+
     xmlNodePtr term_ptr = term_list_ptr->children;
     while (NULL!=term_ptr)
     {
@@ -489,6 +495,10 @@ void ReadTermList(Json::Object& concept_json, bool preferred_concept, xmlNodePtr
 
             if (term_text)
             {
+                if (nor_name == CONST_CHAR(term_text))
+                {
+                    language = "nor";
+                }
                 AddTermText(concept_json, language, preferred_concept && preferred_term, term_text);
             }
         }
