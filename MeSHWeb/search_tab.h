@@ -31,7 +31,7 @@ protected:
   void FilterSuggestion(const Wt::WString& filter);
 
 private:
-  Wt::WSuggestionPopup* CreateSuggestionPopup();
+  std::unique_ptr<Wt::WSuggestionPopup> CreateSuggestionPopup();
 
 public:
   static void CleanFilterString(const std::string filter_str, std::string& cleaned_filter_str);
@@ -48,7 +48,7 @@ private:
   MeSHApplication* m_mesh_application;
 
   Wt::WLineEdit* m_search_edit;
-  Wt::WSuggestionPopup* m_search_suggestion;
+  std::unique_ptr<Wt::WSuggestionPopup> m_search_suggestion;
   std::shared_ptr<Wt::WStandardItemModel> m_search_suggestion_model;
 
   MeshResultList* m_mesh_resultlist;

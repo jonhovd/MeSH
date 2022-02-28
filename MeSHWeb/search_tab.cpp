@@ -158,7 +158,7 @@ void SearchTab::FilterSuggestion(const Wt::WString& filter)
   m_search_suggestion_model->setData(--row, 0, std::string("Wt-more-data"), Wt::ItemDataRole::StyleClass);
 }
 
-Wt::WSuggestionPopup* SearchTab::CreateSuggestionPopup()
+std::unique_ptr<Wt::WSuggestionPopup> SearchTab::CreateSuggestionPopup()
 {
   std::string matcherJS = INLINE_JAVASCRIPT(
       function (edit) {
@@ -195,7 +195,7 @@ Wt::WSuggestionPopup* SearchTab::CreateSuggestionPopup()
       }
     );
 
-  Wt::WSuggestionPopup* popup = new Wt::WSuggestionPopup(matcherJS, replacerJS);
+  std::unique_ptr<Wt::WSuggestionPopup> popup = std::make_unique<Wt::WSuggestionPopup>(matcherJS, replacerJS);
   popup->setJavaScriptMember("wtNoReparent", "true");
   return popup;
 }
