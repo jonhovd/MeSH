@@ -288,23 +288,21 @@ bool AddName(Json::Object& json, xmlNodePtr descriptor_name_ptr)
 				xmlChar* eng_value = xmlStrndup(left_bracket+1, right_bracket-(left_bracket+1));
 				if (0==xmlStrcasecmp(BAD_CAST("Not Translated"), nor_value))
 				{
-                    xmlFree(nor_value);
-                    nor_value = eng_value;
-                    eng_value = NULL;
+                    json.addMemberByKey("nor_name", CONST_CHAR(eng_value));
 				}
-
-                json.addMemberByKey("nor_name", CONST_CHAR(nor_value));
-                xmlFree(nor_value);
-
-                if (eng_value)
+				else
                 {
-                    json.addMemberByKey("eng_name", CONST_CHAR(eng_value));
-                    xmlFree(eng_value);
+                    json.addMemberByKey("nor_name", CONST_CHAR(nor_value));
                 }
+
+                json.addMemberByKey("eng_name", CONST_CHAR(eng_value));
+                xmlFree(nor_value);
+                xmlFree(eng_value);
 			}
 			else
 			{
 				json.addMemberByKey("nor_name", CONST_CHAR(text_ptr->content));
+				json.addMemberByKey("eng_name", CONST_CHAR(text_ptr->content));
 			}
 			return true;
 		}
@@ -458,9 +456,14 @@ void ReadTermList(Json::Object& concept_json, bool preferred_concept, xmlNodePtr
 //<!ELEMENT TermList (Term+)>
 {
     std::string nor_name = "";
+    std::string eng_name = "";
     if (concept_json.member("nor_name"))
     {
         nor_name = concept_json["nor_name"].getString();
+    }
+    if (concept_json.member("eng_name"))
+    {
+        eng_name = concept_json["eng_name"].getString();
     }
 
     xmlNodePtr term_ptr = term_list_ptr->children;
@@ -500,6 +503,12 @@ void ReadTermList(Json::Object& concept_json, bool preferred_concept, xmlNodePtr
                     language = "nor";
                 }
                 AddTermText(concept_json, language, preferred_concept && preferred_term, term_text);
+
+                if (language=="nor" && eng_name==CONST_CHAR(term_text))
+                {
+                    AddTermText(concept_json, "eng", preferred_concept && preferred_term, term_text);
+                }
+
             }
         }
         term_ptr=term_ptr->next;
