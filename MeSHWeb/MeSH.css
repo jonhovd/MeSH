@@ -1,128 +1,77 @@
-@media print {
-  * {
-    font-size: 14pt !important;  
-  }
-}
-
-.marked_item {
-  color: white !important;
-  background-color: black !important;
-}
-
 body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
   width: 100%;
-  font-family: 'Lato', sans-serif !important;
-  background-color: #eeeeee;
-  overflow: auto !important;
+  margin: auto !important; // Center page on wide screens
+  color: Black;
+  background-color: WhiteSmoke;
 }
 
-#page {
-  min-height: 100%;
-  position:relative;
+.mesh-page {
+  padding: 0 0.2em;
+  background-color: White;
 }
 
-.info-box a, .mesh-link {
-  color: black;
-  background-color: #eeeeee;
-  text-align: center;
-  text-decoration: underline;
-  padding: 5px;
-}
-
-#mesh-header {
-  width: 100%;
-  padding: 8px 0;
-  color: #ffffff;
-  background-color: #535353;
-  border-bottom: 2px solid #ffffff;
-}
-
-#mesh-content {
-  padding-top: 8px;
-  padding-bottom: 142px; /* Height of mesh-footer plus padding and whitespace */
-}
-
-#mesh-footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding-top: 8px;
-  height: 122px; /* Height of the footer image (112px) plus vertical border and padding */
-  background-color: white;
-  background-image: url("images/logo.png");
-  background-repeat: no-repeat;
-  background-position: 8px;
-  border-top: 2px solid #535353;
+.mesh-header {
+  padding: 0.5em 0;
+  color: White;
+  background-color: DimGrey;
+  border-bottom: 2px solid White;
 }
 
 .mesh-appname {
-  font-size: 20pt !important;
+  font-size: 10px;
+  text-align: center;
 }
 
-.mesh-tabs {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 800px;
-}
-
-.Wt-tabs li {
-  border-bottom: none;
-  background: inherit;
-}
-
-.Wt-tabs .itemselected {
-  background-position: 0% 0%;
-}
-
-.Wt-tabs .item {
-  background-position: 0% 0%;
-}
-
-.Wt-tabs .itemselected a {
-  background-position: 0% 0%;
-  background: #abcdef;
-}
-
-.Wt-tabs .item a {
-  background-position: 0% 0%;
-  background: #89abcd;
-  margin: 0 1px;
-}
-
-.Wt-tabs {
-  padding-top: 0;
-  background: inherit;
+.mesh-content {
+  padding-top: 0.5em;
 }
 
 .Wt-stack {
+  padding-top: 1em;
   background: white;
 }
 
 .search-box {
-  padding: 1.5em;
-  background: #abcdef;
+  text-align: center;
+  padding: 1em;
+  background-color: SkyBlue;
 }
 
-.result {
-  background: white;
-  padding: 0;
-  margin: 0 5px;
+.search-edit .form-control {
+  display: inline-block !important;
+  width: 80% !important;
 }
 
-.result-description {
-  background: white;
-  margin-bottom: 2.5em;
+.search-button {
+  padding-left: 1em !important;
 }
 
-.Wt-suggest {
-  background-color: #eeeeee;
-  color: black;
+.listitem {
+  background: AliceBlue;
+  border-right: 1px solid LightSkyBlue;
+  border-bottom: 1px solid LightSkyBlue;
+  color: MidnightBlue;
+  padding: 0.2em;
+  margin-top: 0.5em;
+  margin-bottom: 1.5em;
 }
 
-.mesh-links {
+.listitem-link a {
+  color: MidnightBlue;
+}
+
+.listitem-description {
+  background: White;
+  color: Black;
+  padding: 0.2em;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.top-margin {
+  margin-top: 1em;
 }
 
 .mesh-link {
@@ -130,49 +79,35 @@ body {
   margin: 5px 1em;
 }
 
-.Wt-panel {
-  border: none !important;
-  background-color: white !important;
+.external-link:after {
+  content: "\1F517";
 }
 
-.Wt-panel .body {
- background: white !important;
+.marked_item {
+  color: white !important;
+  background-color: black !important;
 }
 
-.Wt-panel .titlebar {
-  color: black !important;
-  background: white !important;
-  font-size: large !important;
-  font-weight: bold !important;
+@media (min-width: 320px) {
+  body {
+    width: calc(304px + 720 * (100vw - 320px) / 1046) !important; // 320px:304px, 1366px:1024px
+  }
+  .mesh-appname {
+    font-size: calc(10px + 14 * (100vw - 320px) / 1046); // 320px:10px, 1366px:24px
+  }
 }
 
-.scope {
-  font-weight: bold;
-  
+@media (min-width: 1366px) {
+  body {
+    width: 75%;
+  }
+  .mesh-appname {
+    font-size: 24px;
+  }
 }
 
-.dialog-layout {
-  background:#A8CCD8;
+@media print {
+  * {
+    font-size: 14pt !important;  
+  }
 }
-
-.Wt-dialog .titlebar {
-  background:#A8CCD8;
-  border-bottom: 1px solid grey;
-  color:black !important;
-}
-
-.Wt-tabs {
-  padding-top: 0 !important;
-}
-
-.Wt-treeview ul {
-  font-family: 'Lato', sans-serif !important;
-  font-size: 14px;
-  
-}
-
-/*
-.marked_item::after {
-  content: url('images/star.png') !important;
-}
-*/

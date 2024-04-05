@@ -1,29 +1,15 @@
 #ifndef _MESH_RESULTLIST_H_
 #define _MESH_RESULTLIST_H_
 
-#include <Wt/WContainerWidget>
-#include <Wt/WVBoxLayout>
-/*
-#include <Wt/WLineEdit>
-#include <Wt/WPanel>
-#include <Wt/WPushButton>
-#include <Wt/WStandardItem>
-#include <Wt/WStandardItemModel>
-#include <Wt/WSuggestionPopup>
-#include <Wt/WText>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WVBoxLayout.h>
 
-#define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
-#include "elasticsearchutil.h"
-#include "links.h"
-
-*/
 class MeSHApplication;
 class MeshResultList : public Wt::WContainerWidget
 {
 public:
-	MeshResultList(MeSHApplication* mesh_application, Wt::WContainerWidget* parent = 0);
-	~MeshResultList();
+	MeshResultList(MeSHApplication* mesh_application);
 
 public:
 	void ClearLayout();

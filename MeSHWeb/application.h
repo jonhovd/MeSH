@@ -1,83 +1,70 @@
 #ifndef _APPLICATION_H_
 #define _APPLICATION_H_
 
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
-#include <Wt/WMessageBox>
-#include <Wt/WTabWidget>
+#include <memory>
 
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WTabWidget.h>
+
+#include "hierarchy_tab.h"
+#include "search_tab.h"
 #include "elasticsearchutil.h"
-#include "header.h"
-#include "hierarchy.h"
-#include "search.h"
-#include "statistics.h"
-#include "footer.h"
 
 #define SUGGESTION_COUNT    (20)
 #define RESULTLIST_COUNT    (10)
-#define LANGUAGE            "nor"
 
 #define EQUAL                           (0)
 
-#define SUGGESTIONLIST_ITEM_ID_ROLE     (Wt::UserRole)
-#define HIERARCHY_ITEM_TREE_NUMBER_ROLE (Wt::UserRole+1)
-#define HIERARCHY_ITEM_ID_ROLE          (Wt::UserRole+2)
+#define SUGGESTIONLIST_ITEM_ID_ROLE     (Wt::ItemDataRole::User)
+#define HIERARCHY_ITEM_TREE_NUMBER_ROLE (Wt::ItemDataRole::User+1)
+#define HIERARCHY_ITEM_ID_ROLE          (Wt::ItemDataRole::User+2)
 
 
 class MeSHApplication : public Wt::WApplication
 {
 public:
 enum TabId {
-	TAB_INDEX_SEARCH,
-	TAB_INDEX_HIERARCHY,
-	TAB_INDEX_STATISTICS
+  TAB_INDEX_SEARCH=0,
+  TAB_INDEX_HIERARCHY=1,
+  TAB_INDEX_ABOUT=2
 };
+static const int TAB_PAGE_COUNT = 3;
 
 public:
-	MeSHApplication(const Wt::WEnvironment& environment);
-	~MeSHApplication();
+  MeSHApplication(const Wt::WEnvironment& environment);
 
 protected: //From Wt::WApplication
 	virtual void handleJavaScriptError(const std::string& errorText);
 
+  void OnSearch(const Wt::WString& mesh_id) {GetSearch()->OnSearch(mesh_id);}
+
 protected:
-	void onTabChanged(int active_tab_index);
-	void onInternalPathChange(const std::string& url);
-
+  void OnInternalPathChange(const std::string& url);
+  void OnTabChanged(int index);
+ 
 private:
-	void parseIdFromUrl(const std::string& url, std::string& id);
+  void ParseIdFromUrl(const std::string& url, std::string& id);
+ 
+public:
+  void ClearLayout();
+  void SetActiveTab(const TabId& index);
 
 public:
-	void ClearLayout();
-	void SetActiveTab(int tab_index);
-	void SearchMesh(const Wt::WString& mesh_id);
-
-public:
-	ElasticSearchUtil* GetElasticSearchUtil() const {return m_es_util;}
-	Hierarchy* GetHierarchy() const {return m_hierarchy;}
+  std::shared_ptr<ElasticSearchUtil> GetElasticSearchUtil() const {return m_es_util;}
+  HierarchyTab* GetHierarchy() const {return m_hierarchy_tab;}
+  SearchTab* GetSearch() const {return m_search_tab;}
 
 private:
-	Wt::WContainerWidget* CreateHeaderWidget();
-	Wt::WContainerWidget* CreateContentWidget();
-	Wt::WContainerWidget* CreateFooterWidget();
+  bool m_layout_is_cleared;
 
-private:
-	Wt::JSignal<Wt::WString> m_search_signal;
+  Wt::WTabWidget* m_tab_widget;
+  HierarchyTab* m_hierarchy_tab;
+  SearchTab* m_search_tab;
 
-	bool m_layout_is_cleared;
+  Wt::JSignal<Wt::WString> m_search_signal;
 
-	Wt::WContainerWidget* m_tabs_container;
-	Wt::WTabWidget* m_tab_widget;
-	Statistics* m_statistics;
-
-	Header* m_header;
-	Search* m_search;
-	Hierarchy* m_hierarchy;
-	Footer* m_footer;
-
-	Wt::WGridLayout* m_statistics_layout;
-
-	ElasticSearchUtil* m_es_util;
+  std::shared_ptr<ElasticSearchUtil> m_es_util;
 };
 
 #endif // _APPLICATION_H_

@@ -5,11 +5,10 @@
 
 
 class MeSHApplication;
-class Log
+class MeshLog
 {
 public:
-	Log(const MeSHApplication* mesh_application);
-	~Log();
+	MeshLog(const MeSHApplication* mesh_application);
 
 public:
 	void LogSearch(const std::string& search_string);
